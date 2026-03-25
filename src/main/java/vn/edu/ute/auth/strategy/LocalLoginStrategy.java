@@ -32,6 +32,10 @@ public class LocalLoginStrategy implements LoginStrategy {
 
         User user = userOpt.get();
 
+        if (user.getPasswordHash() == null) {
+            throw new RuntimeException("Tài khoản của bạn được liên kết với Google. Khoá mật khẩu nội bộ chưa được thiết lập.");
+        }
+
         // Kiểm tra mật khẩu bằng BCrypt
         if (!BCrypt.checkpw(request.getPassword(), user.getPasswordHash())) {
             throw new RuntimeException("Sai thông tin: Mật khẩu không chính xác.");

@@ -34,8 +34,7 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
     
-    @NotBlank(message = "Mật khẩu không được để trống")
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash", nullable = true)
     private String passwordHash;
     
     @Size(max = 20, message = "Số điện thoại không được quá 20 ký tự")

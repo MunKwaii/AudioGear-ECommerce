@@ -35,9 +35,8 @@ public class GoogleToUserAdapter {
         String randomSuffix = UUID.randomUUID().toString().substring(0, 5);
         user.setUsername(baseUsername + "_" + randomSuffix);
         
-        // 4. Mật khẩu không có ở Google, sinh một password rác ngẫu nhiên đã hash để bảo mật
-        String randomRawPassword = UUID.randomUUID().toString();
-        user.setPasswordHash(BCrypt.hashpw(randomRawPassword, BCrypt.gensalt()));
+        // 4. Mật khẩu để null để phân biệt với tài khoản đăng ký Local
+        user.setPasswordHash(null);
         
         // 5. Các trường mặc định cho đăng nhập qua Google
         user.setRole(UserRole.customer);
