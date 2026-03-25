@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence 
+             https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+
+    <persistence-unit name="audiogear-pu" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        
+        <!-- Entity Classes -->
+        <class>vn.edu.ute.entity.Address</class>
+        <class>vn.edu.ute.entity.Brand</class>
+        <class>vn.edu.ute.entity.Cart</class>
+        <class>vn.edu.ute.entity.CartItem</class>
+        <class>vn.edu.ute.entity.Category</class>
+        <class>vn.edu.ute.entity.Order</class>
+        <class>vn.edu.ute.entity.OrderItem</class>
+        <class>vn.edu.ute.entity.Product</class>
+        <class>vn.edu.ute.entity.ProductImage</class>
+        <class>vn.edu.ute.entity.Review</class>
+        <class>vn.edu.ute.entity.ReviewLike</class>
+        <class>vn.edu.ute.entity.User</class>
+        <class>vn.edu.ute.entity.Voucher</class>
+        
+        <!-- Database Properties -->
+        <properties>
+            <!-- Database Connection - Configured in DatabaseConfig.java -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <!-- URL, user, password set dynamically in code -->
+            
+            <!-- Hibernate Properties -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.use_sql_comments" value="true"/>
+            
+            <!-- Transaction Isolation - READ_COMMITTED -->
+            <property name="hibernate.connection.isolation" value="2"/>
+            
+            <!-- Force flush mode to always sync with DB -->
+            <property name="hibernate.flushMode" value="ALWAYS"/>
+            
+            <!-- Connection Pool - Using HikariCP as defined in pom.xml -->
+            <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider"/>
+            <property name="hibernate.hikari.minimumIdle" value="5"/>
+            <property name="hibernate.hikari.maximumPoolSize" value="20"/>
+            <property name="hibernate.hikari.idleTimeout" value="300000"/>
+            <property name="hibernate.hikari.connectionTestQuery" value="SELECT 1"/>
+            
+            <!-- Caching - DISABLED -->
+            <property name="hibernate.cache.use_second_level_cache" value="false"/>
+            <property name="hibernate.cache.use_query_cache" value="false"/>
+            
+            <!-- Schema -->
+            <property name="hibernate.default_schema" value="public"/>
+            
+            <!-- Validation -->
+            <property name="jakarta.persistence.validation.mode" value="AUTO"/>
+        </properties>
+    </persistence-unit>
+</persistence>
