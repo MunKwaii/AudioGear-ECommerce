@@ -71,9 +71,19 @@ public class GoogleAuthController extends HttpServlet {
 
                 User loggedInUser = authService.login(LoginType.GOOGLE, authRequest);
 
-                // 4. Đăng nhập thành công, tạo Session
+                // 4. Đăng nhập thành công, tạo JWT thay vì chỉ xài Session truyền thống
+                vn.edu.ute.util.JwtUtil jwtUtil = new vn.edu.ute.util.JwtUtil();
+                String token = jwtUtil.generateToken(loggedInUser.getId(), loggedInUser.getEmail(), loggedInUser.getRole().name());
+                
+                // Set Session fallback
                 HttpSession session = req.getSession(true);
                 session.setAttribute("loggedInUser", loggedInUser);
+
+                // Gửi Token qua Cookie để giao diện/JS có thể lấy
+                jakarta.servlet.http.Cookie tokenCookie = new jakarta.servlet.http.Cookie("accessToken", token);
+                tokenCookie.setPath("/");
+                tokenCookie.setMaxAge(24 * 60 * 60); // 24 hours
+                resp.addCookie(tokenCookie);
 
                 // Chuyển hướng người dùng về trang chủ
                 resp.sendRedirect(req.getContextPath() + "/");
