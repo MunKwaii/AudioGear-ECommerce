@@ -1,6 +1,5 @@
 package vn.edu.ute.controller;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,23 +14,27 @@ import vn.edu.ute.dto.RegisterRequest;
 
 import java.io.IOException;
 
+/**
+ * Controller tiếp nhận dữ liệu từ giao diện Đăng ký
+ * và điều hướng render trang register bằng Thymeleaf
+ */
 @WebServlet("/register")
 public class RegisterController extends HttpServlet {
 
     private RegisterService registerService;
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         registerService = new RegisterService();
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         renderTemplate(req, resp, null, null, null, null);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
 
         String username = req.getParameter("username");
@@ -50,6 +53,9 @@ public class RegisterController extends HttpServlet {
         }
     }
 
+    /**
+     * Render giao diện đăng ký bằng Thymeleaf
+     */
     private void renderTemplate(HttpServletRequest req,
                                 HttpServletResponse resp,
                                 String error,

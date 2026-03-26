@@ -8,6 +8,13 @@ import vn.edu.ute.entity.User;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+/**
+ * Service xử lý toàn bộ luồng Đăng ký tài khoản:
+ * - Kiểm tra dữ liệu đầu vào
+ * - Kiểm tra trùng username/email
+ * - Mã hóa mật khẩu
+ * - Lưu tài khoản mới vào hệ thống
+ */
 public class RegisterService {
 
     private final UserDAO userDAO;
@@ -16,6 +23,9 @@ public class RegisterService {
         this.userDAO = new UserDAO();
     }
 
+    /**
+     * Entry-point cho luồng Đăng ký tài khoản
+     */
     public User register(RegisterRequest request) {
         validateRequest(request);
 
@@ -41,6 +51,9 @@ public class RegisterService {
         return userDAO.save(user);
     }
 
+    /**
+     * Kiểm tra dữ liệu nhập vào trước khi tạo tài khoản
+     */
     private void validateRequest(RegisterRequest request) {
         String username = safeTrim(request.getUsername());
         String fullName = safeTrim(request.getFullName());
@@ -73,10 +86,16 @@ public class RegisterService {
         }
     }
 
+    /**
+     * Hàm tiện ích loại bỏ khoảng trắng thừa và chống null
+     */
     private String safeTrim(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Kiểm tra định dạng email cơ bản
+     */
     private boolean isValidEmail(String email) {
         return Pattern.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", email);
     }

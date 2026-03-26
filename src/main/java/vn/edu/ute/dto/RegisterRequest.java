@@ -1,5 +1,8 @@
 package vn.edu.ute.dto;
 
+/**
+ * DTO chứa dữ liệu người dùng nhập vào trong luồng Đăng ký tài khoản
+ */
 public class RegisterRequest {
     private String username;
     private String fullName;
@@ -46,12 +49,12 @@ public class RegisterRequest {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getConfirmPassword() {
         return confirmPassword;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void setConfirmPassword(String confirmPassword) {
