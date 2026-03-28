@@ -48,6 +48,12 @@
             border: 1px solid #dcdde1;
             border-radius: 4px;
             box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #0097e6;
         }
 
         .btn-login {
@@ -60,10 +66,16 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
+            transition: background-color 0.2s;
         }
 
         .btn-login:hover {
             background-color: #00a8ff;
+        }
+
+        .btn-login:disabled {
+            background-color: #7f8fa6;
+            cursor: not-allowed;
         }
 
         .footer-links {
@@ -79,6 +91,56 @@
         .footer-links a:hover {
             text-decoration: underline;
         }
+
+        /* Thêm các UI States cho OTP */
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .error-msg {
+            color: #e84118;
+            font-size: 13px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            display: none;
+            text-align: left;
+        }
+
+        .success-msg {
+            color: #44bd32;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .resend-link {
+            color: #0097e6;
+            font-size: 14px;
+            margin-top: 20px;
+            display: inline-block;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .resend-link:hover {
+            text-decoration: underline;
+        }
+
+        .resend-link.disabled {
+            color: #a4b0be;
+            cursor: not-allowed;
+            text-decoration: none;
+        }
     </style>
 </head>
 
@@ -87,94 +149,256 @@
     <div class="login-container">
         <h2>Trở Thành Thành Viên</h2>
 
-        <form action="" method="post" id="registerForm">
-            <div class="form-group">
-                <label for="fullName">Họ và tên</label>
-                <input type="text" id="fullName" name="fullName" placeholder="Nhập họ và tên..." required>
-            </div>
-            <div class="form-group">
-                <label for="username">Tên đăng nhập</label>
-                <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập..." required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Nhập email của bạn..." required>
-            </div>
-            <div class="form-group">
-                <label for="password">Mật khẩu</label>
-                <input type="password" id="password" name="password" placeholder="••••••••" required>
-            </div>
-            <div class="form-group">
-                <label for="confirmPassword">Xác nhận Mật khẩu</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" required>
-            </div>
-            <button type="submit" class="btn-login">Đăng ký tài khoản</button>
-        </form>
+        <!-- BƯỚC 1: NHẬP THÔNG TIN ĐĂNG KÝ -->
+        <div id="step1">
+            <div id="registerErrorMsg" class="error-msg"></div>
+            <form action="" method="post" id="registerForm">
+                <div class="form-group">
+                    <label for="fullName">Họ và tên</label>
+                    <input type="text" id="fullName" name="fullName" placeholder="Nhập họ và tên..." required>
+                </div>
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập..." required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Nhập email của bạn..." required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Xác nhận Mật khẩu</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-login" id="registerBtn">Đăng ký tài khoản</button>
+            </form>
 
-        <div class="footer-links">
-            Đã có tài khoản? <a th:href="@{/login}">Đăng nhập ngay</a>
+            <div class="footer-links">
+                Đã có tài khoản? <a th:href="@{/login}">Đăng nhập ngay</a>
+            </div>
         </div>
+
+        <!-- BƯỚC 2: NHẬP OTP XÁC MÌNH -->
+        <div id="step2" class="hidden">
+            <p style="color: #7f8fa6; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">Chúng tôi vừa gửi mã xác nhận 6 số đến email của bạn. Vui lòng kiểm tra hộp thư (bao gồm cả mục Spam).</p>
+            
+            <div id="otpSuccessMsg" class="success-msg">Đã gửi lại mã OTP thành công!</div>
+            <div id="otpErrorMsg" class="error-msg">Mã OTP không hợp lệ, vui lòng thử lại.</div>
+            
+            <form id="otpForm">
+                <div class="form-group">
+                    <label for="otpCode" style="text-align: center;">Mã Xác Nhận OTP</label>
+                    <input type="text" id="otpCode" name="otpCode" placeholder="Nhập mã 6 số..." maxlength="6" required style="text-align: center; font-size: 20px; letter-spacing: 5px; font-weight: bold;">
+                </div>
+                <button type="submit" class="btn-login" id="verifyOtpBtn">Xác nhận & Hoàn tất</button>
+            </form>
+            
+            <span id="resendBtn" class="resend-link disabled">Gửi lại mã (60s)</span>
+        </div>
+
     </div>
 
+    <!-- SCRIPTS -->
     <script th:inline="javascript">
+        // URLs được tiêm bởi hệ thống Thymeleaf
+        const apiUrlRegister = /*[[@{/api/auth/register}]]*/ '/api/auth/register';
+        const apiUrlVerify = /*[[@{/api/auth/register/verify}]]*/ '/api/auth/register/verify';
+        const loginUrl = /*[[@{/login}]]*/ '/login';
+
+        // Biến toàn cục lưu trạng thái
+        let registeredEmail = '';
+        let countdownInterval;
+        let lastRegisterData = null; // Cache lại data đăng ký để ấn resend
+        
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+
+        function showError(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.style.display = 'block';
+        }
+
+        function hideError(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        function showSuccess(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 5000); // Ẩn sau 5s
+        }
+
+        // BẮT SỰ KIỆN SUBMIT ĐĂNG KÝ
         document.getElementById('registerForm').addEventListener('submit', async function (e) {
-            e.preventDefault(); // Ngăn chặn submit form mặc định (gây ra lỗi 405)
+            e.preventDefault(); 
+            hideError('registerErrorMsg');
 
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
             if (password !== confirmPassword) {
-                alert("Mật khẩu xác nhận không khớp! Vui lòng kiểm tra lại.");
+                showError('registerErrorMsg', "Mật khẩu xác nhận không khớp! Vui lòng kiểm tra lại.");
                 return;
             }
 
-            const btn = document.querySelector('.btn-login');
+            const btn = document.getElementById('registerBtn');
             btn.textContent = "Đang xử lý...";
             btn.disabled = true;
 
-            const data = {
+            lastRegisterData = {
                 fullName: document.getElementById('fullName').value,
                 username: document.getElementById('username').value,
                 email: document.getElementById('email').value,
                 password: password
             };
 
-            try {
-                // Thymeleaf sẽ tự động sinh đường dẫn hoàn chỉnh bao gồm thư mục dự án (Context Path)
-                const apiUrl = /*[[@{/api/auth/register}]]*/ '/api/auth/register';
+            await sendRegisterRequest(lastRegisterData, btn, true);
+        });
 
-                const response = await fetch(apiUrl, {
+        // Hàm gọi chung cho Lần đầu Đăng ký & Nút Gửi lại OTP
+        async function sendRegisterRequest(data, btnObj, isFirstTime) {
+            try {
+                const response = await fetch(apiUrlRegister, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
-                // Parse response, nếu response không phải JSON (VD: 404 HTML) thì sẽ vướng vào catch
                 const textResponse = await response.text();
                 let result;
                 try {
                     result = JSON.parse(textResponse);
                 } catch (e) {
-                    console.error("Not a valid JSON:", textResponse);
-                    throw new Error("Server trả về lỗi không đọc được định dạng (Có thể sai đường dẫn api!). HTTP Status: " + response.status);
+                    throw new Error("Lỗi máy chủ không phản hồi JSON định dạng hợp lệ. Mã lỗi: " + response.status);
                 }
 
                 if (response.ok && result.success) {
-                    alert(result.message + " Vui lòng kiểm tra email để lấy mã mới nhất, sau đó gọi /api/auth/register/verify qua Postman (hoặc UI nếu ráp tiếp) để hoàn tất.");
-
-                    const loginUrl = /*[[@{/login}]]*/ '/login';
-                    window.location.href = loginUrl;
+                    registeredEmail = data.email;
+                    
+                    if (isFirstTime) {
+                        // Chuyển sang UI Bước 2
+                        step1.classList.add('hidden');
+                        step2.classList.remove('hidden');
+                        step2.classList.add('fade-in');
+                    } else {
+                        // Báo hiệu gửi lại thành công
+                        showSuccess('otpSuccessMsg', result.message || 'Mã OTP mới đã được gửi đi!');
+                    }
+                    
+                    // Khởi động lại vòng đếm Countdown 60s
+                    startCountdown();
                 } else {
-                    alert("Lỗi: " + result.message);
+                    if (isFirstTime) {
+                        showError('registerErrorMsg', result.message);
+                    } else {
+                        showError('otpErrorMsg', result.message);
+                    }
                 }
             } catch (error) {
-                alert("Lỗi: " + error.message);
-                console.error(error);
+                if (isFirstTime) {
+                    showError('registerErrorMsg', "Kết nối Server bị lỗi: " + error.message);
+                } else {
+                    showError('otpErrorMsg', "Kết nối Server bị lỗi thi thử lại: " + error.message);
+                }
             } finally {
-                btn.textContent = "Đăng ký tài khoản";
+                if (btnObj) {
+                    btnObj.textContent = isFirstTime ? "Đăng ký tài khoản" : "Gửi lại mã";
+                    btnObj.disabled = false;
+                }
+            }
+        }
+
+        // Vòng lặp đếm số
+        function startCountdown() {
+            const resendBtn = document.getElementById('resendBtn');
+            let timeLeft = 60; // 60s
+            
+            resendBtn.classList.add('disabled');
+            resendBtn.textContent = `Vui lòng đợi (${timeLeft}s)`;
+
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                resendBtn.textContent = `Vui lòng đợi (${timeLeft}s)`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    resendBtn.classList.remove('disabled');
+                    resendBtn.textContent = "Chưa nhận được mã? Gửi lại ngay";
+                }
+            }, 1000);
+        }
+
+        // NÚT RESEND ACTION
+        document.getElementById('resendBtn').addEventListener('click', async function (e) {
+            if (this.classList.contains('disabled')) return;
+            
+            hideError('otpErrorMsg');
+            this.textContent = "Đang xin cấp mã...";
+            this.classList.add('disabled');
+            
+            await sendRegisterRequest(lastRegisterData, this, false);
+        });
+
+        // BẮT SỰ KIỆN SUBMIT OTP
+        document.getElementById('otpForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            hideError('otpErrorMsg');
+
+            const otpCode = document.getElementById('otpCode').value;
+            const btn = document.getElementById('verifyOtpBtn');
+            
+            btn.textContent = "Đang xác thực...";
+            btn.disabled = true;
+
+            const verifyData = {
+                email: registeredEmail,
+                otp: otpCode
+            };
+
+            try {
+                const response = await fetch(apiUrlVerify, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(verifyData)
+                });
+
+                const textResponse = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(textResponse);
+                } catch(e) { throw new Error("Server Error!"); }
+
+                if (response.ok && result.success) {
+                    // Kích hoạt thành công -> Cho về Login
+                    const container = document.querySelector('.login-container');
+                    container.innerHTML = `
+                        <div class="fade-in" style="padding: 20px;">
+                            <h2 style="color: #44bd32; margin-bottom: 10px;">Thành Công!</h2>
+                            <p style="color: #353b48; margin-bottom: 25px;">${result.message}</p>
+                            <p style="color: #7f8fa6; font-size: 14px;">Đang tự động chuyển hướng về Đăng nhập...</p>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        window.location.href = loginUrl;
+                    }, 2500);
+
+                } else {
+                    showError('otpErrorMsg', result.message);
+                }
+            } catch (error) {
+                showError('otpErrorMsg', "Lỗi kết nối chặn thao tác: " + error.message);
+            } finally {
+                btn.textContent = "Xác nhận & Hoàn tất";
                 btn.disabled = false;
             }
         });
+
     </script>
 
 </body>
