@@ -1,7 +1,9 @@
 package vn.edu.ute.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -35,6 +37,11 @@ public class Product {
     
     @Column(name = "status", nullable = false)
     private Boolean status = true;
+
+    @NotNull(message = "Số lượng tồn kho không được để trống")
+    @Min(value = 0, message = "Số lượng tồn kho không được nhỏ hơn 0")
+    @Column(name = "stock_quantity", nullable = false)
+    private Integer stockQuantity = 0;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -63,10 +70,11 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
     
-    public Product(String name, java.math.BigDecimal price, Category category, Brand brand) {
+    public Product(String name, java.math.BigDecimal price, Integer stockQuantity, Category category, Brand brand) {
         this();
         this.name = name;
         this.price = price;
+        this.stockQuantity = stockQuantity != null ? stockQuantity : 0;
         this.category = category;
         this.brand = brand;
     }
@@ -132,6 +140,14 @@ public class Product {
     
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public Integer getStockQuantity() {
+        return stockQuantity;
+    }
+    
+    public void setStockQuantity(Integer stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
     
     public LocalDateTime getCreatedAt() {
