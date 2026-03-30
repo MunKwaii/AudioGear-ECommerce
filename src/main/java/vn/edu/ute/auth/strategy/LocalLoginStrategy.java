@@ -2,6 +2,7 @@ package vn.edu.ute.auth.strategy;
 
 import org.mindrot.jbcrypt.BCrypt;
 import vn.edu.ute.dao.UserDAO;
+import vn.edu.ute.dao.impl.UserDAOImpl;
 import vn.edu.ute.entity.User;
 
 import java.util.Optional;
@@ -14,7 +15,7 @@ public class LocalLoginStrategy implements LoginStrategy {
     private final UserDAO userDAO;
 
     public LocalLoginStrategy() {
-        this.userDAO = new UserDAO();
+        this.userDAO = new UserDAOImpl();
     }
 
     @Override
