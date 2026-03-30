@@ -107,13 +107,20 @@ public class JwtAuthenticationFilter implements Filter {
     }
 
     /**
-     * Chuyển hướng người dùng khi Khống có quyền truy cập Role (403)
+     * Xử lý khi Role không đủ quyền (403).
+     * - Nếu là /api/* hoặc /admin/* → trả JSON để dễ debug
+     * - Nếu là trang HTML khác → redirect về /login kèm thông báo
      */
     private void handleForbidden(String path, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (path.startsWith("/api/")) {
-            sendJsonError(resp, HttpServletResponse.SC_FORBIDDEN, "Bạn (" + req.getAttribute("currentUserRole") + ") không có quyền truy cập trang quản trị.");
+        String actualRole = (String) req.getAttribute("currentUserRole");
+        String msg = "Truy cập bị từ chối. Role hiện tại: [" + actualRole + "]. Cần role: [admin].";
+        logger.warn("403 Forbidden: path={}, role={}", path, actualRole);
+
+        if (path.startsWith("/api/") || path.startsWith("/admin/")) {
+            // Trả JSON thay vì redirect → trang /error-403 chưa tồn tại
+            sendJsonError(resp, HttpServletResponse.SC_FORBIDDEN, msg);
         } else {
-            resp.sendRedirect(req.getContextPath() + "/error-403"); // Hoặc trang lỗi 403 tuỳ giao diện bạn
+            resp.sendRedirect(req.getContextPath() + "/login");
         }
     }
 

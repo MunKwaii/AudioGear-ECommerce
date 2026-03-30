@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản lý Đơn Hàng | AudioGear</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── RESET & BASE ─────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #22263a;
+            --border: rgba(255,255,255,.08);
+            --accent: #6c63ff;
+            --accent-hover: #7d75ff;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --blue: #3b82f6;
+            --orange: #f97316;
+            --red: #ef4444;
+            --gray: #6b7280;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,.45);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── HEADER ───────────────────────────────────────────────── */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -.5px;
+            background: linear-gradient(135deg, #6c63ff, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: .875rem;
+            color: var(--text-muted);
+        }
+        .admin-badge {
+            background: rgba(108,99,255,.18);
+            color: #a78bfa;
+            border: 1px solid rgba(108,99,255,.35);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .5px;
+        }
+
+        /* ── LAYOUT ───────────────────────────────────────────────── */
+        .page-wrapper { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+
+        /* ── STATS CARDS ──────────────────────────────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .stat-label { font-size: .75rem; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+        .stat-value { font-size: 2rem; font-weight: 700; }
+        .stat-card.pending   .stat-value { color: var(--yellow); }
+        .stat-card.processing .stat-value { color: var(--blue); }
+        .stat-card.shipped   .stat-value { color: var(--orange); }
+        .stat-card.delivered .stat-value { color: var(--green); }
+        .stat-card.cancelled .stat-value { color: var(--red); }
+
+        /* ── TOOLBAR ──────────────────────────────────────────────── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title { font-size: 1.1rem; font-weight: 600; }
+        .filter-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: .8rem;
+            font-weight: 500;
+            transition: all .2s;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            border-color: var(--accent);
+            color: var(--text);
+            background: rgba(108,99,255,.15);
+        }
+        .btn-refresh {
+            padding: 7px 16px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: .85rem;
+            font-weight: 600;
+            transition: background .2s;
+        }
+        .btn-refresh:hover { background: var(--accent-hover); }
+
+        /* ── TABLE ────────────────────────────────────────────────── */
+        .table-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: var(--surface2); }
+        th {
+            padding: 13px 16px;
+            text-align: left;
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        td {
+            padding: 14px 16px;
+            border-top: 1px solid var(--border);
+            font-size: .875rem;
+            vertical-align: middle;
+        }
+        tr { transition: background .15s; }
+        tr:hover td { background: rgba(255,255,255,.025); }
+
+        /* ── STATUS BADGE ─────────────────────────────────────────── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: .75rem;
+            font-weight: 600;
+        }
+        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+        .badge-PENDING    { background: rgba(234,179,8,.15);  color: var(--yellow); }
+        .badge-PENDING::before   { background: var(--yellow); }
+        .badge-PROCESSING { background: rgba(59,130,246,.15); color: var(--blue); }
+        .badge-PROCESSING::before { background: var(--blue); }
+        .badge-SHIPPED    { background: rgba(249,115,22,.15); color: var(--orange); }
+        .badge-SHIPPED::before   { background: var(--orange); }
+        .badge-DELIVERED  { background: rgba(34,197,94,.15);  color: var(--green); }
+        .badge-DELIVERED::before  { background: var(--green); box-shadow: 0 0 6px rgba(34,197,94,.6); }
+        .badge-CANCELLED  { background: rgba(239,68,68,.15);  color: var(--red); }
+        .badge-CANCELLED::before  { background: var(--red); }
+
+        /* ── ACTION BUTTONS ───────────────────────────────────────── */
+        .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .btn-action {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: .78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .2s, transform .1s;
+        }
+        .btn-action:hover { opacity: .85; transform: translateY(-1px); }
+        .btn-action:active { transform: scale(.97); }
+        .btn-action:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+        .btn-process  { background: rgba(59,130,246,.2);  color: var(--blue);   border: 1px solid rgba(59,130,246,.4); }
+        .btn-ship     { background: rgba(249,115,22,.2);  color: var(--orange); border: 1px solid rgba(249,115,22,.4); }
+        .btn-deliver  { background: rgba(34,197,94,.2);   color: var(--green);  border: 1px solid rgba(34,197,94,.4); }
+        .btn-cancel   { background: rgba(239,68,68,.18);  color: var(--red);    border: 1px solid rgba(239,68,68,.35); }
+
+        /* ── TOAST NOTIFICATION ───────────────────────────────────── */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: .875rem;
+            font-weight: 500;
+            min-width: 280px;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+            animation: slideIn .3s ease;
+            border: 1px solid var(--border);
+        }
+        .toast.success { background: rgba(34,197,94,.15); border-color: rgba(34,197,94,.4); color: var(--green); }
+        .toast.error   { background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.4); color: var(--red); }
+        .toast.info    { background: rgba(59,130,246,.15); border-color: rgba(59,130,246,.4); color: var(--blue); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ── MODAL (Cancel Reason) ────────────────────────────────── */
+        .modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.65);
+            backdrop-filter: blur(4px);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s;
+        }
+        .modal-backdrop.open { opacity: 1; pointer-events: all; }
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            width: 440px;
+            max-width: 95vw;
+            transform: scale(.95);
+            transition: transform .25s;
+        }
+        .modal-backdrop.open .modal { transform: scale(1); }
+        .modal h3 { font-size: 1.1rem; margin-bottom: 8px; }
+        .modal p  { color: var(--text-muted); font-size: .875rem; margin-bottom: 20px; }
+        .modal textarea {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 12px;
+            font-family: inherit;
+            font-size: .875rem;
+            resize: vertical;
+            min-height: 90px;
+            margin-bottom: 16px;
+        }
+        .modal textarea:focus { outline: none; border-color: var(--accent); }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-secondary {
+            padding: 9px 18px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-danger {
+            padding: 9px 18px;
+            background: var(--red);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* ── LOADING OVERLAY ──────────────────────────────────────── */
+        .loading-spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,.15);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+
+<!-- ── HEADER ───────────────────────────────────────────────────── -->
+<header>
+    <div class="logo">⚡ AudioGear Admin</div>
+    <div class="header-meta">
+        <span class="admin-badge">ADMIN</span>
+        <span id="current-time">--:--</span>
+    </div>
+</header>
+
+<!-- ── MAIN CONTENT ──────────────────────────────────────────────── -->
+<div class="page-wrapper">
+
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+        <div class="stat-card pending">
+            <div class="stat-label">⏳ Chờ duyệt</div>
+            <div class="stat-value" id="count-PENDING">-</div>
+        </div>
+        <div class="stat-card processing">
+            <div class="stat-label">⚙️ Đang xử lý</div>
+            <div class="stat-value" id="count-PROCESSING">-</div>
+        </div>
+        <div class="stat-card shipped">
+            <div class="stat-label">🚚 Đang giao</div>
+            <div class="stat-value" id="count-SHIPPED">-</div>
+        </div>
+        <div class="stat-card delivered">
+            <div class="stat-label">✅ Đã giao</div>
+            <div class="stat-value" id="count-DELIVERED">-</div>
+        </div>
+        <div class="stat-card cancelled">
+            <div class="stat-label">❌ Đã huỷ</div>
+            <div class="stat-value" id="count-CANCELLED">-</div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <span class="section-title">📦 Danh sách Đơn Hàng</span>
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <div class="filter-group" id="filter-group">
+                <button class="filter-btn active" data-filter="ALL" onclick="filterOrders('ALL', this)">Tất cả</button>
+                <button class="filter-btn" data-filter="PENDING"    onclick="filterOrders('PENDING', this)">Chờ duyệt</button>
+                <button class="filter-btn" data-filter="PROCESSING" onclick="filterOrders('PROCESSING', this)">Đang xử lý</button>
+                <button class="filter-btn" data-filter="SHIPPED"    onclick="filterOrders('SHIPPED', this)">Đang giao</button>
+                <button class="filter-btn" data-filter="DELIVERED"  onclick="filterOrders('DELIVERED', this)">Đã giao</button>
+                <button class="filter-btn" data-filter="CANCELLED"  onclick="filterOrders('CANCELLED', this)">Đã huỷ</button>
+            </div>
+            <button class="btn-refresh" id="btn-refresh" onclick="loadOrders()">🔄 Làm mới</button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Email</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="orders-tbody">
+                <!-- Server-side render lần đầu (Thymeleaf) -->
+                <tr th:if="${orders.isEmpty()}">
+                    <td colspan="8"><div class="empty-state"><div class="icon">📭</div>Không có đơn hàng nào.</div></td>
+                </tr>
+                <tr th:each="order, iter : ${orders}" th:attr="data-status=${order.status.name()},data-id=${order.id}" class="order-row">
+                    <td th:text="${iter.index + 1}">1</td>
+                    <td style="font-family: monospace; font-weight: 600;" th:text="${order.orderCode}">ORD-001</td>
+                    <td th:text="${order.recipientName}">Nguyễn Văn A</td>
+                    <td th:text="${order.email}" style="color: var(--text-muted);">user@mail.com</td>
+                    <td th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 0, 'POINT')} + ' ₫'" style="font-weight: 600;"></td>
+                    <td>
+                        <span class="badge" th:classappend="'badge-' + ${order.status.name()}" th:text="${order.status.name()}">PENDING</span>
+                    </td>
+                    <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}" style="color: var(--text-muted); font-size: .8rem;"></td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-action btn-process"
+                                    th:if="${order.status.name() == 'PENDING'}"
+                                    th:onclick="'doAction(' + ${order.id} + ', \'process\')'"
+                                    title="Duyệt đơn → PROCESSING">✔ Duyệt</button>
+                            <button class="btn-action btn-ship"
+                                    th:if="${order.status.name() == 'PROCESSING'}"
+                                    th:onclick="'doAction(' + ${order.id} + ', \'ship\')'"
+                                    title="Xuất kho → SHIPPED">🚚 Xuất kho</button>
+                            <button class="btn-action btn-deliver"
+                                    th:if="${order.status.name() == 'SHIPPED'}"
+                                    th:onclick="'doAction(' + ${order.id} + ', \'deliver\')'"
+                                    title="Hoàn tất → DELIVERED">✅ Đã giao</button>
+                            <button class="btn-action btn-cancel"
+                                    th:if="${order.status.name() == 'PENDING' or order.status.name() == 'SHIPPED'}"
+                                    th:onclick="'openCancelModal(' + ${order.id} + ')'"
+                                    title="Huỷ đơn → CANCELLED">✖ Huỷ đơn</button>
+                            <span th:if="${order.status.name() == 'DELIVERED' or order.status.name() == 'CANCELLED'}"
+                                  style="color: var(--text-muted); font-size: .8rem;">—</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ── CANCEL MODAL ──────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="cancel-modal">
+    <div class="modal">
+        <h3>🗑️ Xác nhận Huỷ Đơn Hàng</h3>
+        <p>Nhập lý do huỷ đơn để thông báo cho khách hàng. Kho sẽ được hoàn trả tự động.</p>
+        <textarea id="cancel-reason" placeholder="Ví dụ: Hàng hết kho, khách yêu cầu huỷ..."></textarea>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Quay lại</button>
+            <button class="btn-danger" onclick="confirmCancel()">✖ Xác nhận Huỷ</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── TOAST CONTAINER ───────────────────────────────────────────── -->
+<div id="toast-container"></div>
+
+<!-- ── SCRIPTS ───────────────────────────────────────────────────── -->
+<script th:inline="javascript">
+    // ── State ──────────────────────────────────────────────────────
+    let allOrders = [];
+    let currentFilter = 'ALL';
+    let pendingCancelId = null;
+
+    // Đọc context path từ Thymeleaf để dùng đúng prefix
+    const BASE = /*[[@{/}]]*/ '/';
+    const API  = BASE + 'api/admin/orders';
+
+    // Lấy JWT từ cookie (accessToken) hoặc localStorage
+    function getToken() {
+        const fromCookie = document.cookie.split(';')
+            .map(c => c.trim())
+            .find(c => c.startsWith('accessToken='));
+        if (fromCookie) return fromCookie.split('=')[1];
+        return localStorage.getItem('accessToken') || '';
+    }
+
+    // ── Clock ──────────────────────────────────────────────────────
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('current-time').textContent =
+            now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ── Load orders từ API ────────────────────────────────────────
+    async function loadOrders() {
+        const btn = document.getElementById('btn-refresh');
+        btn.innerHTML = '<span class="loading-spinner"></span>';
+        btn.disabled = true;
+        try {
+            const resp = await fetch(API, {
+                headers: { 'Authorization': 'Bearer ' + getToken() }
+            });
+            const data = await resp.json();
+            if (data.success) {
+                allOrders = data.data;
+                renderTable(allOrders);
+                updateStats(allOrders);
+                showToast('Đã tải ' + allOrders.length + ' đơn hàng', 'info');
+            } else {
+                showToast('Lỗi tải dữ liệu: ' + data.message, 'error');
+            }
+        } catch (e) {
+            showToast('Kết nối máy chủ thất bại', 'error');
+        } finally {
+            btn.innerHTML = '🔄 Làm mới';
+            btn.disabled = false;
+        }
+    }
+
+    // ── Render table ──────────────────────────────────────────────
+    function renderTable(orders) {
+        const tbody = document.getElementById('orders-tbody');
+        if (!orders || orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="icon">📭</div>Không có đơn hàng phù hợp.</div></td></tr>';
+            return;
+        }
+        tbody.innerHTML = orders.map((o, i) => {
+            const badge = `<span class="badge badge-${o.status}">${o.status}</span>`;
+            const actions = getActionButtons(o);
+            const amount  = Number(o.totalAmount || 0).toLocaleString('vi-VN') + ' ₫';
+            const date    = o.createdAt ? o.createdAt.replace('T', ' ').substring(0, 16) : '-';
+            return `
+            <tr class="order-row" data-status="${o.status}" data-id="${o.orderId}">
+                <td>${i + 1}</td>
+                <td style="font-family:monospace;font-weight:600">${o.orderCode || '-'}</td>
+                <td>${o.recipientName || '-'}</td>
+                <td style="color:var(--text-muted)">${o.email || '-'}</td>
+                <td style="font-weight:600">${amount}</td>
+                <td>${badge}</td>
+                <td style="color:var(--text-muted);font-size:.8rem">${date}</td>
+                <td><div class="actions">${actions}</div></td>
+            </tr>`;
+        }).join('');
+    }
+
+    function getActionButtons(o) {
+        const id = o.orderId || o.id;
+        let btns = '';
+        if (o.status === 'PENDING') {
+            btns += `<button class="btn-action btn-process" onclick="doAction(${id},'process')" title="Duyệt đơn">✔ Duyệt</button>`;
+            btns += `<button class="btn-action btn-cancel"  onclick="openCancelModal(${id})" title="Huỷ đơn">✖ Huỷ</button>`;
+        } else if (o.status === 'PROCESSING') {
+            btns += `<button class="btn-action btn-ship" onclick="doAction(${id},'ship')" title="Xuất kho">🚚 Xuất kho</button>`;
+        } else if (o.status === 'SHIPPED') {
+            btns += `<button class="btn-action btn-deliver" onclick="doAction(${id},'deliver')" title="Hoàn tất">✅ Đã giao</button>`;
+            btns += `<button class="btn-action btn-cancel"  onclick="openCancelModal(${id})" title="Giao thất bại">✖ Huỷ</button>`;
+        } else {
+            btns = '<span style="color:var(--text-muted);font-size:.8rem">—</span>';
+        }
+        return btns;
+    }
+
+    // ── Stats ────────────────────────────────────────────────────
+    function updateStats(orders) {
+        const counts = { PENDING:0, PROCESSING:0, SHIPPED:0, DELIVERED:0, CANCELLED:0 };
+        orders.forEach(o => { if (counts[o.status] !== undefined) counts[o.status]++; });
+        Object.keys(counts).forEach(k => {
+            const el = document.getElementById('count-' + k);
+            if (el) el.textContent = counts[k];
+        });
+    }
+
+    // ── Filter ───────────────────────────────────────────────────
+    function filterOrders(status, btn) {
+        currentFilter = status;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filtered = status === 'ALL' ? allOrders : allOrders.filter(o => o.status === status);
+        renderTable(filtered);
+    }
+
+    // ── Actions ──────────────────────────────────────────────────
+    async function doAction(orderId, action) {
+        // Disable all buttons for this row while processing
+        const row = document.querySelector(`tr[data-id="${orderId}"]`);
+        if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = true);
+
+        try {
+            const resp = await fetch(`${API}/${action}?id=${orderId}`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + getToken() }
+            });
+            const data = await resp.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                loadOrders(); // reload full table
+            } else {
+                showToast(data.message, resp.status === 409 ? 'error' : 'error');
+                if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
+            }
+        } catch (e) {
+            showToast('Lỗi kết nối máy chủ', 'error');
+            if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
+        }
+    }
+
+    // ── Cancel Modal ─────────────────────────────────────────────
+    function openCancelModal(orderId) {
+        pendingCancelId = orderId;
+        document.getElementById('cancel-reason').value = '';
+        document.getElementById('cancel-modal').classList.add('open');
+        setTimeout(() => document.getElementById('cancel-reason').focus(), 100);
+    }
+    function closeModal() {
+        pendingCancelId = null;
+        document.getElementById('cancel-modal').classList.remove('open');
+    }
+    async function confirmCancel() {
+        if (!pendingCancelId) return;
+        const reason = document.getElementById('cancel-reason').value.trim();
+        closeModal();
+        await doAction(pendingCancelId, 'cancel' + (reason ? '&reason=' + encodeURIComponent(reason) : ''));
+    }
+    // Close on backdrop click
+    document.getElementById('cancel-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ── Toast ────────────────────────────────────────────────────
+    function showToast(msg, type = 'info') {
+        const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+        document.getElementById('toast-container').appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    // ── Giải quyết cancel action URL ────────────────────────────
+    // Override doAction để xử lý &reason trong action string
+    const _doAction = doAction;
+    async function doAction(orderId, actionRaw) {
+        const [action, ...rest] = actionRaw.split('&');
+        const extra = rest.length ? '&' + rest.join('&') : '';
+        const row = document.querySelector(`tr[data-id="${orderId}"]`);
+        if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = true);
+        try {
+            const resp = await fetch(`${API}/${action}?id=${orderId}${extra}`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + getToken() }
+            });
+            const data = await resp.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                loadOrders();
+            } else {
+                showToast(data.message, 'error');
+                if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
+            }
+        } catch (e) {
+            showToast('Lỗi kết nối máy chủ', 'error');
+            if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
+        }
+    }
+
+    // ── Init: Lấy data từ API để render live (không quá cũ như SSR) ─
+    window.addEventListener('DOMContentLoaded', () => {
+        // Đọc data từ Thymeleaf SSR để điền stats ngay lập tức
+        const rows = document.querySelectorAll('.order-row');
+        const initial = Array.from(rows).map(r => ({ status: r.dataset.status }));
+        const counts = { PENDING:0, PROCESSING:0, SHIPPED:0, DELIVERED:0, CANCELLED:0 };
+        initial.forEach(o => { if (counts[o.status] !== undefined) counts[o.status]++; });
+        Object.keys(counts).forEach(k => {
+            const el = document.getElementById('count-' + k);
+            if (el) el.textContent = counts[k];
+        });
+    });
+</script>
+</body>
+</html>

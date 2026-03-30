@@ -7,19 +7,20 @@ import vn.edu.ute.state.OrderState;
 /**
  * Trạng thái Đang Xử Lý.
  * Tiếp nhận quy trình xuất kho đóng gói.
- * Chỉ có duy nhất 1 đường tiến là nhảy sang SHIPPED (Giao Hàng), KHÔNG được phép Huỷ trực tiếp ở khâu này.
+ * Chỉ có duy nhất 1 đường tiến là nhảy sang SHIPPED.
+ * KHÔNG được phép Huỷ trực tiếp ở giai đoạn này (theo PUML).
  */
 public class ProcessingState implements OrderState {
 
     @Override
     public void shipOrder(OrderContext context) {
-        // Cập nhật Database
+        // 1. Cập nhật trạng thái Entity
         context.getOrder().setStatus(OrderStatus.SHIPPED);
-        
-        // Chuyển State
+
+        // 2. Chuyển State Machine sang ShippedState
         context.setState(new ShippedState());
-        
-        System.out.println("[Mock Tracking] Đã tạo mã vận chuyển giao hàng.");
-        System.out.println("[Mock Email Service] Đã gửi mail thông báo kiện hàng ĐANG TRONG QUÁ TRÌNH GIAO cho khách.");
+
+        // 3. Gửi email thông báo đang giao hàng
+        context.getNotificationService().notifyShipped(context.getOrder());
     }
 }

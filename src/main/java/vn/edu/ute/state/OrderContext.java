@@ -1,20 +1,48 @@
 package vn.edu.ute.state;
 
 import vn.edu.ute.entity.Order;
+import vn.edu.ute.service.OrderNotificationService;
+import vn.edu.ute.service.RestockService;
+import vn.edu.ute.service.impl.OrderNotificationServiceImpl;
+import vn.edu.ute.service.impl.RestockServiceImpl;
 import vn.edu.ute.state.impl.*;
 
 /**
- * OrderContext đóng gói Entity Order và chứa trạng thái hiện tại.
+ * OrderContext đóng gói Entity Order và chứa trạng thái hiện tại (State Pattern).
  * Mọi hành động của Admin lên Đơn hàng phải thông qua Context này
  * để đảm bảo State Machine kiểm duyệt tính hợp lệ trước khi chạy.
+ *
+ * Context cũng giữ tham chiếu đến OrderNotificationService và RestockService
+ * để các State impl có thể gọi mà không cần tự khởi tạo dependency.
  */
 public class OrderContext {
+
     private final Order order;
     private OrderState state;
 
+    // Services được inject vào Context để các State impl dùng
+    private final OrderNotificationService notificationService;
+    private final RestockService restockService;
+
+    /**
+     * Constructor chính: tự tạo default impl của các service.
+     * Dùng cho production code.
+     */
     public OrderContext(Order order) {
+        this(order, new OrderNotificationServiceImpl(), new RestockServiceImpl());
+    }
+
+    /**
+     * Constructor có DI đầy đủ: dùng cho Unit Test hoặc khi muốn inject mock.
+     */
+    public OrderContext(Order order,
+                        OrderNotificationService notificationService,
+                        RestockService restockService) {
         this.order = order;
-        // Khởi tạo Trạng thái tương ứng với Status hiện hữu lưu trong Database
+        this.notificationService = notificationService;
+        this.restockService = restockService;
+
+        // Khởi tạo State tương ứng với Status hiện hữu trong Database
         switch (order.getStatus()) {
             case PENDING:
                 this.state = new PendingState();
@@ -32,21 +60,32 @@ public class OrderContext {
                 this.state = new CancelledState();
                 break;
             default:
-                throw new IllegalArgumentException("Trạng thái đơn hàng không hợp lệ!");
+                throw new IllegalArgumentException("Trạng thái đơn hàng không hợp lệ: " + order.getStatus());
         }
     }
 
-    // Dùng cho State class tự động chuyển trạng thái của Context sang bước kế tiếp
+    // --- Dùng cho State class tự động chuyển trạng thái ---
+
     public void setState(OrderState state) {
         this.state = state;
     }
 
+    // --- Getters ---
+
     public Order getOrder() {
         return order;
     }
-    
+
     public OrderState getState() {
         return state;
+    }
+
+    public OrderNotificationService getNotificationService() {
+        return notificationService;
+    }
+
+    public RestockService getRestockService() {
+        return restockService;
     }
 
     // --- CÁC HÀNH ĐỘNG DO ADMIN KÍCH HOẠT (Uỷ quyền cho State xử lý) ---

@@ -1,6 +1,7 @@
 package vn.edu.ute.dao.impl;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import vn.edu.ute.config.DatabaseConfig;
 import vn.edu.ute.dao.OrderDao;
 import vn.edu.ute.entity.Order;
@@ -16,6 +17,31 @@ public class OrderDaoImpl implements OrderDao {
         try {
             Order order = em.find(Order.class, id);
             return Optional.ofNullable(order);
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    /**
+     * Load Order kèm items và product trong 1 query (JOIN FETCH).
+     * Sử dụng khi cần dùng Order.getItems() ngoài transaction
+     * (ví dụ: RestockService.restoreStock).
+     */
+    @Override
+    public Optional<Order> findByIdWithItems(Long id) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            Order order = em.createQuery(
+                    "SELECT o FROM Order o " +
+                    "JOIN FETCH o.items i " +
+                    "JOIN FETCH i.product " +
+                    "WHERE o.id = :id",
+                    Order.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+            return Optional.of(order);
+        } catch (NoResultException e) {
+            return Optional.empty();
         } finally {
             DatabaseConfig.closeEntityManager();
         }

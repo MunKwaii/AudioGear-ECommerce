@@ -103,7 +103,12 @@
     <div class="login-container">
         <h2>AudioGear Login</h2>
 
-        <!-- Đăng nhập truyền thống (Chưa Map API, demo UI luồng Activity Diagram) -->
+        <!-- Hiển thị lỗi nếu đăng nhập thất bại -->
+        <div th:if="${errorMessage}" style="background: #ffeaa7; color: #d63031; padding: 10px; margin-bottom: 20px; border-radius: 4px; font-size: 14px;">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Đăng nhập truyền thống -->
         <form action="" method="post">
             <div class="form-group">
                 <label for="usernameOrEmail">Email hoặc Tên đăng nhập</label>

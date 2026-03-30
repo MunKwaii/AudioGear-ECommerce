@@ -23,14 +23,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order getOrderById(Long id) {
-        return orderDao.findById(id).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng ID: " + id));
+        return orderDao.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng ID: " + id));
     }
 
     @Override
     public Order processOrder(Long orderId) {
         Order order = getOrderById(orderId);
         OrderContext context = new OrderContext(order);
-        
         context.processOrder();
         return orderDao.save(context.getOrder());
     }
@@ -39,7 +39,6 @@ public class OrderServiceImpl implements OrderService {
     public Order shipOrder(Long orderId) {
         Order order = getOrderById(orderId);
         OrderContext context = new OrderContext(order);
-        
         context.shipOrder();
         return orderDao.save(context.getOrder());
     }
@@ -48,17 +47,22 @@ public class OrderServiceImpl implements OrderService {
     public Order deliverOrder(Long orderId) {
         Order order = getOrderById(orderId);
         OrderContext context = new OrderContext(order);
-        
         context.deliverOrder();
         return orderDao.save(context.getOrder());
     }
 
+    /**
+     * Huỷ đơn hàng: dùng findByIdWithItems để load eager items+product
+     * nhằm RestockService có thể duyệt items mà không bị LazyInitializationException.
+     */
     @Override
     public Order cancelOrder(Long orderId, String reason) {
-        Order order = getOrderById(orderId);
+        // JOIN FETCH items+product cho restock
+        Order order = orderDao.findByIdWithItems(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng ID: " + orderId));
         OrderContext context = new OrderContext(order);
-        
-        context.cancelOrder(reason != null ? reason : "Không có lý do cụ thể");
+        context.cancelOrder(reason != null && !reason.isBlank() ? reason : "Không có lý do cụ thể");
         return orderDao.save(context.getOrder());
     }
 }
+

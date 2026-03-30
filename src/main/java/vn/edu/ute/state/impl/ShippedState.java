@@ -6,27 +6,36 @@ import vn.edu.ute.state.OrderState;
 
 /**
  * Trạng thái Đang Giao Hàng.
- * Khâu này có 2 ngả đường:
- * 1. Giao thành công (-> DELIVERED)
- * 2. Giao thất bại / Bị bùng hàng (-> CANCELLED / RETURN)
+ * Khâu này có 2 ngả đường theo PUML:
+ * 1. Giao thành công  -> DELIVERED
+ * 2. Giao thất bại / Khách từ chối nhận hàng -> CANCELLED + Restock
  */
 public class ShippedState implements OrderState {
 
     @Override
     public void deliverOrder(OrderContext context) {
-        // Finalize order
+        // 1. Cập nhật trạng thái Entity
         context.getOrder().setStatus(OrderStatus.DELIVERED);
+
+        // 2. Chuyển State Machine sang DeliveredState (terminal)
         context.setState(new DeliveredState());
-        
-        System.out.println("[Mock Email Service] Đã trao đến tay khách. Gửi mail Cảm ơn kèm link xin Đánh giá Sản phẩm.");
+
+        // 3. Gửi email cảm ơn + link đánh giá
+        context.getNotificationService().notifyDelivered(context.getOrder());
     }
 
     @Override
     public void cancelOrder(OrderContext context, String cancelReason) {
+        // 1. Cập nhật trạng thái Entity
         context.getOrder().setStatus(OrderStatus.CANCELLED);
+
+        // 2. Chuyển State Machine sang CancelledState (terminal)
         context.setState(new CancelledState());
-        
-        System.out.println("[Mock Inventory] Đã hoàn lại sản phẩm vào Database Kho (Restock_ShipReturn).");
-        System.out.println("[Mock Info] Shipper báo cáo bom hàng. Lý do: " + cancelReason);
+
+        // 3. Hoàn trả kho (Restock - shipper báo bùng/từ chối)
+        context.getRestockService().restoreStock(context.getOrder());
+
+        // 4. Gửi email thông báo huỷ
+        context.getNotificationService().notifyCancelled(context.getOrder(), cancelReason);
     }
 }

@@ -6,32 +6,34 @@ import vn.edu.ute.state.OrderState;
 
 /**
  * Trạng thái khởi tạo của đơn hàng.
- * Từ PENDING chỉ có thể sang PROCESSING hoặc huỷ bỏ (CANCELLED).
+ * Từ PENDING chỉ có thể sang PROCESSING (duyệt) hoặc CANCELLED (từ chối).
  */
 public class PendingState implements OrderState {
 
     @Override
     public void processOrder(OrderContext context) {
-        // Cập nhật Database Entity
+        // 1. Cập nhật trạng thái Entity
         context.getOrder().setStatus(OrderStatus.PROCESSING);
-        
-        // Chuyển State Machine sang trạng thái Đang xử lý
+
+        // 2. Chuyển State Machine sang ProcessingState
         context.setState(new ProcessingState());
-        
-        // Placeholder gửi Email
-        System.out.println("[Mock Email Service] Đã gửi Email chốt đơn đang tiến hành xử lý cho: " + context.getOrder().getEmail());
+
+        // 3. Gửi email thông báo cho khách
+        context.getNotificationService().notifyProcessing(context.getOrder());
     }
 
     @Override
     public void cancelOrder(OrderContext context, String cancelReason) {
-        // Cập nhật Database Entity
+        // 1. Cập nhật trạng thái Entity
         context.getOrder().setStatus(OrderStatus.CANCELLED);
-        
-        // Chuyển State Machine sang trạng thái Huỷ
+
+        // 2. Chuyển State Machine sang CancelledState
         context.setState(new CancelledState());
-        
-        // Placeholder Thống kê, Kho và Email
-        System.out.println("[Mock Inventory] Đã cộng lại số lượng vào tồn kho (Restock) vì Admin từ chối đơn.");
-        System.out.println("[Mock Email Service] Đã gửi thông báo từ chối đơn hàng cho khách. Lý do: " + cancelReason);
+
+        // 3. Hoàn trả số lượng vào kho (PUML: "Cộng lại số lượng vào tồn kho")
+        context.getRestockService().restoreStock(context.getOrder());
+
+        // 4. Gửi email thông báo huỷ + lý do cho khách
+        context.getNotificationService().notifyCancelled(context.getOrder(), cancelReason);
     }
 }
