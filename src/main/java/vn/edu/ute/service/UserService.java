@@ -1,6 +1,7 @@
 package vn.edu.ute.service;
 
 import vn.edu.ute.dao.UserDAO;
+import vn.edu.ute.dao.impl.UserDAOImpl;
 import vn.edu.ute.dto.request.RegisterRequest;
 import vn.edu.ute.entity.User;
 import vn.edu.ute.entity.enums.UserStatus;
@@ -16,7 +17,7 @@ public class UserService {
     private final UserDAO userDAO;
 
     public UserService() {
-        this.userDAO = new UserDAO();
+        this.userDAO = new UserDAOImpl();
     }
 
     public boolean isUsernameExists(String username) {
