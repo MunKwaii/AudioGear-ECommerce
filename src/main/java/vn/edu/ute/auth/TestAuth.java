@@ -4,6 +4,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import vn.edu.ute.auth.adapter.GoogleProfile;
 import vn.edu.ute.auth.strategy.AuthRequest;
 import vn.edu.ute.dao.UserDAO;
+import vn.edu.ute.dao.impl.UserDAOImpl;
 import vn.edu.ute.entity.User;
 import vn.edu.ute.entity.enums.UserStatus;
 
@@ -12,7 +13,7 @@ public class TestAuth {
         System.out.println("--- Bắt đầu Test luồng Đăng nhập (Strategy + Adapter) ---");
         
         AuthService authService = new AuthService();
-        UserDAO dao = new UserDAO();
+        UserDAO dao = new UserDAOImpl();
         
         // 1. Dọn dẹp Mock Data (Nếu chạy nhiều lần, email có thể bị trùng do UNIQUE)
         // Lưu ý: Trong thực tế ta truncate DB test, nhưng script này chạy cẩn thận

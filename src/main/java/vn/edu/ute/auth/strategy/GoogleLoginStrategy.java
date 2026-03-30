@@ -3,6 +3,7 @@ package vn.edu.ute.auth.strategy;
 import vn.edu.ute.auth.adapter.GoogleProfile;
 import vn.edu.ute.auth.adapter.GoogleToUserAdapter;
 import vn.edu.ute.dao.UserDAO;
+import vn.edu.ute.dao.impl.UserDAOImpl;
 import vn.edu.ute.entity.User;
 
 import java.util.Optional;
@@ -16,7 +17,7 @@ public class GoogleLoginStrategy implements LoginStrategy {
     private final UserDAO userDAO;
 
     public GoogleLoginStrategy() {
-        this.userDAO = new UserDAO();
+        this.userDAO = new UserDAOImpl();
     }
 
     @Override
