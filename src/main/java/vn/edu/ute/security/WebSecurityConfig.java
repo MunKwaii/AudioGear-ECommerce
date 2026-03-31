@@ -39,7 +39,8 @@ public class WebSecurityConfig {
             "/js/",
             "/images/",
             "/assets/",
-            "/webjars/"
+            "/webjars/",
+            "/static/"
     );
 
     // 2. CÁC ĐƯỜNG DẪN QUẢN TRỊ VIÊN (ADMIN ONLY)
