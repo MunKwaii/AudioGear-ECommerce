@@ -1,4 +1,4 @@
-package vn.edu.ute.service.impl;
+package vn.edu.ute.cart;
 
 import vn.edu.ute.dao.CartDao;
 import vn.edu.ute.dto.CartDTO;
@@ -8,7 +8,6 @@ import vn.edu.ute.entity.CartItem;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.entity.User;
 import vn.edu.ute.factory.DaoFactory;
-import vn.edu.ute.service.CartFacadeService;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

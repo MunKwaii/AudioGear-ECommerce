@@ -4,7 +4,7 @@ import vn.edu.ute.dao.ProductDao;
 import vn.edu.ute.dto.PageDTO;
 import vn.edu.ute.dto.ProductDTO;
 import vn.edu.ute.entity.Product;
-import vn.edu.ute.factory.DaoFactory;
+import vn.edu.ute.homepage.factory.factory.DaoFactory;
 import vn.edu.ute.service.ProductFacadeService;
 
 import java.util.List;
