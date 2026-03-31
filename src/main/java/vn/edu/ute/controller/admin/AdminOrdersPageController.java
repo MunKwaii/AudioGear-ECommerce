@@ -16,17 +16,11 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Servlet render trang Dashboard quản lý đơn hàng Admin.
- * URL: /admin/dashboard
- *
- * Bảo mật: tự động được bảo vệ bởi JwtAuthenticationFilter
- * vì path bắt đầu bằng /admin/ (xem WebSecurityConfig.ADMIN_PATHS).
- *
- * Trang HTML sử dụng fetch() JavaScript để gọi REST API (/api/admin/orders/*)
- * mà không cần reload trang → trải nghiệm SPA-like.
+ * Trang quản lý Đơn hàng (Admin UI)
+ * URL: /admin/orders
  */
-@WebServlet("/admin/dashboard")
-public class AdminDashboardController extends HttpServlet {
+@WebServlet("/admin/orders")
+public class AdminOrdersPageController extends HttpServlet {
 
     private final OrderService orderService = new OrderServiceImpl();
 
@@ -36,8 +30,6 @@ public class AdminDashboardController extends HttpServlet {
 
         resp.setContentType("text/html;charset=UTF-8");
 
-        // (Optional) load orders so dashboard can compute initial metrics if needed.
-        // Dashboard UI currently fetches live metrics via API, but SSR list can be reused later.
         List<Order> orders;
         try {
             orders = orderService.getAllOrders();
@@ -52,9 +44,9 @@ public class AdminDashboardController extends HttpServlet {
         WebContext ctx = new WebContext(webApp.buildExchange(req, resp), resp.getLocale());
 
         ctx.setVariable("orders", orders);
-        ctx.setVariable("title", "Tổng quan Dashboard");
-        ctx.setVariable("activePage", "dashboard");
+        ctx.setVariable("title", "Quản lý Đơn hàng");
+        ctx.setVariable("activePage", "orders");
 
-        engine.process("admin/admin-dashboard", ctx, resp.getWriter());
+        engine.process("admin/admin-orders", ctx, resp.getWriter());
     }
 }

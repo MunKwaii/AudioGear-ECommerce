@@ -44,3 +44,203 @@
     </th:block>
 </body>
 </html>
+
+<!-- =====================================================================
+     Admin layout (dark) with sidebar navigation.
+     Usage:
+       <html th:replace="~{layout/base :: adminLayout('Title','dashboard', ~{::main}, ~{::style}, ~{::script})}">
+         <style>...</style>
+         <main>...</main>
+         <script>...</script>
+       </html>
+     ===================================================================== -->
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="adminLayout(title, activePage, content, extraStyles, extraScripts)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Admin</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #22263a;
+            --border: rgba(255,255,255,.08);
+            --accent: #6c63ff;
+            --accent-hover: #7d75ff;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,.45);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .admin-shell {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: linear-gradient(180deg, rgba(26,29,39,.98), rgba(15,17,23,.98));
+            border-right: 1px solid var(--border);
+            padding: 18px 16px;
+        }
+
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px 18px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 14px;
+        }
+
+        .admin-brand .logo {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -.5px;
+            background: linear-gradient(135deg, #6c63ff, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-group { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border: 1px solid transparent;
+            background: rgba(255,255,255,.02);
+            transition: all .18s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            border-color: rgba(108,99,255,.35);
+            background: rgba(108,99,255,.12);
+        }
+
+        .nav-link.active {
+            color: var(--text);
+            border-color: rgba(108,99,255,.55);
+            background: rgba(108,99,255,.18);
+            box-shadow: 0 10px 30px rgba(108,99,255,.12);
+        }
+
+        .admin-main { display: flex; flex-direction: column; min-width: 0; }
+
+        .admin-topbar {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: rgba(26,29,39,.9);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(12px);
+        }
+
+        .admin-topbar .meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: .875rem;
+            color: var(--text-muted);
+        }
+
+        .admin-badge {
+            background: rgba(108,99,255,.18);
+            color: #a78bfa;
+            border: 1px solid rgba(108,99,255,.35);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .5px;
+        }
+
+        .admin-content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 28px 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 980px) {
+            .admin-shell { grid-template-columns: 1fr; }
+            .admin-sidebar { position: relative; height: auto; }
+        }
+    </style>
+
+    <th:block th:if="${extraStyles}">
+        <th:block th:replace="${extraStyles}"></th:block>
+    </th:block>
+</head>
+<body>
+<div class="admin-shell">
+    <aside class="admin-sidebar">
+        <div class="admin-brand">
+            <div class="logo">⚡ AudioGear Admin</div>
+        </div>
+
+        <nav class="nav-group">
+            <a class="nav-link" th:href="@{/admin/dashboard}" th:classappend="${activePage}=='dashboard' ? ' active' : ''">📊 Dashboard</a>
+            <a class="nav-link" th:href="@{/admin/orders}" th:classappend="${activePage}=='orders' ? ' active' : ''">📦 Đơn hàng</a>
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div style="font-weight:700; letter-spacing:-.3px;" th:text="${title}">Admin</div>
+            <div class="meta">
+                <span class="admin-badge">ADMIN</span>
+                <span id="current-time">--:--</span>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            <th:block th:replace="${content}"></th:block>
+        </main>
+    </div>
+</div>
+
+<script>
+    (function clock(){
+        function update(){
+            var now = new Date();
+            var el = document.getElementById('current-time');
+            if (el) el.textContent = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        update();
+        setInterval(update, 1000);
+    })();
+</script>
+
+<th:block th:if="${extraScripts}">
+    <th:block th:replace="${extraScripts}"></th:block>
+</th:block>
+</body>
+</html>

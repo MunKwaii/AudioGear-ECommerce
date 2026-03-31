@@ -1,5 +1,4 @@
 package vn.edu.ute.controller;
-import vn.edu.ute.dto.request.AuthRequest;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -51,7 +50,7 @@ public class LoginController extends HttpServlet {
 
             // Chuyển hướng
             if (vn.edu.ute.entity.enums.UserRole.admin.equals(user.getRole())) {
-                resp.sendRedirect(req.getContextPath() + "/admin/orders");
+                resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
             } else {
                 resp.sendRedirect(req.getContextPath() + "/");
             }
