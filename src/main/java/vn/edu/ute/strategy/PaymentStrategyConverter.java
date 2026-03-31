@@ -20,15 +20,20 @@ public class PaymentStrategyConverter implements AttributeConverter<PaymentStrat
             return null;
         }
 
-        switch (dbData) {
+        switch (dbData.toUpperCase()) {
             case "COD":
                 return new CODStrategy();
-            case "BANK_TRANSFER":
+            case "MOMO":
+                return new MomoStrategy();
+            case "BANK":
+            case "BANK_TRANSFER": // Giữ lại dự phòng lỗi cho DB cũ
                 return new BankTransferStrategy();
             case "STORE_PICKUP":
                 return new StorePickupStrategy();
             default:
-                throw new IllegalArgumentException("Unknown payment strategy code: " + dbData);
+                // Tránh việc văng lỗi trắng trang Admin nếu trong DB có dữ liệu cũ chưa map
+                System.err.println("Unknown payment strategy code in DB: " + dbData + ". Falling back to COD.");
+                return new CODStrategy();
         }
     }
 }

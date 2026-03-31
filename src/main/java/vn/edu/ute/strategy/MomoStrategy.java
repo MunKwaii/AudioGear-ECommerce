@@ -2,14 +2,14 @@ package vn.edu.ute.strategy;
 
 import java.math.BigDecimal;
 
-public class BankTransferStrategy implements PaymentStrategy {
+public class MomoStrategy implements PaymentStrategy {
     @Override
     public void pay(BigDecimal amount) {
-        // TODO: Người làm Service sẽ viết logic ở đây
+        // TODO: Call Momo API logic here
     }
 
     @Override
     public String getStrategyCode() {
-        return "BANK";
+        return "MOMO";
     }
 }
