@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import vn.edu.ute.security.WebSecurityConfig;
 import vn.edu.ute.service.RedisService;
+import vn.edu.ute.service.impl.RedisServiceImpl;
 import vn.edu.ute.util.JwtUtil;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class JwtAuthenticationFilter implements Filter {
 
     public JwtAuthenticationFilter() {
         this.jwtUtil = new JwtUtil();
-        this.redisService = new RedisService();
+        this.redisService = new RedisServiceImpl();
     }
 
     @Override

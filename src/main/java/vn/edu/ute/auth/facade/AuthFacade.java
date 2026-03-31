@@ -3,10 +3,12 @@ package vn.edu.ute.auth.facade;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import vn.edu.ute.dto.request.RegisterRequest;
-import vn.edu.ute.entity.User;
 import vn.edu.ute.service.EmailService;
 import vn.edu.ute.service.RedisService;
 import vn.edu.ute.service.UserService;
+import vn.edu.ute.service.impl.EmailServiceImpl;
+import vn.edu.ute.service.impl.RedisServiceImpl;
+import vn.edu.ute.service.impl.UserServiceImpl;
 
 /**
  * AuthFacade: Áp dụng Facade Pattern.
@@ -20,9 +22,9 @@ public class AuthFacade {
     private final EmailService emailService;
 
     public AuthFacade() {
-        this.userService = new UserService();
-        this.redisService = new RedisService();
-        this.emailService = new EmailService();
+        this.userService = new UserServiceImpl();
+        this.redisService = new RedisServiceImpl();
+        this.emailService = new EmailServiceImpl();
     }
 
     // ==========================================

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import vn.edu.ute.service.RedisService;
+import vn.edu.ute.service.impl.RedisServiceImpl;
 import vn.edu.ute.util.JwtUtil;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class LogoutController extends HttpServlet {
 
     private static final Logger logger = LogManager.getLogger(LogoutController.class);
     private final JwtUtil jwtUtil = new JwtUtil();
-    private final RedisService redisService = new RedisService();
+    private final RedisService redisService = new RedisServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
