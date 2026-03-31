@@ -566,13 +566,20 @@
     }
 
     // ── Actions ──────────────────────────────────────────────────
-    async function doAction(orderId, action) {
-        // Disable all buttons for this row while processing
+    async function doAction(orderId, actionRaw) {
+        if (!orderId || isNaN(orderId)) {
+            showToast('Lỗi: ID đơn hàng không hợp lệ (' + orderId + ')', 'error');
+            return;
+        }
+        
+        const [action, ...rest] = actionRaw.split('&');
+        const extra = rest.length ? '&' + rest.join('&') : '';
         const row = document.querySelector(`tr[data-id="${orderId}"]`);
+        
         if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = true);
-
+        
         try {
-            const resp = await fetch(`${API}/${action}?id=${orderId}`, {
+            const resp = await fetch(`${API}/${action}?id=${orderId}${extra}`, {
                 method: 'POST',
                 headers: { 'Authorization': 'Bearer ' + getToken() }
             });
@@ -581,7 +588,7 @@
                 showToast(data.message, 'success');
                 loadOrders(); // reload full table
             } else {
-                showToast(data.message, resp.status === 409 ? 'error' : 'error');
+                showToast(data.message, 'error');
                 if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
             }
         } catch (e) {
@@ -604,8 +611,9 @@
     async function confirmCancel() {
         if (!pendingCancelId) return;
         const reason = document.getElementById('cancel-reason').value.trim();
+        const idToCancel = pendingCancelId;
         closeModal();
-        await doAction(pendingCancelId, 'cancel' + (reason ? '&reason=' + encodeURIComponent(reason) : ''));
+        await doAction(idToCancel, 'cancel' + (reason ? '&reason=' + encodeURIComponent(reason) : ''));
     }
     // Close on backdrop click
     document.getElementById('cancel-modal').addEventListener('click', function(e) {
@@ -618,35 +626,12 @@
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
-        document.getElementById('toast-container').appendChild(toast);
-        setTimeout(() => toast.remove(), 4000);
-    }
-
-    // ── Giải quyết cancel action URL ────────────────────────────
-    // Override doAction để xử lý &reason trong action string
-    const _doAction = doAction;
-    async function doAction(orderId, actionRaw) {
-        const [action, ...rest] = actionRaw.split('&');
-        const extra = rest.length ? '&' + rest.join('&') : '';
-        const row = document.querySelector(`tr[data-id="${orderId}"]`);
-        if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = true);
-        try {
-            const resp = await fetch(`${API}/${action}?id=${orderId}${extra}`, {
-                method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + getToken() }
-            });
-            const data = await resp.json();
-            if (data.success) {
-                showToast(data.message, 'success');
-                loadOrders();
-            } else {
-                showToast(data.message, 'error');
-                if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
-            }
-        } catch (e) {
-            showToast('Lỗi kết nối máy chủ', 'error');
-            if (row) row.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
+        if (document.getElementById('toast-container')) {
+             document.getElementById('toast-container').appendChild(toast);
+        } else {
+             document.body.appendChild(toast);
         }
+        setTimeout(() => toast.remove(), 4000);
     }
 
     // ── Init: Lấy data từ API để render live (không quá cũ như SSR) ─

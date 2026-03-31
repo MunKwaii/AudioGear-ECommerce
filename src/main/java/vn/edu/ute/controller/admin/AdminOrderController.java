@@ -94,13 +94,13 @@ public class AdminOrderController extends HttpServlet {
         }
 
         String orderIdParam = req.getParameter("id");
-        if (orderIdParam == null || orderIdParam.isEmpty()) {
+        if (orderIdParam == null || orderIdParam.trim().isEmpty()) {
             sendError(resp, out, 400, "Thiếu tham số ID đơn hàng (?id=...).");
             return;
         }
 
         try {
-            Long orderId = Long.parseLong(orderIdParam);
+            Long orderId = Long.parseLong(orderIdParam.trim());
             Order updatedOrder;
             String successMessage;
 
@@ -132,7 +132,7 @@ public class AdminOrderController extends HttpServlet {
             out.print(OrderResponseDto.success(successMessage, updatedOrder).toJson());
 
         } catch (NumberFormatException e) {
-            sendError(resp, out, 400, "ID đơn hàng phải là số nguyên.");
+            sendError(resp, out, 400, "ID đơn hàng phải là số nguyên. Chuỗi nhận được: [" + orderIdParam + "]");
         } catch (IllegalStateException e) {
             // Lỗi nhảy cóc trạng thái từ State Machine → 409 Conflict
             sendError(resp, out, 409, e.getMessage());
