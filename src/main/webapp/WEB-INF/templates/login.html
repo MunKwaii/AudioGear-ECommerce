@@ -1,20 +1,15 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: mainLayout('AudioGear - Đăng Nhập', ~{::pageContent}, ~{::pageStyles}, ~{::pageScripts})}">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AudioGear Logic - Đăng Nhập</title>
-    <!-- Thư viện Materialize / Bootstrap có thể import ở đây (Demo dùng css căn bản) -->
+<!-- 1. STYLE DÀNH RIÊNG CHO TRANG LOGIN -->
+<th:block th:fragment="pageStyles">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f6fa;
+        .auth-main {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            padding: 40px 15px;
+            height: 100%; /* Giúp container canh giữa chuẩn xác */
         }
 
         .login-container {
@@ -94,12 +89,10 @@
             justify-content: center;
         }
     </style>
-    <!-- Trạm nhúng thư viện Google Identity Services -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-</head>
+</th:block>
 
-<body>
-
+<!-- 2. NỘI DUNG LÕI TRANG LOGIN -->
+<main th:fragment="pageContent" class="auth-main">
     <div class="login-container">
         <h2>AudioGear Login</h2>
 
@@ -143,7 +136,12 @@
             </div>
         </div>
     </div>
+</main>
 
-</body>
+<!-- 3. SCRIPT DÀNH RIÊNG CHO LOGIN (Google Auth) -->
+<th:block th:fragment="pageScripts">
+    <!-- Trạm nhúng thư viện Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</th:block>
 
 </html>

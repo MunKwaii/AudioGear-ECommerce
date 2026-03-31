@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- 
+  Để nhúng thẻ Footer này vào các trang khác, sử dụng cú pháp:
+  <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+-->
+<body>
+    <footer th:fragment="footerFragment" class="ag-footer-wrapper">
+        <style>
+            /* ========== PREMIUM AUDIO GEAR FOOTER CSS ========== */
+            .ag-footer-wrapper {
+                background-color: #0d0d0d;
+                color: #bdc3c7;
+                font-family: 'Inter', '-apple-system', 'Segoe UI', sans-serif;
+                padding-top: 60px;
+                border-top: 1px solid #222;
+                margin-top: 50px;
+            }
+
+            .ag-footer-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 24px;
+                display: grid;
+                grid-template-columns: 2fr 1fr 1.5fr;
+                gap: 40px;
+            }
+
+            .ag-footer-col h3 {
+                color: #fff;
+                font-size: 18px;
+                margin-bottom: 20px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+
+            .ag-footer-col p {
+                line-height: 1.6;
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            .ag-footer-logo {
+                font-size: 20px;
+                font-weight: 800;
+                color: #fff;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 15px;
+                text-decoration: none;
+            }
+            .ag-footer-logo span {
+                color: #f1c40f;
+            }
+
+            .ag-footer-links {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .ag-footer-links li {
+                margin-bottom: 12px;
+            }
+
+            .ag-footer-links a {
+                color: #bdc3c7;
+                text-decoration: none;
+                font-size: 14px;
+                transition: color 0.3s;
+            }
+
+            .ag-footer-links a:hover {
+                color: #f1c40f;
+            }
+
+            /* DANH SÁCH THÀNH VIÊN CSS */
+            .ag-team-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .ag-team-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 15px;
+                background-color: #1a1a1a;
+                border-radius: 6px;
+                margin-bottom: 10px;
+                border-left: 3px solid #f1c40f;
+                transition: transform 0.3s, background-color 0.3s;
+            }
+
+            .ag-team-item:hover {
+                transform: translateX(5px);
+                background-color: #222;
+            }
+
+            .ag-team-id {
+                color: #f1c40f;
+                font-weight: bold;
+                font-size: 13px;
+                font-family: monospace;
+            }
+
+            .ag-team-name {
+                color: #fff;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            /* FOOTER BOTTOM */
+            .ag-footer-bottom {
+                margin-top: 50px;
+                padding: 20px 0;
+                border-top: 1px solid #222;
+                text-align: center;
+                font-size: 13px;
+                background-color: #080808;
+            }
+
+            @media (max-width: 850px) {
+                .ag-footer-container {
+                    grid-template-columns: 1fr;
+                    gap: 30px;
+                }
+            }
+        </style>
+
+        <div class="ag-footer-container">
+            <!-- Cột 1: Thông tin dự án -->
+            <div class="ag-footer-col">
+                <a href="#" class="ag-footer-logo">AUDIO<span>GEAR</span></a>
+                <p>Hệ thống thương mại điện tử chuyên cung cấp thiết bị âm thanh cao cấp. Đồ án môn học phân tích thiết kế hệ thống phần mềm áp dụng các Design Patterns chuyên sâu.</p>
+                <p>📍 Địa chỉ: 1 Võ Văn Ngân, Thủ Đức, TP. Hồ Chí Minh</p>
+                <p>✉️ Email: contact@audiogear.ute.edu.vn</p>
+            </div>
+
+            <!-- Cột 2: Liên kết nhanh -->
+            <div class="ag-footer-col">
+                <h3>Về Chúng Tôi</h3>
+                <ul class="ag-footer-links">
+                    <li><a href="#">Trang Chủ</a></li>
+                    <li><a href="#">Sản Phẩm</a></li>
+                    <li><a href="#">Chính Sách Bảo Hành</a></li>
+                    <li><a href="#">Hướng Dẫn Mua Hàng</a></li>
+                    <li><a href="#">Liên Hệ Hỗ Trợ</a></li>
+                </ul>
+            </div>
+
+            <!-- Cột 3: Quản trị Đồ án & Thành viên -->
+            <div class="ag-footer-col">
+                <h3>Thành Viên Nhóm</h3>
+                <ul class="ag-team-list">
+                    <li class="ag-team-item">
+                        <span class="ag-team-id">23110219</span>
+                        <span class="ag-team-name">Võ Trí Hiệu</span>
+                    </li>
+                    <li class="ag-team-item">
+                        <span class="ag-team-id">23110239</span>
+                        <span class="ag-team-name">Nguyễn Quốc Khánh</span>
+                    </li>
+                    <li class="ag-team-item">
+                        <span class="ag-team-id">23110315</span>
+                        <span class="ag-team-name">Lê Ngô Nhựt Tân</span>
+                    </li>
+                    <li class="ag-team-item">
+                        <span class="ag-team-id">23110305</span>
+                        <span class="ag-team-name">Huỳnh Ngọc Tài</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="ag-footer-bottom">
+            &copy; 2026 AudioGear E-Commerce Project. All rights reserved. Designed by Team AudioGear.
+        </div>
+    </footer>
+</body>
+</html>

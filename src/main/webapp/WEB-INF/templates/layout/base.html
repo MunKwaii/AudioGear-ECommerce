@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="mainLayout(title, content, extraStyles, extraScripts)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">AudioGear</title>
+    
+    <!-- CSS CHUNG THEO KHÁNH/BASE CỦA PROJECT -->
+    <style>
+        body {
+            font-family: 'Inter', '-apple-system', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f6fa;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Thêm background mờ cho toàn bộ nền mảng Web App (Tùy chọn) */
+        main {
+            flex-grow: 1; /* Căng đều thẻ main ra đè footer xuống đáy */
+        }
+    </style>
+
+    <!-- TRẠM CẮM CHO CÁC CSS RIÊNG CỦA TỪNG TRANG -->
+    <th:block th:if="${extraStyles}">
+        <th:block th:replace="${extraStyles}"></th:block>
+    </th:block>
+
+</head>
+<body>
+    <!-- 1. Header Nhúng chung toàn Web -->
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <!-- 2. Main Content động - Xác định Layout của Từng Trang -->
+    <th:block th:replace="${content}"></th:block>
+
+    <!-- 3. Footer Nhúng chung toàn Web -->
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <!-- TRẠM CẮM CÁC DÒNG SCRIPT (ví dụ gọi API, check Token, Login Google) -->
+    <th:block th:if="${extraScripts}">
+        <th:block th:replace="${extraScripts}"></th:block>
+    </th:block>
+</body>
+</html>

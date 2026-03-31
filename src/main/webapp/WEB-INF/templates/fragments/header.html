@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- 
+  Để nhúng thẻ Header này vào các trang khác, sử dụng cú pháp:
+  <header th:replace="~{fragments/header :: headerFragment}"></header>
+-->
+<body>
+    <header th:fragment="headerFragment" class="ag-header-wrapper">
+        <style>
+            /* ========== PREMIUM AUDIO GEAR HEADER CSS ========== */
+            :root {
+                --ag-primary: #f1c40f; /* Gold accent */
+                --ag-dark: #121212;
+                --ag-dark-glass: rgba(18, 18, 18, 0.85);
+                --ag-text: #ecf0f1;
+                --ag-text-muted: #bdc3c7;
+                --ag-border: #333333;
+            }
+
+            .ag-header-wrapper {
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                background-color: var(--ag-dark-glass);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-bottom: 1px solid var(--ag-border);
+                font-family: 'Inter', '-apple-system', 'Segoe UI', sans-serif;
+                color: var(--ag-text);
+                transition: all 0.3s ease;
+            }
+
+            .ag-header-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 16px 24px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 30px;
+            }
+
+            /* LOGO */
+            .ag-logo {
+                font-size: 24px;
+                font-weight: 800;
+                letter-spacing: 2px;
+                text-decoration: none;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                text-transform: uppercase;
+            }
+            .ag-logo-accent {
+                color: var(--ag-primary);
+            }
+
+            /* SEARCH BAR */
+            .ag-search-box {
+                flex-grow: 1;
+                max-width: 500px;
+                position: relative;
+                display: flex;
+                align-items: center;
+            }
+            .ag-search-input {
+                width: 100%;
+                padding: 12px 20px;
+                padding-right: 45px;
+                background-color: #222;
+                border: 1px solid var(--ag-border);
+                border-radius: 30px;
+                color: var(--ag-text);
+                font-size: 14px;
+                outline: none;
+                transition: border-color 0.3s, box-shadow 0.3s;
+            }
+            .ag-search-input:focus {
+                border-color: var(--ag-primary);
+                box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.2);
+            }
+            .ag-search-btn {
+                position: absolute;
+                right: 15px;
+                background: none;
+                border: none;
+                color: var(--ag-text-muted);
+                cursor: pointer;
+                transition: color 0.3s;
+            }
+            .ag-search-btn:hover {
+                color: var(--ag-primary);
+            }
+
+            /* NAVIGATION & ICONS */
+            .ag-header-nav {
+                display: flex;
+                align-items: center;
+                gap: 24px;
+            }
+            .ag-nav-item {
+                text-decoration: none;
+                color: var(--ag-text-muted);
+                font-size: 14px;
+                font-weight: 500;
+                transition: color 0.3s;
+                position: relative;
+            }
+            .ag-nav-item:hover {
+                color: var(--ag-text);
+            }
+            
+            /* CART ICON */
+            .ag-cart-icon {
+                position: relative;
+                display: flex;
+                align-items: center;
+                color: var(--ag-text);
+                text-decoration: none;
+                transition: transform 0.2s;
+            }
+            .ag-cart-icon:hover {
+                transform: scale(1.1);
+            }
+            .ag-cart-badge {
+                position: absolute;
+                top: -8px;
+                right: -10px;
+                background-color: var(--ag-primary);
+                color: var(--ag-dark);
+                font-size: 10px;
+                font-weight: bold;
+                padding: 2px 6px;
+                border-radius: 10px;
+            }
+
+            /* LOGIN BUTTON */
+            .ag-btn-login {
+                background-color: transparent;
+                color: var(--ag-text);
+                border: 1px solid var(--ag-text-muted);
+                padding: 8px 16px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 600;
+                transition: all 0.3s;
+            }
+            .ag-btn-login:hover {
+                background-color: var(--ag-text);
+                color: var(--ag-dark);
+            }
+            
+            /* Dành cho Mobile thu gọn */
+            @media (max-width: 768px) {
+                .ag-search-box {
+                    display: none; /* Cần logic hiện search overlay riêng cho mobile */
+                }
+                .ag-header-container {
+                    padding: 12px 16px;
+                }
+            }
+        </style>
+
+        <div class="ag-header-container">
+            <!-- 1. Logo -->
+            <a th:href="@{/}" class="ag-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+                AUDIO<span class="ag-logo-accent">GEAR</span>
+            </a>
+
+            <!-- 2. Search -->
+            <form action="/search" method="GET" class="ag-search-box">
+                <input type="text" name="q" class="ag-search-input" placeholder="Tìm kiếm tai nghe, loa, amply...">
+                <button type="submit" class="ag-search-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </form>
+
+            <!-- 3. Actions -->
+            <div class="ag-header-nav">
+                <!-- Hiển thị khi chưa đăng nhập (Demo tĩnh) -->
+                <a th:href="@{/login}" class="ag-btn-login">Đăng Nhập</a>
+                
+                <!-- Hiển thị nếu đã đăng nhập (Dùng thymeleaf condition sau) -->
+                <!-- <a th:href="@{/profile}" class="ag-nav-item">Tài Khoản</a> -->
+
+                <a th:href="@{/cart}" class="ag-cart-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    <!-- Số lượng giả định -->
+                    <span class="ag-cart-badge">2</span>
+                </a>
+            </div>
+        </div>
+    </header>
+</body>
+</html>
