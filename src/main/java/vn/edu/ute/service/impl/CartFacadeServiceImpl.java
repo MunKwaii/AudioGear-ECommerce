@@ -39,12 +39,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
 
         List<CartItemDTO> itemDTOs = cart.getItems().stream().map(item -> {
             Product product = item.getProduct();
-            String thumb = product.getThumbnailUrl();
-            if (thumb == null || thumb.trim().isEmpty()) {
-                thumb = "/static/img/hero_bg.png"; // Fallback URL an toàn
-            } else if (!thumb.startsWith("http") && !thumb.startsWith("/")) {
-                thumb = "/static/img/" + thumb;
-            }
+            String thumb = vn.edu.ute.util.ImageUtil.resolveImageUrl(product.getThumbnailUrl());
             
             BigDecimal itemTotal = product.getPrice().multiply(new BigDecimal(item.getQuantity()));
             return new CartItemDTO(

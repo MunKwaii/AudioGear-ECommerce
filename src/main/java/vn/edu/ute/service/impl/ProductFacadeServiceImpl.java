@@ -48,12 +48,7 @@ public class ProductFacadeServiceImpl implements ProductFacadeService {
         String categoryName = product.getCategory() != null ? product.getCategory().getName() : "Khác";
         String brandName = product.getBrand() != null ? product.getBrand().getName() : "Không rõ";
         
-        String thumbUrl = product.getThumbnailUrl();
-        if (thumbUrl == null || thumbUrl.trim().isEmpty()) {
-            thumbUrl = "/static/img/hero_bg.png";
-        } else if (!thumbUrl.startsWith("http") && !thumbUrl.startsWith("/")) {
-            thumbUrl = "/static/img/" + thumbUrl;
-        }
+        String thumbUrl = vn.edu.ute.util.ImageUtil.resolveImageUrl(product.getThumbnailUrl());
 
         return new ProductDTO(
                 product.getId(),
