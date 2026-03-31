@@ -1,11 +1,10 @@
-package vn.edu.ute.service.impl;
+package vn.edu.ute.homepage.facade;
 
 import vn.edu.ute.dao.ProductDao;
 import vn.edu.ute.dto.PageDTO;
 import vn.edu.ute.dto.ProductDTO;
 import vn.edu.ute.entity.Product;
-import vn.edu.ute.homepage.factory.factory.DaoFactory;
-import vn.edu.ute.service.ProductFacadeService;
+import vn.edu.ute.homepage.factory.DaoFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;

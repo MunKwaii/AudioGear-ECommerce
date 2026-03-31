@@ -7,7 +7,7 @@ import vn.edu.ute.entity.Cart;
 import vn.edu.ute.entity.CartItem;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.entity.User;
-import vn.edu.ute.factory.DaoFactory;
+import vn.edu.ute.homepage.factory.DaoFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

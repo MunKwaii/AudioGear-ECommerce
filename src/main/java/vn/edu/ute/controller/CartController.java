@@ -1,7 +1,7 @@
 package vn.edu.ute.controller;
 
 import vn.edu.ute.dto.CartDTO;
-import vn.edu.ute.factory.ServiceFactory;
+import vn.edu.ute.homepage.factory.ServiceFactory;
 import vn.edu.ute.util.JwtUtil;
 import vn.edu.ute.config.ThymeleafConfig;
 

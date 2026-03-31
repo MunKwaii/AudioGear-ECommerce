@@ -9,8 +9,9 @@ import vn.edu.ute.dao.ProductDao;
 import vn.edu.ute.dto.HomePageDTO;
 import vn.edu.ute.entity.Category;
 import vn.edu.ute.entity.Product;
-import vn.edu.ute.factory.DaoFactory;
-import vn.edu.ute.factory.ServiceFactory;
+import vn.edu.ute.homepage.factory.DaoFactory;
+import vn.edu.ute.homepage.factory.ServiceFactory;
+import vn.edu.ute.homepage.facade.HomeFacadeService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;

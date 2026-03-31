@@ -12,9 +12,9 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import vn.edu.ute.dto.PageDTO;
 import vn.edu.ute.dto.ProductDTO;
-import vn.edu.ute.factory.DaoFactory;
-import vn.edu.ute.factory.ServiceFactory;
-import vn.edu.ute.service.ProductFacadeService;
+import vn.edu.ute.homepage.factory.DaoFactory;
+import vn.edu.ute.homepage.factory.ServiceFactory;
+import vn.edu.ute.homepage.facade.ProductFacadeService;
 
 import java.io.IOException;
 

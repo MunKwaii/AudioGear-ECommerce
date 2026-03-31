@@ -1,4 +1,4 @@
-package vn.edu.ute.service;
+package vn.edu.ute.homepage.facade;
 
 import vn.edu.ute.dto.PageDTO;
 import vn.edu.ute.dto.ProductDTO;

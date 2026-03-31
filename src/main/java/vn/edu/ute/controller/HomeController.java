@@ -11,8 +11,8 @@ import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import vn.edu.ute.dto.HomePageDTO;
-import vn.edu.ute.factory.ServiceFactory;
-import vn.edu.ute.service.HomeFacadeService;
+import vn.edu.ute.homepage.factory.ServiceFactory;
+import vn.edu.ute.homepage.facade.HomeFacadeService;
 
 import java.io.IOException;
 

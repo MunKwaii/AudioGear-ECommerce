@@ -1,4 +1,4 @@
-package vn.edu.ute.homepage.factory.factory;
+package vn.edu.ute.homepage.factory;
 
 import vn.edu.ute.dao.CategoryDao;
 import vn.edu.ute.dao.ProductDao;

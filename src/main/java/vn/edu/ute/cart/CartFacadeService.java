@@ -1,4 +1,4 @@
-package vn.edu.ute.service;
+package vn.edu.ute.cart;
 
 import vn.edu.ute.dto.CartDTO;
 
