@@ -1,4 +1,4 @@
-package vn.edu.ute.facade;
+package vn.edu.ute.auth.facade;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

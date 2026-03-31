@@ -1,10 +1,10 @@
-package vn.edu.ute.state;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import vn.edu.ute.entity.Order;
 import vn.edu.ute.entity.enums.OrderStatus;
+import vn.edu.ute.order.state.OrderContext;
 import vn.edu.ute.service.OrderNotificationService;
 import vn.edu.ute.service.RestockService;
 
@@ -65,7 +65,7 @@ class OrderStateMachineTest {
         OrderContext ctx = ctx(OrderStatus.PENDING);
         ctx.processOrder();
         assertEquals(OrderStatus.PROCESSING, ctx.getOrder().getStatus());
-        assertInstanceOf(vn.edu.ute.state.impl.ProcessingState.class, ctx.getState());
+        assertInstanceOf(vn.edu.ute.order.state.impl.ProcessingState.class, ctx.getState());
     }
 
     @Test
@@ -74,7 +74,7 @@ class OrderStateMachineTest {
         OrderContext ctx = ctx(OrderStatus.PROCESSING);
         ctx.shipOrder();
         assertEquals(OrderStatus.SHIPPED, ctx.getOrder().getStatus());
-        assertInstanceOf(vn.edu.ute.state.impl.ShippedState.class, ctx.getState());
+        assertInstanceOf(vn.edu.ute.order.state.impl.ShippedState.class, ctx.getState());
     }
 
     @Test
@@ -83,7 +83,7 @@ class OrderStateMachineTest {
         OrderContext ctx = ctx(OrderStatus.SHIPPED);
         ctx.deliverOrder();
         assertEquals(OrderStatus.DELIVERED, ctx.getOrder().getStatus());
-        assertInstanceOf(vn.edu.ute.state.impl.DeliveredState.class, ctx.getState());
+        assertInstanceOf(vn.edu.ute.order.state.impl.DeliveredState.class, ctx.getState());
     }
 
     @Test
@@ -111,7 +111,7 @@ class OrderStateMachineTest {
         OrderContext ctx = ctx(OrderStatus.PENDING);
         ctx.cancelOrder("Không đủ hàng");
         assertEquals(OrderStatus.CANCELLED, ctx.getOrder().getStatus());
-        assertInstanceOf(vn.edu.ute.state.impl.CancelledState.class, ctx.getState());
+        assertInstanceOf(vn.edu.ute.order.state.impl.CancelledState.class, ctx.getState());
     }
 
     @Test
@@ -120,7 +120,7 @@ class OrderStateMachineTest {
         OrderContext ctx = ctx(OrderStatus.SHIPPED);
         ctx.cancelOrder("Khách từ chối nhận hàng");
         assertEquals(OrderStatus.CANCELLED, ctx.getOrder().getStatus());
-        assertInstanceOf(vn.edu.ute.state.impl.CancelledState.class, ctx.getState());
+        assertInstanceOf(vn.edu.ute.order.state.impl.CancelledState.class, ctx.getState());
     }
 
     // =======================================================================

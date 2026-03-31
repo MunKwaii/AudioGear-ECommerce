@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import vn.edu.ute.strategy.CODStrategy;
-import vn.edu.ute.strategy.PaymentStrategy;
-import vn.edu.ute.strategy.PaymentStrategyConverter;
+import vn.edu.ute.order.payment.strategy.CODStrategy;
+import vn.edu.ute.order.payment.strategy.PaymentStrategy;
+import vn.edu.ute.order.payment.strategy.PaymentStrategyConverter;
 import vn.edu.ute.entity.enums.OrderStatus;
 
 import java.math.BigDecimal;

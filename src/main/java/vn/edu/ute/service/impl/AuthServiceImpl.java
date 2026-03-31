@@ -1,6 +1,8 @@
-package vn.edu.ute.auth;
+package vn.edu.ute.service.impl;
+import vn.edu.ute.service.AuthService;
+import vn.edu.ute.auth.LoginType;
 
-import vn.edu.ute.auth.strategy.AuthRequest;
+import vn.edu.ute.dto.request.AuthRequest;
 import vn.edu.ute.auth.strategy.GoogleLoginStrategy;
 import vn.edu.ute.auth.strategy.LocalLoginStrategy;
 import vn.edu.ute.auth.strategy.LoginStrategy;
@@ -13,11 +15,11 @@ import java.util.Map;
 /**
  * Context class cho luồng Đăng nhập, quản lý và vận hành LoginStrategy
  */
-public class AuthService {
+public class AuthServiceImpl implements AuthService {
 
     private final Map<LoginType, LoginStrategy> strategies;
 
-    public AuthService() {
+    public AuthServiceImpl() {
         strategies = new EnumMap<>(LoginType.class);
         strategies.put(LoginType.LOCAL, new LocalLoginStrategy());
         strategies.put(LoginType.GOOGLE, new GoogleLoginStrategy());
@@ -26,6 +28,7 @@ public class AuthService {
     /**
      * Entry-point luồng Đăng nhập (Strategy Pattern + UML workflow)
      */
+    @Override
     public User login(LoginType loginType, AuthRequest request) {
         // 1. Phân phối cho Strategy tương ứng để lấy thông tin người dùng / xác thực
         LoginStrategy strategy = strategies.get(loginType);

@@ -1,7 +1,7 @@
 package vn.edu.ute.service;
 
-import vn.edu.ute.strategy.otp.EmailOtpSender;
-import vn.edu.ute.strategy.otp.OtpSenderStrategy;
+import vn.edu.ute.auth.otp.EmailOtpSender;
+import vn.edu.ute.auth.otp.OtpSenderStrategy;
 
 import java.util.Random;
 

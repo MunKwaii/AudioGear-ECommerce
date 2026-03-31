@@ -1,8 +1,8 @@
-package vn.edu.ute.strategy;
+package vn.edu.ute.order.payment.strategy;
 
 import java.math.BigDecimal;
 
-public class CODStrategy implements PaymentStrategy {
+public class BankTransferStrategy implements PaymentStrategy {
     @Override
     public void pay(BigDecimal amount) {
         // TODO: Người làm Service sẽ viết logic ở đây
@@ -10,6 +10,6 @@ public class CODStrategy implements PaymentStrategy {
 
     @Override
     public String getStrategyCode() {
-        return "COD";
+        return "BANK";
     }
 }

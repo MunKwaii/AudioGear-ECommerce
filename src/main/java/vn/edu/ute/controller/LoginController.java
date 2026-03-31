@@ -1,4 +1,5 @@
 package vn.edu.ute.controller;
+import vn.edu.ute.dto.request.AuthRequest;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -31,8 +32,8 @@ public class LoginController extends HttpServlet {
 
         try {
             // Khởi tạo AuthService và gọi LoginStrategy Local
-            vn.edu.ute.auth.AuthService authService = new vn.edu.ute.auth.AuthService();
-            vn.edu.ute.auth.strategy.AuthRequest authReq = new vn.edu.ute.auth.strategy.AuthRequest();
+            vn.edu.ute.service.AuthService authService = new vn.edu.ute.service.impl.AuthServiceImpl();
+            vn.edu.ute.dto.request.AuthRequest authReq = new vn.edu.ute.dto.request.AuthRequest();
             authReq.setUsernameOrEmail(usernameOrEmail);
             authReq.setPassword(password);
 

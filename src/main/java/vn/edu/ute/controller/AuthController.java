@@ -12,7 +12,7 @@ import vn.edu.ute.dto.request.RegisterRequest;
 import vn.edu.ute.dto.request.ResetPasswordRequest;
 import vn.edu.ute.dto.request.VerifyOtpRequest;
 import vn.edu.ute.dto.response.ApiResponse;
-import vn.edu.ute.facade.AuthFacade;
+import vn.edu.ute.auth.facade.AuthFacade;
 
 import java.io.BufferedReader;
 import java.io.IOException;

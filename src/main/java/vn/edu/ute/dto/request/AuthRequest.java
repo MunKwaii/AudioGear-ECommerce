@@ -1,4 +1,4 @@
-package vn.edu.ute.auth.strategy;
+package vn.edu.ute.dto.request;
 
 /**
  * DTO chứa thông tin yêu cầu đăng nhập chung (Generic Auth Request)

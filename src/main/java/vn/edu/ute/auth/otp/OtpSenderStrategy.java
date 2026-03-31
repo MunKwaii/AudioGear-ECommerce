@@ -1,4 +1,4 @@
-package vn.edu.ute.strategy.otp;
+package vn.edu.ute.auth.otp;
 
 /**
  * Strategy Pattern Interface for sending OTP

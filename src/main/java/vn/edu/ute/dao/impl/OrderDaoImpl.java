@@ -1,7 +1,6 @@
 package vn.edu.ute.dao.impl;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import vn.edu.ute.config.DatabaseConfig;
 import vn.edu.ute.dao.OrderDao;
 import vn.edu.ute.entity.Order;
@@ -31,17 +30,17 @@ public class OrderDaoImpl implements OrderDao {
     public Optional<Order> findByIdWithItems(Long id) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
-            Order order = em.createQuery(
+            // LEFT JOIN FETCH: trả về Order kể cả khi không có items
+            // (tránh lỗi "Không tìm thấy" khi order không có items trong DB)
+            List<Order> results = em.createQuery(
                     "SELECT o FROM Order o " +
-                    "JOIN FETCH o.items i " +
-                    "JOIN FETCH i.product " +
+                    "LEFT JOIN FETCH o.items i " +
+                    "LEFT JOIN FETCH i.product " +
                     "WHERE o.id = :id",
                     Order.class)
                     .setParameter("id", id)
-                    .getSingleResult();
-            return Optional.of(order);
-        } catch (NoResultException e) {
-            return Optional.empty();
+                    .getResultList();
+            return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
         } finally {
             DatabaseConfig.closeEntityManager();
         }

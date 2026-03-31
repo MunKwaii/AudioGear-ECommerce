@@ -11,10 +11,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import vn.edu.ute.auth.AuthService;
+import vn.edu.ute.service.AuthService;
+import vn.edu.ute.service.impl.AuthServiceImpl;
 import vn.edu.ute.auth.LoginType;
 import vn.edu.ute.auth.adapter.GoogleProfile;
-import vn.edu.ute.auth.strategy.AuthRequest;
+import vn.edu.ute.dto.request.AuthRequest;
 import vn.edu.ute.entity.User;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class GoogleAuthController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         // Có thể inject từ DI container, ở đây ta khởi tạo trực tiếp
-        authService = new AuthService();
+        authService = new AuthServiceImpl();
     }
 
     @Override

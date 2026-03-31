@@ -1,4 +1,4 @@
-package vn.edu.ute.strategy;
+package vn.edu.ute.order.payment.strategy;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

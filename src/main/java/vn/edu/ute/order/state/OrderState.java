@@ -1,4 +1,4 @@
-package vn.edu.ute.state;
+package vn.edu.ute.order.state;
 
 /**
  * Giao diện đại diện cho một trạng thái của Đơn hàng (State Pattern).

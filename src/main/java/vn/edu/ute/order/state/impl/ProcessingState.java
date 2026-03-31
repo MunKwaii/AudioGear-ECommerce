@@ -1,8 +1,8 @@
-package vn.edu.ute.state.impl;
+package vn.edu.ute.order.state.impl;
 
 import vn.edu.ute.entity.enums.OrderStatus;
-import vn.edu.ute.state.OrderContext;
-import vn.edu.ute.state.OrderState;
+import vn.edu.ute.order.state.OrderContext;
+import vn.edu.ute.order.state.OrderState;
 
 /**
  * Trạng thái Đang Xử Lý.

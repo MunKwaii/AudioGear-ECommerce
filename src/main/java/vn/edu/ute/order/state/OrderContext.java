@@ -1,11 +1,11 @@
-package vn.edu.ute.state;
+package vn.edu.ute.order.state;
 
 import vn.edu.ute.entity.Order;
 import vn.edu.ute.service.OrderNotificationService;
 import vn.edu.ute.service.RestockService;
 import vn.edu.ute.service.impl.OrderNotificationServiceImpl;
 import vn.edu.ute.service.impl.RestockServiceImpl;
-import vn.edu.ute.state.impl.*;
+import vn.edu.ute.order.state.impl.*;
 
 /**
  * OrderContext đóng gói Entity Order và chứa trạng thái hiện tại (State Pattern).

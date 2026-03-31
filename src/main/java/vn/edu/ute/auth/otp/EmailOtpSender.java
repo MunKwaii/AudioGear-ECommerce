@@ -1,4 +1,4 @@
-package vn.edu.ute.strategy.otp;
+package vn.edu.ute.auth.otp;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;

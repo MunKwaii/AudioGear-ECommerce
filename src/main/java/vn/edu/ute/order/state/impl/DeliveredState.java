@@ -1,6 +1,6 @@
-package vn.edu.ute.state.impl;
+package vn.edu.ute.order.state.impl;
 
-import vn.edu.ute.state.OrderState;
+import vn.edu.ute.order.state.OrderState;
 
 /**
  * Trạng thái Cuối cùng (Terminal State) số 1: Hoàn Tất.
