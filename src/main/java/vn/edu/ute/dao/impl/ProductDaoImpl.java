@@ -32,6 +32,24 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
+    public void deleteById(Long id) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            DatabaseConfig.beginTransaction();
+            Product product = em.find(Product.class, id);
+            if (product != null) {
+                em.remove(product);
+            }
+            DatabaseConfig.commitTransaction();
+        } catch (Exception e) {
+            DatabaseConfig.rollbackTransaction();
+            throw new RuntimeException("Loi khi xoa Product: " + e.getMessage(), e);
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
     public Optional<Product> findById(Long id) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
@@ -147,6 +165,80 @@ public class ProductDaoImpl implements ProductDao {
             }
             if (categoryId != null) {
                 query.setParameter("categoryId", categoryId);
+            }
+
+            return query.getSingleResult();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public List<Product> searchProductsForAdmin(String keyword, Long categoryId, Boolean status, int offset, int limit) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT p FROM Product p JOIN FETCH p.category c LEFT JOIN FETCH p.brand b WHERE 1=1");
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                jpql.append(" AND LOWER(p.name) LIKE LOWER(:keyword)");
+            }
+            if (categoryId != null) {
+                jpql.append(" AND c.id = :categoryId");
+            }
+            if (status != null) {
+                jpql.append(" AND p.status = :status");
+            }
+            jpql.append(" ORDER BY p.createdAt DESC");
+
+            TypedQuery<Product> query = em.createQuery(jpql.toString(), Product.class);
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                query.setParameter("keyword", "%" + keyword.trim() + "%");
+            }
+            if (categoryId != null) {
+                query.setParameter("categoryId", categoryId);
+            }
+            if (status != null) {
+                query.setParameter("status", status);
+            }
+
+            query.setFirstResult(offset);
+            query.setMaxResults(limit);
+
+            return query.getResultList();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public long countSearchProductsForAdmin(String keyword, Long categoryId, Boolean status) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT COUNT(p) FROM Product p JOIN p.category c WHERE 1=1");
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                jpql.append(" AND LOWER(p.name) LIKE LOWER(:keyword)");
+            }
+            if (categoryId != null) {
+                jpql.append(" AND c.id = :categoryId");
+            }
+            if (status != null) {
+                jpql.append(" AND p.status = :status");
+            }
+
+            TypedQuery<Long> query = em.createQuery(jpql.toString(), Long.class);
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                query.setParameter("keyword", "%" + keyword.trim() + "%");
+            }
+            if (categoryId != null) {
+                query.setParameter("categoryId", categoryId);
+            }
+            if (status != null) {
+                query.setParameter("status", status);
             }
 
             return query.getSingleResult();

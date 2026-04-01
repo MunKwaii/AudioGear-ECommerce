@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: adminLayout(${title}, ${activePage}, ~{::main}, ~{::style}, ~{::script})}">
+<head>
+    <style>
+        :root {
+            --surface: #1a1d27;
+            --surface2: #22263a;
+            --border: rgba(255,255,255,.08);
+            --accent: #6c63ff;
+            --accent-hover: #7d75ff;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,.45);
+            --red: #ef4444;
+        }
+
+        .page-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 16px; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        .actions { display: flex; gap: 10px; margin-top: 16px; }
+        .btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-danger { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.4); }
+        .btn-secondary { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--border); }
+        .muted { color: var(--text-muted); font-size: .9rem; }
+    </style>
+</head>
+<body>
+<main>
+    <div class="page-title">🗑️ Xóa sản phẩm</div>
+
+    <div class="card">
+        <div class="muted">Bạn có chắc muốn xóa sản phẩm này?</div>
+        <h3 th:text="${product.name}" style="margin-top:12px;"></h3>
+        <p class="muted" th:text="${product.description}"></p>
+
+        <form th:action="@{/admin/products/delete}" method="post">
+            <input type="hidden" name="id" th:value="${product.id}">
+            <div class="actions">
+                <button class="btn btn-danger" type="submit">Xóa</button>
+                <a class="btn btn-secondary" th:href="@{/admin/products}">Hủy</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>

@@ -32,17 +32,28 @@ public class ImageUtil {
             return path;
         }
 
-        // 3. Database paths starting with images/ without leading slash
+        // 3. Allow /images/products/... or images/products/...
+        if (path.startsWith("/images/products/") || path.startsWith("images/products/")) {
+            String clean = path.startsWith("/") ? path.substring(1) : path;
+            return STATIC_PREFIX + "/" + clean;
+        }
+
+        // 4. Allow products/... -> map to /static/images/products/...
+        if (path.startsWith("products/")) {
+            return STATIC_PREFIX + "/images/" + path;
+        }
+
+        // 5. Database paths starting with images/ without leading slash
         if (path.startsWith("images/")) {
             return STATIC_PREFIX + "/" + path;
         }
 
-        // 4. Case where path starts with / (e.g. /images/logo.png) -> Just prepend /static
+        // 6. Case where path starts with / (e.g. /images/logo.png) -> Just prepend /static
         if (path.startsWith("/")) {
             return STATIC_PREFIX + path;
         }
 
-        // 5. Short filename (e.g. "product1.jpg") -> Default to /static/img/
+        // 7. Short filename (e.g. "product1.jpg") -> Default to /static/img/
         return STATIC_PREFIX + "/img/" + path;
     }
 }

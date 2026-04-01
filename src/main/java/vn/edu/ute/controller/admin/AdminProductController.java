@@ -26,7 +26,8 @@ public class AdminProductController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        renderPage(req, resp, new CreateProductRequest(), null, null);
+        String formAction = req.getContextPath() + "/admin/products/new";
+        renderPage(req, resp, new CreateProductRequest(), null, null, formAction);
     }
 
     @Override
@@ -39,22 +40,25 @@ public class AdminProductController extends HttpServlet {
         form.setStockQuantity(req.getParameter("stockQuantity"));
         form.setThumbnailUrl(req.getParameter("thumbnailUrl"));
         form.setSpecifications(req.getParameter("specifications"));
+        form.setImageUrls(req.getParameter("imageUrls"));
         form.setCategoryId(req.getParameter("categoryId"));
         form.setBrandId(req.getParameter("brandId"));
         form.setStatus(req.getParameter("status"));
 
+        String formAction = req.getContextPath() + "/admin/products/new";
+
         try {
             Product product = productService.createProduct(form);
-            renderPage(req, resp, new CreateProductRequest(), "Tạo sản phẩm thành công: " + product.getName(), null);
+            renderPage(req, resp, new CreateProductRequest(), "Tạo sản phẩm thành công: " + product.getName(), null, formAction);
         } catch (IllegalArgumentException ex) {
-            renderPage(req, resp, form, null, ex.getMessage());
+            renderPage(req, resp, form, null, ex.getMessage(), formAction);
         } catch (Exception ex) {
-            renderPage(req, resp, form, null, "Lỗi máy chủ: " + ex.getMessage());
+            renderPage(req, resp, form, null, "Lỗi máy chủ: " + ex.getMessage(), formAction);
         }
     }
 
     private void renderPage(HttpServletRequest req, HttpServletResponse resp,
-                            CreateProductRequest form, String successMessage, String errorMessage)
+                            CreateProductRequest form, String successMessage, String errorMessage, String formAction)
             throws IOException {
 
         resp.setContentType("text/html;charset=UTF-8");
@@ -75,6 +79,7 @@ public class AdminProductController extends HttpServlet {
         ctx.setVariable("form", form);
         ctx.setVariable("successMessage", successMessage);
         ctx.setVariable("errorMessage", errorMessage);
+        ctx.setVariable("formAction", formAction);
 
         engine.process("admin/admin-product-create", ctx, resp.getWriter());
     }

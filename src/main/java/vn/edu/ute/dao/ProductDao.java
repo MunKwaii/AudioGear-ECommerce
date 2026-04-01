@@ -8,7 +8,8 @@ import java.util.Optional;
 public interface ProductDao {
     Product save(Product product);
     Optional<Product> findById(Long id);
-    
+    void deleteById(Long id);
+
     /**
      * Lấy danh sách sản phẩm liên quan (cùng danh mục, loại trừ sản phẩm hiện tại)
      * @param categoryId ID danh mục
@@ -40,4 +41,7 @@ public interface ProductDao {
      * Lấy tổng số lượng sản phẩm từ query search đề dùng cho thuật toán đếm trang `(total / limit)`.
      */
     long countSearchProducts(String keyword, Long categoryId);
+
+    List<Product> searchProductsForAdmin(String keyword, Long categoryId, Boolean status, int offset, int limit);
+    long countSearchProductsForAdmin(String keyword, Long categoryId, Boolean status);
 }

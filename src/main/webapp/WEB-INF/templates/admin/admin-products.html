@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: adminLayout(${title}, ${activePage}, ~{::main}, ~{::style}, ~{::script})}">
+<head>
+    <style>
+        :root {
+            --surface: #1a1d27;
+            --surface2: #22263a;
+            --border: rgba(255,255,255,.08);
+            --accent: #6c63ff;
+            --accent-hover: #7d75ff;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,.45);
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+
+        .page-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 16px; }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr auto;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 1000px) {
+            .filters { grid-template-columns: 1fr; }
+            .toolbar { flex-direction: column; align-items: flex-start; }
+        }
+        label { display: block; font-weight: 700; margin-bottom: 6px; }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: inherit;
+            font-size: .95rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: middle;
+        }
+        th { color: var(--text-muted); font-weight: 700; font-size: .9rem; }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: .8rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .badge-active { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.4); }
+        .badge-inactive { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.4); }
+        .btn {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-secondary { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--border); }
+        .btn-danger { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.4); }
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .muted { color: var(--text-muted); font-size: .85rem; }
+        .product-thumb {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div class="toolbar">
+        <div class="page-title">🧾 Danh sách sản phẩm</div>
+        <a class="btn btn-primary" th:href="@{/admin/products/new}">+ Thêm sản phẩm</a>
+    </div>
+
+    <div class="card">
+        <form class="filters" th:action="@{/admin/products}" method="get">
+            <div>
+                <label for="q">Tìm kiếm</label>
+                <input id="q" name="q" type="text" placeholder="Tên sản phẩm" th:value="${keyword}">
+            </div>
+            <div>
+                <label for="categoryId">Danh mục</label>
+                <select id="categoryId" name="categoryId">
+                    <option value="">Tất cả</option>
+                    <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}" th:selected="${selectedCategoryId} == ${c.id} + ''"></option>
+                </select>
+            </div>
+            <div>
+                <label for="status">Trạng thái</label>
+                <select id="status" name="status">
+                    <option value="all" th:selected="${statusFilter} == 'all'">Tất cả</option>
+                    <option value="true" th:selected="${statusFilter} == 'true'">Đang bán</option>
+                    <option value="false" th:selected="${statusFilter} == 'false'">Ngưng bán</option>
+                </select>
+            </div>
+            <div style="display:flex; align-items:flex-end; gap:8px;">
+                <button class="btn btn-secondary" type="submit">Lọc</button>
+            </div>
+        </form>
+
+        <div class="muted" th:text="'Tổng: ' + ${totalItems} + ' sản phẩm'"></div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Thương hiệu</th>
+                    <th>Giá</th>
+                    <th>Tồn kho</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${products.size()} == 0">
+                    <td colspan="8" class="muted">Không có sản phẩm phù hợp.</td>
+                </tr>
+                <tr th:each="p : ${products}">
+                    <td>
+                        <img class="product-thumb" th:src="@{${p.thumbnailUrl}}" alt="thumb">
+                    </td>
+                    <td th:text="${p.name}"></td>
+                    <td th:text="${p.category != null ? p.category.name : '-'}"></td>
+                    <td th:text="${p.brand != null ? p.brand.name : '-'}"></td>
+                    <td th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')}"></td>
+                    <td th:text="${p.stockQuantity}"></td>
+                    <td>
+                        <span th:if="${p.status}" class="badge badge-active">Đang bán</span>
+                        <span th:unless="${p.status}" class="badge badge-inactive">Ngưng bán</span>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <a class="btn btn-secondary" th:href="@{/admin/products/edit(id=${p.id})}">Sửa</a>
+                            <a class="btn btn-danger" th:href="@{/admin/products/delete(id=${p.id})}">Xóa</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="pagination" th:if="${totalPages} > 1">
+            <a class="btn btn-secondary" th:if="${page} > 1"
+               th:href="@{/admin/products(page=${page - 1}, size=${size}, q=${keyword}, categoryId=${selectedCategoryId}, status=${statusFilter})}">Trước</a>
+            <span class="muted" th:text="'Trang ' + ${page} + ' / ' + ${totalPages}"></span>
+            <a class="btn btn-secondary" th:if="${page} < ${totalPages}"
+               th:href="@{/admin/products(page=${page + 1}, size=${size}, q=${keyword}, categoryId=${selectedCategoryId}, status=${statusFilter})}">Sau</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -65,17 +65,67 @@
         .alert-success { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.4); }
         .alert-error { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.4); }
         .muted { color: var(--text-muted); font-size: .85rem; }
+        .field-error { color: var(--red); font-size: .85rem; margin-top: 6px; font-weight: 700; }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .image-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            display: grid;
+            gap: 8px;
+        }
+        .image-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .image-actions {
+            display: grid;
+            gap: 6px;
+            font-size: .85rem;
+        }
+        .upload-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .spec-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .spec-preview {
+            margin-top: 8px;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--surface2);
+            border: 1px dashed var(--border);
+            color: var(--text-muted);
+            font-size: .85rem;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
 <main>
-    <div class="page-title">🧾 Thêm sản phẩm mới</div>
+    <div class="page-title" th:text="${title}">🧾 Thêm sản phẩm mới</div>
 
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
     <div class="card">
-        <form th:action="@{/admin/products/new}" method="post">
+        <form id="product-form" th:action="${formAction}" method="post">
             <div class="form-grid">
                 <div>
                     <label for="name">Tên sản phẩm</label>
@@ -89,11 +139,7 @@
                     <label for="stockQuantity">Tồn kho</label>
                     <input id="stockQuantity" name="stockQuantity" type="number" min="0" placeholder="0" th:value="${form.stockQuantity}" required>
                 </div>
-                <div>
-                    <label for="thumbnailUrl">URL ảnh (local)</label>
-                    <input id="thumbnailUrl" name="thumbnailUrl" type="text" placeholder="/uploads/products/xxx.jpg" th:value="${form.thumbnailUrl}">
-                    <div class="muted">Lưu link ảnh local vào DB, không upload file ở đây.</div>
-                </div>
+
                 <div>
                     <label for="categoryId">Danh mục</label>
                     <select id="categoryId" name="categoryId" required>
@@ -108,13 +154,32 @@
                         <option th:each="b : ${brands}" th:value="${b.id}" th:text="${b.name}" th:selected="${form.brandId} == ${b.id} + ''"></option>
                     </select>
                 </div>
+
+                <div style="grid-column: 1 / -1;">
+                    <label>Ảnh sản phẩm</label>
+                    <div class="muted">Chọn ảnh từ máy, hệ thống sẽ lưu vào static/images/products.</div>
+                    <div class="upload-actions">
+                        <input id="imageFiles" type="file" accept="image/*" multiple>
+                        <button id="upload-images" type="button" class="btn btn-secondary">Tải ảnh lên</button>
+                        <span id="upload-status" class="muted"></span>
+                    </div>
+                    <div id="image-library" class="image-grid"></div>
+                    <div id="image-error" class="field-error" style="display:none;"></div>
+                    <input id="imageUrls" name="imageUrls" type="hidden" th:value="${form.imageUrls}">
+                    <input id="thumbnailUrl" name="thumbnailUrl" type="hidden" th:value="${form.thumbnailUrl}">
+                </div>
+
                 <div style="grid-column: 1 / -1;">
                     <label for="description">Mô tả</label>
                     <textarea id="description" name="description" placeholder="Mô tả ngắn" th:text="${form.description}"></textarea>
                 </div>
                 <div style="grid-column: 1 / -1;">
-                    <label for="specifications">Thông số (JSON)</label>
-                    <textarea id="specifications" name="specifications" placeholder='{"driver":"40mm","battery":"20h"}' th:text="${form.specifications}"></textarea>
+                    <label>Thông số kỹ thuật</label>
+                    <div id="specs-list"></div>
+                    <button id="add-spec" type="button" class="btn btn-secondary">+ Thêm thông số</button>
+                    <div class="muted">Không cần nhập JSON, hệ thống sẽ tự tạo.</div>
+                    <input id="specifications" name="specifications" type="hidden" th:value="${form.specifications}">
+                    <pre id="specs-preview" class="spec-preview"></pre>
                 </div>
                 <div>
                     <label for="status">Trạng thái</label>
@@ -132,5 +197,207 @@
         </form>
     </div>
 </main>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const contextPath = /*[[@{/}]]*/ '/';
+    /*]]>*/
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const specsList = document.getElementById('specs-list');
+        const addSpecBtn = document.getElementById('add-spec');
+        const specsHidden = document.getElementById('specifications');
+        const specsPreview = document.getElementById('specs-preview');
+        const imageLibrary = document.getElementById('image-library');
+        const imageUrlsHidden = document.getElementById('imageUrls');
+        const thumbnailHidden = document.getElementById('thumbnailUrl');
+        const imageError = document.getElementById('image-error');
+        const imageFiles = document.getElementById('imageFiles');
+        const uploadButton = document.getElementById('upload-images');
+        const uploadStatus = document.getElementById('upload-status');
+
+        function addSpecRow(key = '', value = '') {
+            const row = document.createElement('div');
+            row.className = 'spec-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Tên thông số" value="${key}">
+                <input type="text" placeholder="Giá trị" value="${value}">
+                <button type="button" class="btn btn-secondary">Xóa</button>
+            `;
+            row.querySelector('button').addEventListener('click', () => {
+                row.remove();
+                syncSpecs();
+            });
+            row.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', syncSpecs);
+            });
+            specsList.appendChild(row);
+        }
+
+        function syncSpecs() {
+            const data = {};
+            specsList.querySelectorAll('.spec-row').forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const key = (inputs[0].value || '').trim();
+                const value = (inputs[1].value || '').trim();
+                if (key) {
+                    data[key] = value;
+                }
+            });
+            const json = Object.keys(data).length ? JSON.stringify(data, null, 2) : '';
+            specsHidden.value = json;
+            specsPreview.textContent = json || 'Chưa có thông số.';
+        }
+
+        function loadSpecsFromHidden() {
+            const raw = (specsHidden.value || '').trim();
+            if (!raw) {
+                addSpecRow();
+                syncSpecs();
+                return;
+            }
+            try {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    Object.entries(parsed).forEach(([key, value]) => addSpecRow(key, value));
+                } else {
+                    addSpecRow();
+                }
+            } catch (e) {
+                addSpecRow();
+            }
+            syncSpecs();
+        }
+
+        function parseSelectedImageUrls(raw) {
+            if (!raw) return [];
+            try {
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function getImageSrc(path) {
+            if (!path) return '';
+            const clean = path.startsWith('/') ? path.substring(1) : path;
+            return `${contextPath}${clean}`;
+        }
+
+        function syncImages() {
+            const selected = [];
+            imageLibrary.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+                selected.push(cb.dataset.url);
+            });
+
+            let primary = thumbnailHidden.value.trim();
+            const checkedPrimary = imageLibrary.querySelector('input[type="radio"]:checked');
+            if (checkedPrimary) {
+                primary = checkedPrimary.dataset.url;
+            }
+            if (!primary && selected.length) {
+                primary = selected[0];
+            }
+
+            if (primary && !selected.includes(primary)) {
+                primary = selected[0] || '';
+            }
+
+            thumbnailHidden.value = primary;
+            imageUrlsHidden.value = selected.length ? JSON.stringify(selected) : '';
+        }
+
+        function renderImageLibrary(images) {
+            const selected = parseSelectedImageUrls(imageUrlsHidden.value);
+            const primary = (thumbnailHidden.value || '').trim();
+            imageLibrary.innerHTML = '';
+
+            images.forEach(url => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                const isSelected = selected.includes(url);
+                const isPrimary = primary === url;
+                card.innerHTML = `
+                    <img src="${getImageSrc(url)}" alt="${url}">
+                    <div class="image-actions">
+                        <label><input type="checkbox" data-url="${url}" ${isSelected ? 'checked' : ''}> Chọn ảnh</label>
+                        <label><input type="radio" name="primaryImage" data-url="${url}" ${isPrimary ? 'checked' : ''} ${isSelected ? '' : 'disabled'}> Ảnh đại diện</label>
+                    </div>
+                `;
+                const checkbox = card.querySelector('input[type="checkbox"]');
+                const radio = card.querySelector('input[type="radio"]');
+                checkbox.addEventListener('change', () => {
+                    radio.disabled = !checkbox.checked;
+                    if (!checkbox.checked && radio.checked) {
+                        radio.checked = false;
+                    }
+                    syncImages();
+                });
+                radio.addEventListener('change', syncImages);
+                imageLibrary.appendChild(card);
+            });
+            syncImages();
+        }
+
+        function mergeAndRenderImages(newImages) {
+            const selected = parseSelectedImageUrls(imageUrlsHidden.value);
+            const merged = Array.from(new Set([...selected, ...newImages]));
+            imageUrlsHidden.value = merged.length ? JSON.stringify(merged) : '';
+            renderImageLibrary(merged);
+        }
+
+        function uploadImages() {
+            imageError.style.display = 'none';
+            uploadStatus.textContent = '';
+            const files = imageFiles.files;
+            if (!files || !files.length) {
+                imageError.textContent = 'Vui lòng chọn ít nhất một ảnh.';
+                imageError.style.display = 'block';
+                return;
+            }
+
+            const formData = new FormData();
+            Array.from(files).forEach(file => formData.append('images', file));
+
+            uploadStatus.textContent = 'Đang tải ảnh...';
+            fetch(`${contextPath}admin/products/upload-images`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(result => {
+                    if (!result || !result.success) {
+                        throw new Error(result && result.message ? result.message : 'Upload thất bại');
+                    }
+                    const images = result.data || [];
+                    mergeAndRenderImages(images);
+                    uploadStatus.textContent = `Đã tải ${images.length} ảnh.`;
+                    imageFiles.value = '';
+                })
+                .catch(err => {
+                    imageError.textContent = err.message || 'Không thể tải ảnh.';
+                    imageError.style.display = 'block';
+                    uploadStatus.textContent = '';
+                });
+        }
+
+        uploadButton.addEventListener('click', uploadImages);
+
+        addSpecBtn.addEventListener('click', () => {
+            addSpecRow();
+            syncSpecs();
+        });
+
+        loadSpecsFromHidden();
+        renderImageLibrary(parseSelectedImageUrls(imageUrlsHidden.value));
+
+        document.getElementById('product-form').addEventListener('submit', () => {
+            syncSpecs();
+            syncImages();
+        });
+    });
+</script>
 </body>
 </html>

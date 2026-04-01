@@ -7,6 +7,7 @@ public class CreateProductRequest {
     private String stockQuantity;
     private String thumbnailUrl;
     private String specifications;
+    private String imageUrls;
     private String categoryId;
     private String brandId;
     private String status;
@@ -57,6 +58,14 @@ public class CreateProductRequest {
 
     public void setSpecifications(String specifications) {
         this.specifications = specifications;
+    }
+
+    public String getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(String imageUrls) {
+        this.imageUrls = imageUrls;
     }
 
     public String getCategoryId() {

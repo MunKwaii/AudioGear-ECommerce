@@ -127,7 +127,13 @@ function renderSpecs(specsJson) {
     }
 
     try {
-        const specs = JSON.parse(specsJson);
+        const specs = typeof specsJson === 'string' ? JSON.parse(specsJson) : specsJson;
+        const isObject = specs && typeof specs === 'object' && !Array.isArray(specs);
+        if (!isObject) {
+            table.innerHTML = '<tr><td colspan="2">Định dạng thông số kỹ thuật không hợp lệ.</td></tr>';
+            return;
+        }
+
         // Sử dụng Object.entries kết hợp forEach (phong cách stream/lambda)
         Object.entries(specs).forEach(([key, value]) => {
             const row = document.createElement('tr');
