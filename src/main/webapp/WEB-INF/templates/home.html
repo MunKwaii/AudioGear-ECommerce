@@ -440,12 +440,16 @@
             <!-- Loop through featured products -->
             <div class="product-card" th:each="prod : ${featuredProducts}">
                 <div class="product-badge">Hot</div>
-                <div class="product-img-wrapper">
-                    <img th:if="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}" class="product-img" th:src="@{/static/img/hero_bg.png}" alt="Product Image">
-                    <img th:unless="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}" class="product-img" th:src="@{${prod.thumbnailUrl}}" alt="Product Image" onerror="this.style.display='none'">
-                </div>
+                <a th:href="@{/product/{id}(id=${prod.id})}" class="product-img-link">
+                    <div class="product-img-wrapper">
+                        <img th:if="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}" class="product-img" th:src="@{/static/img/hero_bg.png}" alt="Product Image">
+                        <img th:unless="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}" class="product-img" th:src="@{${prod.thumbnailUrl}}" alt="Product Image" onerror="this.style.display='none'">
+                    </div>
+                </a>
                 <div class="product-brand" th:text="${prod.brandName}">Brand</div>
-                <h3 class="product-title" th:text="${prod.name}">Product Name Placeholder</h3>
+                <a th:href="@{/product/{id}(id=${prod.id})}" style="text-decoration: none; color: inherit;">
+                    <h3 class="product-title" th:text="${prod.name}">Product Name Placeholder</h3>
+                </a>
                 <div class="product-footer">
                     <!-- Format price in VN -->
                     <span class="product-price" th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
@@ -471,12 +475,16 @@
             <!-- Loop through new products -->
             <div class="product-card" th:each="prod : ${newProducts}">
                 <div class="product-badge" style="background: rgba(0, 242, 254, 0.2); color: var(--primary-glow); border-color: rgba(0, 242, 254, 0.3);">New</div>
-                <div class="product-img-wrapper">
-                    <img th:if="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}" class="product-img" th:src="@{/static/img/hero_bg.png}" alt="Product Image">
-                                        <img th:unless="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}" class="product-img" th:src="@{${prod.thumbnailUrl}}" alt="Product Image" onerror="this.style.display='none'">
-                </div>
+                <a th:href="@{/product/{id}(id=${prod.id})}" class="product-img-link">
+                    <div class="product-img-wrapper">
+                        <img th:if="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}" class="product-img" th:src="@{/static/img/hero_bg.png}" alt="Product Image">
+                        <img th:unless="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}" class="product-img" th:src="@{${prod.thumbnailUrl}}" alt="Product Image" onerror="this.style.display='none'">
+                    </div>
+                </a>
                 <div class="product-brand" th:text="${prod.brandName}">Brand</div>
-                <h3 class="product-title" th:text="${prod.name}">Product Name Placeholder</h3>
+                <a th:href="@{/product/{id}(id=${prod.id})}" style="text-decoration: none; color: inherit;">
+                    <h3 class="product-title" th:text="${prod.name}">Product Name Placeholder</h3>
+                </a>
                 <div class="product-footer">
                     <div class="product-price" th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT') + 'đ'}">1,990,000đ</div>
                     <form th:action="@{/cart/add}" method="post" style="margin: 0;">

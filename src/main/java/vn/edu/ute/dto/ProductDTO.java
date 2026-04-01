@@ -1,6 +1,7 @@
 package vn.edu.ute.dto;
 
 import java.math.BigDecimal;
+import vn.edu.ute.util.ImageUtil;
 
 public class ProductDTO {
     private Long id;
@@ -17,7 +18,7 @@ public class ProductDTO {
         this.id = id;
         this.name = name;
         this.price = price;
-        this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailUrl = ImageUtil.resolveImageUrl(thumbnailUrl);
         this.categoryName = categoryName;
         this.brandName = brandName;
         this.stockQuantity = stockQuantity;
@@ -33,7 +34,7 @@ public class ProductDTO {
     public void setPrice(BigDecimal price) { this.price = price; }
     
     public String getThumbnailUrl() { return thumbnailUrl; }
-    public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
+    public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = ImageUtil.resolveImageUrl(thumbnailUrl); }
     
     public String getCategoryName() { return categoryName; }
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }

@@ -32,10 +32,9 @@ public class ImageUtil {
             return path;
         }
 
-        // 3. Handle legacy Database paths (e.g. /images/products/...)
-        // Mismatch: DB has /images/products/ but disk has /static/images/
-        if (path.startsWith("/images/products/")) {
-            return STATIC_PREFIX + "/images/" + path.substring("/images/products/".length());
+        // 3. Database paths starting with images/ without leading slash
+        if (path.startsWith("images/")) {
+            return STATIC_PREFIX + "/" + path;
         }
 
         // 4. Case where path starts with / (e.g. /images/logo.png) -> Just prepend /static

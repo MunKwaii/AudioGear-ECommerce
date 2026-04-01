@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} + ' - AudioGear'">Chi tiết sản phẩm - AudioGear</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/static/css/main.css}">
+    <link rel="stylesheet" th:href="@{/static/css/pages/product-detail.css}">
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const productId = /*[[${productId}]]*/ '1';
+        const contextPath = /*[[@{/}]]*/ '/';
+        /*]]>*/
+    </script>
+</head>
+<body class="ag-dark-theme">
+    <!-- Header Fragment -->
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <main class="ag-main-content">
+        <div class="ag-container">
+            <!-- Breadcrumb -->
+            <nav class="ag-breadcrumb">
+                <a th:href="@{/}">Trang chủ</a>
+                <i class="fas fa-chevron-right"></i>
+                <a th:href="@{/products}">Sản phẩm</a>
+                <i class="fas fa-chevron-right"></i>
+                <span id="breadcrumb-category">Đang tải...</span>
+                <i class="fas fa-chevron-right"></i>
+                <span id="breadcrumb-product" class="active">Đang tải...</span>
+            </nav>
+
+            <!-- Product Detail Section -->
+            <section class="ag-product-detail">
+                <div id="loading-spinner" class="ag-loading">
+                    <div class="spinner"></div>
+                    <p>Đang tải thông tin sản phẩm...</p>
+                </div>
+
+                <div id="product-content" class="ag-product-grid ag-hidden">
+                    <!-- Left: Gallery -->
+                    <div class="ag-gallery">
+                        <div class="ag-main-image">
+                            <img id="main-image" src="" alt="Product Image">
+                        </div>
+                        <div class="ag-thumbnails" id="thumbnail-list">
+                            <!-- Thumbnails injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Info -->
+                    <div class="ag-info">
+                        <h1 id="product-name" class="ag-product-title">Đang tải...</h1>
+                        
+                        <div class="ag-meta">
+                            <div class="ag-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                <span>(4.5/5 - Placeholder)</span>
+                            </div>
+                            <span class="ag-divider">|</span>
+                            <span id="brand-name" class="ag-brand">Thương hiệu: ...</span>
+                        </div>
+
+                        <div class="ag-price-box">
+                            <span id="product-price" class="ag-current-price">0₫</span>
+                            <span class="ag-status in-stock" id="stock-status">
+                                <i class="fas fa-check-circle"></i> Còn hàng
+                            </span>
+                        </div>
+
+                        <div class="ag-description" id="product-description">
+                            <!-- Description injected by JS -->
+                        </div>
+
+                        <div class="ag-purchase-actions">
+                            <div class="ag-quantity">
+                                <button type="button" id="qty-minus"><i class="fas fa-minus"></i></button>
+                                <input type="number" id="qty-input" value="1" min="1">
+                                <button type="button" id="qty-plus"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <button type="button" id="add-to-cart-btn" class="ag-btn ag-btn-primary">
+                                <i class="fas fa-shopping-cart"></i> THÊM VÀO GIỎ HÀNG
+                            </button>
+                            <button type="button" class="ag-btn ag-btn-secondary">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+
+                        <div class="ag-features">
+                            <div class="ag-feature-item">
+                                <i class="fas fa-truck"></i>
+                                <span>Giao hàng miễn phí toàn quốc</span>
+                            </div>
+                            <div class="ag-feature-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Bảo hành chính hãng 12 tháng</span>
+                            </div>
+                            <div class="ag-feature-item">
+                                <i class="fas fa-undo"></i>
+                                <span>Đổi trả trong vòng 7 ngày</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabs Section -->
+            <section class="ag-tabs-section mt-5">
+                <div class="ag-tabs">
+                    <button class="ag-tab-btn active" data-tab="specs">Thông số kỹ thuật</button>
+                    <button class="ag-tab-btn" data-tab="reviews">Đánh giá (0)</button>
+                </div>
+                <div class="ag-tab-content">
+                    <div id="tab-specs" class="ag-tab-pane active">
+                        <table class="ag-specs-table" id="specs-table">
+                            <!-- Specs injected by JS -->
+                        </table>
+                    </div>
+                    <div id="tab-reviews" class="ag-tab-pane">
+                        <div class="ag-placeholder-reviews">
+                            <i class="fas fa-comments"></i>
+                            <p>Tính năng đánh giá đang được phát triển.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Related Products -->
+            <section class="ag-related-products mt-5">
+                <h2 class="ag-section-title">Sản phẩm tương tự</h2>
+                <div class="ag-product-grid-related" id="related-products-list">
+                    <!-- Related products injected by JS -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer Fragment -->
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <!-- Scripts -->
+    <script th:src="@{/static/js/product-detail.js}"></script>
+</body>
+</html>

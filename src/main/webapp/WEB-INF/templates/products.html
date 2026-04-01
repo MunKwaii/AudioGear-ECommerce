@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AudioGear - Sản phẩm</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -55,9 +57,21 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a { color: var(--text-main); text-decoration: none; font-weight: 500; }
-        .nav-links a:hover, .nav-links a.active { color: var(--primary-glow); }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-glow);
+        }
 
         /* --- Layout --- */
         .container {
@@ -107,8 +121,9 @@
             align-items: center;
             gap: 10px;
         }
-        
-        .category-link:hover, .category-link.active {
+
+        .category-link:hover,
+        .category-link.active {
             color: var(--primary-glow);
         }
 
@@ -146,7 +161,7 @@
             outline: none;
             transition: border-color 0.3s;
         }
-        
+
         .search-input:focus {
             border-color: var(--primary-glow);
         }
@@ -193,14 +208,16 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transform: translateZ(0); /* Hardware Acceleration Hotfix */
-            will-change: transform; /* Hardware Acceleration Hotfix */
+            transform: translateZ(0);
+            /* Hardware Acceleration Hotfix */
+            will-change: transform;
+            /* Hardware Acceleration Hotfix */
         }
 
         .product-card:hover {
             transform: translateY(-10px);
             border-color: rgba(0, 242, 254, 0.4);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
         .product-img-wrapper {
@@ -223,7 +240,9 @@
             transition: transform 0.5s ease;
         }
 
-        .product-card:hover .product-img { transform: scale(1.08); }
+        .product-card:hover .product-img {
+            transform: scale(1.08);
+        }
 
         .product-brand {
             font-size: 12px;
@@ -265,7 +284,9 @@
             border: 1px solid var(--glass-border);
             background: transparent;
             color: #fff;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -318,6 +339,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <nav>
@@ -329,30 +351,30 @@
         </div>
         <div class="nav-icons" style="font-size: 20px; display: flex; gap: 20px;">
             <a href="#" style="color: #fff; transition: 0.3s; text-decoration: none;"><i class="fas fa-search"></i></a>
-            <a th:href="@{/cart}" style="color: #fff; transition: 0.3s; text-decoration: none;"><i class="fas fa-shopping-bag"></i></a>
-            <a th:href="@{/login}" style="color: #fff; transition: 0.3s; text-decoration: none;"><i class="fas fa-user"></i></a>
+            <a th:href="@{/cart}" style="color: #fff; transition: 0.3s; text-decoration: none;"><i
+                    class="fas fa-shopping-bag"></i></a>
+            <a th:href="@{/login}" style="color: #fff; transition: 0.3s; text-decoration: none;"><i
+                    class="fas fa-user"></i></a>
         </div>
     </nav>
 
     <div class="container">
-        
+
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="filter-section">
                 <h3 class="filter-title">Danh mục</h3>
                 <ul class="category-list">
                     <li class="category-item">
-                        <a th:href="@{/products(q=${keyword})}" 
-                           th:classappend="${categoryId == null} ? 'active' : ''" 
-                           class="category-link">
-                           <i class="fas fa-chevron-right"></i> Tất cả sản phẩm
+                        <a th:href="@{/products(q=${keyword})}" th:classappend="${categoryId == null} ? 'active' : ''"
+                            class="category-link">
+                            <i class="fas fa-chevron-right"></i> Tất cả sản phẩm
                         </a>
                     </li>
                     <li class="category-item" th:each="cat : ${categories}">
-                        <a th:href="@{/products(catId=${cat.id}, q=${keyword})}" 
-                           th:classappend="${categoryId == cat.id} ? 'active' : ''" 
-                           class="category-link">
-                           <i class="fas fa-chevron-right"></i> <span th:text="${cat.name}">Category</span>
+                        <a th:href="@{/products(catId=${cat.id}, q=${keyword})}"
+                            th:classappend="${categoryId == cat.id} ? 'active' : ''" class="category-link">
+                            <i class="fas fa-chevron-right"></i> <span th:text="${cat.name}">Category</span>
                         </a>
                     </li>
                 </ul>
@@ -365,17 +387,20 @@
             <form action="/products" method="GET" class="search-bar">
                 <!-- Keep category selected if any -->
                 <input type="hidden" name="catId" th:value="${categoryId}" th:if="${categoryId != null}">
-                <input type="text" name="q" class="search-input" placeholder="Tìm kiếm tai nghe, loa..." th:value="${keyword}">
+                <input type="text" name="q" class="search-input" placeholder="Tìm kiếm tai nghe, loa..."
+                    th:value="${keyword}">
                 <button type="submit" class="search-btn"><i class="fas fa-search"></i> Tìm kiếm</button>
             </form>
 
             <div class="results-info">
                 <span>Hiển thị <span th:text="${productPage.totalElements}">0</span> kết quả.</span>
-                <span th:if="${keyword != null and !keyword.isEmpty()}" th:text="' Kết quả tìm kiếm cho: &quot;' + ${keyword} + '&quot;'"></span>
+                <span th:if="${keyword != null and !keyword.isEmpty()}"
+                    th:text="' Kết quả tìm kiếm cho: &quot;' + ${keyword} + '&quot;'"></span>
             </div>
 
             <!-- Empty State -->
-            <div th:if="${productPage.totalElements == 0}" style="text-align: center; padding: 100px 0; color: var(--text-muted);">
+            <div th:if="${productPage.totalElements == 0}"
+                style="text-align: center; padding: 100px 0; color: var(--text-muted);">
                 <i class="fas fa-box-open" style="font-size: 60px; margin-bottom: 20px; opacity: 0.5;"></i>
                 <h2>Không tìm thấy sản phẩm nào!</h2>
                 <p>Vui lòng thử lại với từ khóa khác.</p>
@@ -384,14 +409,22 @@
             <!-- Product Grid -->
             <div class="product-grid" th:if="${productPage.totalElements > 0}">
                 <div class="product-card" th:each="prod : ${productPage.content}">
-                    <div class="product-img-wrapper">
-                        <img th:if="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}" class="product-img" th:src="@{/static/img/hero_bg.png}" alt="Product">
-                        <img th:unless="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}" class="product-img" th:src="@{${prod.thumbnailUrl}}" alt="Product" onerror="this.style.display='none'">
-                    </div>
+                    <a th:href="@{/product/{id}(id=${prod.id})}" class="product-img-link">
+                        <div class="product-img-wrapper">
+                            <img th:if="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}"
+                                class="product-img" th:src="@{/static/img/hero_bg.png}" alt="Product">
+                            <img th:unless="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}"
+                                class="product-img" th:src="@{${prod.thumbnailUrl}}" alt="Product"
+                                onerror="this.style.display='none'">
+                        </div>
+                    </a>
                     <div class="product-brand" th:text="${prod.brandName}">Brand</div>
-                    <h3 class="product-title" th:text="${prod.name}">Product Name</h3>
+                    <a th:href="@{/product/{id}(id=${prod.id})}" style="text-decoration: none; color: inherit;">
+                        <h3 class="product-title" th:text="${prod.name}">Product Name</h3>
+                    </a>
                     <div class="product-footer">
-                        <span class="product-price" th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                        <span class="product-price"
+                            th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
                         <form th:action="@{/cart/add}" method="post" style="margin: 0;">
                             <input type="hidden" name="productId" th:value="${prod.id}" />
                             <input type="hidden" name="quantity" value="1" />
@@ -406,25 +439,21 @@
             <!-- Pagination Controls -->
             <div class="pagination" th:if="${productPage.totalPages > 1}">
                 <!-- Nút Prev -->
-                <a th:href="@{/products(page=${productPage.currentPage - 1}, q=${keyword}, catId=${categoryId})}" 
-                   class="page-item" 
-                   th:classappend="${!productPage.hasPrevious} ? 'disabled' : ''">
-                   <i class="fas fa-chevron-left"></i>
+                <a th:href="@{/products(page=${productPage.currentPage - 1}, q=${keyword}, catId=${categoryId})}"
+                    class="page-item" th:classappend="${!productPage.hasPrevious} ? 'disabled' : ''">
+                    <i class="fas fa-chevron-left"></i>
                 </a>
 
                 <!-- Hiển thị dãy số trang -->
                 <th:block th:each="i : ${#numbers.sequence(1, productPage.totalPages)}">
-                    <a th:href="@{/products(page=${i}, q=${keyword}, catId=${categoryId})}" 
-                       class="page-item" 
-                       th:classappend="${productPage.currentPage == i} ? 'active' : ''" 
-                       th:text="${i}">1</a>
+                    <a th:href="@{/products(page=${i}, q=${keyword}, catId=${categoryId})}" class="page-item"
+                        th:classappend="${productPage.currentPage == i} ? 'active' : ''" th:text="${i}">1</a>
                 </th:block>
 
                 <!-- Nút Next -->
-                <a th:href="@{/products(page=${productPage.currentPage + 1}, q=${keyword}, catId=${categoryId})}" 
-                   class="page-item" 
-                   th:classappend="${!productPage.hasNext} ? 'disabled' : ''">
-                   <i class="fas fa-chevron-right"></i>
+                <a th:href="@{/products(page=${productPage.currentPage + 1}, q=${keyword}, catId=${categoryId})}"
+                    class="page-item" th:classappend="${!productPage.hasNext} ? 'disabled' : ''">
+                    <i class="fas fa-chevron-right"></i>
                 </a>
             </div>
 
@@ -432,4 +461,5 @@
 
     </div>
 </body>
+
 </html>

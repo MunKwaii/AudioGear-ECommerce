@@ -91,6 +91,16 @@ public class ProductServiceImpl implements ProductService {
         return brandDao.findAll();
     }
 
+    @Override
+    public Optional<Product> getProductById(Long id) {
+        return productDao.findById(id);
+    }
+
+    @Override
+    public List<Product> getRelatedProducts(Long categoryId, Long excludeProductId, int limit) {
+        return productDao.findRelatedProducts(categoryId, excludeProductId, limit);
+    }
+
     private static String safeTrim(String value) {
         return value == null ? "" : value.trim();
     }

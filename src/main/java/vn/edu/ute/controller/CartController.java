@@ -18,7 +18,7 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import java.io.IOException;
 
-@WebServlet(urlPatterns = {"/cart", "/cart/add", "/cart/remove", "/cart/update"})
+@WebServlet(urlPatterns = {"/cart", "/cart/add", "/cart/remove", "/cart/update", "/cart/count"})
 public class CartController extends HttpServlet {
 
     private Long getUserIdFromCookie(HttpServletRequest req) {
@@ -47,6 +47,11 @@ public class CartController extends HttpServlet {
         if ("/cart".equals(path)) {
             CartDTO cart = ServiceFactory.getCartFacadeService().getCartDetails(userId);
             renderPage(req, resp, "cart", cart);
+        } else if ("/cart/count".equals(path)) {
+            CartDTO cart = ServiceFactory.getCartFacadeService().getCartDetails(userId);
+            int count = (cart != null && cart.getItems() != null) ? cart.getItems().size() : 0;
+            resp.setContentType("application/json");
+            resp.getWriter().write("{\"count\":" + count + "}");
         } else {
             resp.sendRedirect(req.getContextPath() + "/cart");
         }
@@ -71,6 +76,14 @@ public class CartController extends HttpServlet {
                 }
                 ServiceFactory.getCartFacadeService().addToCart(userId, productId, quantity);
                 
+                // Kiểm tra nếu là AJAX request
+                String requestedWith = req.getHeader("X-Requested-With");
+                if ("XMLHttpRequest".equals(requestedWith) || req.getHeader("Accept").contains("application/json")) {
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                    resp.getWriter().write("{\"success\":true}");
+                    return;
+                }
+
                 // Trả về trang trước đó hoặc giỏ hàng
                 String referer = req.getHeader("Referer");
                 if (referer != null && !referer.contains("/cart")) {

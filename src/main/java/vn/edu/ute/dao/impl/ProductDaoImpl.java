@@ -35,8 +35,14 @@ public class ProductDaoImpl implements ProductDao {
     public Optional<Product> findById(Long id) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
-            Product product = em.find(Product.class, id);
-            return Optional.ofNullable(product);
+            String jpql = "SELECT DISTINCT p FROM Product p " +
+                    "LEFT JOIN FETCH p.category " +
+                    "LEFT JOIN FETCH p.brand " +
+                    "LEFT JOIN FETCH p.images " +
+                    "WHERE p.id = :id";
+            TypedQuery<Product> query = em.createQuery(jpql, Product.class);
+            query.setParameter("id", id);
+            return query.getResultList().stream().findFirst();
         } finally {
             DatabaseConfig.closeEntityManager();
         }
@@ -60,7 +66,8 @@ public class ProductDaoImpl implements ProductDao {
     public List<Product> getFeaturedProducts(int limit) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
-            // Lấy các sản phẩm đang active (status = true), sắp xếp theo giá giảm dần làm ví dụ
+            // Lấy các sản phẩm đang active (status = true), sắp xếp theo giá giảm dần làm
+            // ví dụ
             String jpql = "SELECT p FROM Product p JOIN FETCH p.category JOIN FETCH p.brand WHERE p.status = true ORDER BY p.price DESC";
             TypedQuery<Product> query = em.createQuery(jpql, Product.class);
             query.setMaxResults(limit);
@@ -88,8 +95,9 @@ public class ProductDaoImpl implements ProductDao {
     public List<Product> searchProducts(String keyword, Long categoryId, int offset, int limit) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
-            StringBuilder jpql = new StringBuilder("SELECT p FROM Product p JOIN FETCH p.category c LEFT JOIN FETCH p.brand WHERE p.status = true");
-            
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT p FROM Product p JOIN FETCH p.category c LEFT JOIN FETCH p.brand WHERE p.status = true");
+
             if (keyword != null && !keyword.trim().isEmpty()) {
                 jpql.append(" AND LOWER(p.name) LIKE LOWER(:keyword)");
             }
@@ -99,17 +107,17 @@ public class ProductDaoImpl implements ProductDao {
             jpql.append(" ORDER BY p.createdAt DESC"); // Sắp xếp mới nhất trên cùng
 
             TypedQuery<Product> query = em.createQuery(jpql.toString(), Product.class);
-            
+
             if (keyword != null && !keyword.trim().isEmpty()) {
                 query.setParameter("keyword", "%" + keyword.trim() + "%");
             }
             if (categoryId != null) {
                 query.setParameter("categoryId", categoryId);
             }
-            
+
             query.setFirstResult(offset);
             query.setMaxResults(limit);
-            
+
             return query.getResultList();
         } finally {
             DatabaseConfig.closeEntityManager();
@@ -120,9 +128,11 @@ public class ProductDaoImpl implements ProductDao {
     public long countSearchProducts(String keyword, Long categoryId) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
-            // Dùng COUNT(p) để đếm và tối ưu join, KHÔNG dùng FETCH JOIN vì nó ko hợp lệ lệnh Count Query của Hibernate.
-            StringBuilder jpql = new StringBuilder("SELECT COUNT(p) FROM Product p JOIN p.category c WHERE p.status = true");
-            
+            // Dùng COUNT(p) để đếm và tối ưu join, KHÔNG dùng FETCH JOIN vì nó ko hợp lệ
+            // lệnh Count Query của Hibernate.
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT COUNT(p) FROM Product p JOIN p.category c WHERE p.status = true");
+
             if (keyword != null && !keyword.trim().isEmpty()) {
                 jpql.append(" AND LOWER(p.name) LIKE LOWER(:keyword)");
             }
@@ -131,15 +141,32 @@ public class ProductDaoImpl implements ProductDao {
             }
 
             TypedQuery<Long> query = em.createQuery(jpql.toString(), Long.class);
-            
+
             if (keyword != null && !keyword.trim().isEmpty()) {
                 query.setParameter("keyword", "%" + keyword.trim() + "%");
             }
             if (categoryId != null) {
                 query.setParameter("categoryId", categoryId);
             }
-            
+
             return query.getSingleResult();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public List<Product> findRelatedProducts(Long categoryId, Long excludeProductId, int limit) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            String jpql = "SELECT p FROM Product p JOIN FETCH p.category JOIN FETCH p.brand " +
+                    "WHERE p.category.id = :categoryId AND p.id != :excludeProductId " +
+                    "AND p.status = true ORDER BY p.createdAt DESC";
+            TypedQuery<Product> query = em.createQuery(jpql, Product.class);
+            query.setParameter("categoryId", categoryId);
+            query.setParameter("excludeProductId", excludeProductId);
+            query.setMaxResults(limit);
+            return query.getResultList();
         } finally {
             DatabaseConfig.closeEntityManager();
         }
