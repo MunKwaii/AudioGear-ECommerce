@@ -393,20 +393,8 @@
 </head>
 <body>
 
-    <!-- Transparent Navbar -->
-    <nav>
-        <a th:href="@{/}" class="logo" style="text-decoration: none;">AUDIOGEAR</a>
-        <div class="nav-links">
-            <a th:href="@{/}">Trang chủ</a>
-            <a th:href="@{/products}">Sản phẩm</a>
-            <a href="#">Về chúng tôi</a>
-        </div>
-        <div class="nav-icons">
-            <a href="#"><i class="fas fa-search"></i></a>
-            <a th:href="@{/cart}"><i class="fas fa-shopping-bag"></i></a>
-            <a th:href="@{/login}"><i class="fas fa-user"></i></a>
-        </div>
-    </nav>
+    <!-- Header Fragment -->
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
 
     <!-- Hero Section -->
     <section class="hero" th:style="'background-image: url(' + @{/static/img/hero_bg.png} + ');'">
@@ -503,25 +491,8 @@
         </div>
     </section>
 
-    <footer>
-        <div class="logo" style="font-size: 20px; display: inline-block; margin-bottom: 10px;">AUDIOGEAR</div>
-        <p>&copy; 2026 AudioGear E-Commerce. Crafted with premium design.</p>
-    </footer>
+    <!-- Footer Fragment -->
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
-    <!-- Thêm hiệu ứng navbar đổi màu khi cuộn (JS nhẹ) -->
-    <script>
-        window.addEventListener('scroll', () => {
-            const nav = document.querySelector('nav');
-            if (window.scrollY > 50) {
-                nav.style.background = 'rgba(5, 5, 5, 0.95)';
-                nav.style.borderBottom = '1px solid rgba(0, 242, 254, 0.3)';
-                nav.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.5)';
-            } else {
-                nav.style.background = 'rgba(5, 5, 5, 0.8)';
-                nav.style.borderBottom = '1px solid var(--glass-border)';
-                nav.style.boxShadow = 'none';
-            }
-        });
-    </script>
 </body>
 </html>

@@ -9,9 +9,10 @@
         <style>
             /* ========== PREMIUM AUDIO GEAR HEADER CSS ========== */
             :root {
-                --ag-primary: #f1c40f; /* Gold accent */
-                --ag-dark: #121212;
-                --ag-dark-glass: rgba(18, 18, 18, 0.85);
+                --ag-primary: #00f2fe; /* Cyan/Blue accent */
+                --ag-secondary: #4facfe; /* Light Blue */
+                --ag-dark: #050505;
+                --ag-dark-glass: rgba(5, 5, 5, 0.85);
                 --ag-text: #ecf0f1;
                 --ag-text-muted: #bdc3c7;
                 --ag-border: #333333;
@@ -53,7 +54,10 @@
                 text-transform: uppercase;
             }
             .ag-logo-accent {
-                color: var(--ag-primary);
+                background: linear-gradient(to right, var(--ag-secondary), var(--ag-primary));
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
             }
 
             /* SEARCH BAR */

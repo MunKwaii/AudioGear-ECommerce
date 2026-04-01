@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         :root {
             --bg-dark: #0a0a0c;
@@ -32,34 +33,13 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 15% 50%, rgba(0, 242, 254, 0.05) 0%, transparent 50%),
                 radial-gradient(circle at 85% 30%, rgba(79, 172, 254, 0.05) 0%, transparent 50%);
             display: flex;
             flex-direction: column;
         }
 
-        /* Nav (Reused simplified version of home) */
-        nav {
-            padding: 20px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(10, 10, 12, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a { color: var(--text-main); text-decoration: none; font-weight: 500; transition: 0.3s; }
-        .nav-links a:hover { color: var(--primary-glow); }
-        .nav-icons { display: flex; gap: 20px; font-size: 1.2rem; }
-        .nav-icons a { color: var(--text-main); transition: 0.3s; text-decoration: none; }
-        .nav-icons a:hover { color: var(--primary-glow); }
 
 
         .cart-container {
@@ -101,7 +81,7 @@
 
         .cart-item:hover {
             border-color: rgba(0, 242, 254, 0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .item-img {
@@ -133,7 +113,7 @@
         .quantity-form {
             display: flex;
             align-items: center;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--glass-border);
             border-radius: 10px;
             overflow: hidden;
@@ -147,8 +127,10 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        
-        .qty-btn:hover { background: rgba(255,255,255,0.1); }
+
+        .qty-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
 
         .qty-input {
             width: 50px;
@@ -159,7 +141,8 @@
             font-size: 1rem;
             font-weight: 500;
             outline: none;
-            pointer-events: none; /* read only feel but submits */
+            pointer-events: none;
+            /* read only feel but submits */
         }
 
         /* Total Price per Item */
@@ -237,6 +220,7 @@
         .summary-total span.amount {
             background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -268,7 +252,7 @@
             padding: 100px 0;
             grid-column: 1 / -1;
         }
-        
+
         .empty-cart i {
             font-size: 5rem;
             color: var(--glass-border);
@@ -295,7 +279,7 @@
             font-weight: 600;
             transition: 0.3s;
         }
-        
+
         .shop-now-btn:hover {
             background: rgba(0, 242, 254, 0.1);
             transform: translateY(-2px);
@@ -305,20 +289,24 @@
             .cart-container {
                 grid-template-columns: 1fr;
             }
+
             .cart-summary {
                 top: 0;
                 position: relative;
             }
         }
+
         @media (max-width: 600px) {
             .cart-item {
                 flex-direction: column;
                 align-items: flex-start;
             }
+
             .item-total {
                 width: 100%;
                 text-align: left;
             }
+
             .action-form {
                 position: absolute;
                 top: 20px;
@@ -327,21 +315,11 @@
         }
     </style>
 </head>
+
 <body>
 
-    <nav>
-        <a th:href="@{/}" class="logo">AUDIOGEAR</a>
-        <div class="nav-links">
-            <a th:href="@{/}">Trang chủ</a>
-            <a th:href="@{/products}">Sản phẩm</a>
-            <a href="#">Về chúng tôi</a>
-        </div>
-        <div class="nav-icons">
-            <a href="#"><i class="fas fa-search"></i></a>
-            <a th:href="@{/cart}"><i class="fas fa-shopping-cart"></i></a>
-            <a th:href="@{/login}"><i class="fas fa-user"></i></a>
-        </div>
-    </nav>
+    <!-- Header Fragment -->
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
 
     <div class="cart-container">
         <!-- Render Empty Cart if no items -->
@@ -354,19 +332,24 @@
 
         <!-- Cart Content wrapper (only if items present) -->
         <th:block th:unless="${cart == null || cart.items == null || cart.items.isEmpty()}">
-            
-            <h1 class="page-title">Giỏ Hàng <span style="font-size: 1.2rem; color: var(--text-muted); font-weight: 400" th:text="${'(' + cart.items.size() + ' sản phẩm)'}"></span></h1>
+
+            <h1 class="page-title">Giỏ Hàng <span style="font-size: 1.2rem; color: var(--text-muted); font-weight: 400"
+                    th:text="${'(' + cart.items.size() + ' sản phẩm)'}"></span></h1>
 
             <!-- Left side: Items -->
             <div class="cart-items">
                 <div class="cart-item" th:each="item : ${cart.items}">
-                    
-                    <img th:if="${item.productThumbnail == null || item.productThumbnail.trim().isEmpty()}" class="item-img" th:src="@{/static/img/hero_bg.png}" alt="Product">
-                    <img th:unless="${item.productThumbnail == null || item.productThumbnail.trim().isEmpty()}" class="item-img" th:src="@{${item.productThumbnail}}" alt="Product">
-                    
+
+                    <img th:if="${item.productThumbnail == null || item.productThumbnail.trim().isEmpty()}"
+                        class="item-img" th:src="@{/static/img/hero_bg.png}" alt="Product">
+                    <img th:unless="${item.productThumbnail == null || item.productThumbnail.trim().isEmpty()}"
+                        class="item-img" th:src="@{${item.productThumbnail}}" alt="Product">
+
                     <div class="item-details">
                         <h3 class="item-name" th:text="${item.productName}">Product Name</h3>
-                        <div class="item-price" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') + 'đ'}">1,000,000đ</div>
+                        <div class="item-price"
+                            th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') + 'đ'}">1,000,000đ
+                        </div>
                     </div>
 
                     <!-- form for updating minus -->
@@ -374,13 +357,17 @@
                         <input type="hidden" name="itemId" th:value="${item.id}" />
                         <div class="quantity-form">
                             <!-- Minus overrides quantity using JS trick or we do it inline -->
-                            <button type="submit" name="quantity" th:value="${item.quantity - 1}" class="qty-btn" th:disabled="${item.quantity <= 1} ? 'disabled' : null"><i class="fas fa-minus"></i></button>
+                            <button type="submit" name="quantity" th:value="${item.quantity - 1}" class="qty-btn"
+                                th:disabled="${item.quantity <= 1} ? 'disabled' : null"><i
+                                    class="fas fa-minus"></i></button>
                             <input type="text" class="qty-input" th:value="${item.quantity}" readonly>
-                            <button type="submit" name="quantity" th:value="${item.quantity + 1}" class="qty-btn"><i class="fas fa-plus"></i></button>
+                            <button type="submit" name="quantity" th:value="${item.quantity + 1}" class="qty-btn"><i
+                                    class="fas fa-plus"></i></button>
                         </div>
                     </form>
 
-                    <div class="item-total" th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">
+                    <div class="item-total"
+                        th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">
                         1,000,000đ
                     </div>
 
@@ -396,27 +383,31 @@
             <!-- Right side: Summary -->
             <div class="cart-summary">
                 <h2 class="summary-title">Tóm tắt đơn hàng</h2>
-                
+
                 <div class="summary-row">
                     <span>Tạm tính</span>
                     <span th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</span>
                 </div>
-                
+
                 <div class="summary-row">
                     <span>Phí giao hàng</span>
                     <span>Miễn phí</span>
                 </div>
-                
+
                 <div class="summary-total">
                     <span>Tổng cộng</span>
-                    <span class="amount" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</span>
+                    <span class="amount"
+                        th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</span>
                 </div>
-                
+
                 <button class="checkout-btn">Tiến hành thanh toán</button>
             </div>
 
         </th:block>
     </div>
 
+    <!-- Footer Fragment -->
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 </body>
+
 </html>
