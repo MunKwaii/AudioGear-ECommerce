@@ -1,10 +1,14 @@
 package vn.edu.ute.dao;
 
 import vn.edu.ute.entity.Product;
-import java.util.List;
+
+import java.util.Optional;
 
 public interface ProductDao {
-    /**
+    Product save(Product product);
+    Optional<Product> findById(Long id);
+    
+     /**
      * Lấy danh sách sản phẩm nổi bật (Ví dụ: sắp xếp theo id hoặc random)
      * @param limit số lượng tối đa
      * @return List<Product>
