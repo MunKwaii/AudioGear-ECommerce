@@ -4,17 +4,22 @@
 <head>
     <style>
         :root {
-            --surface: #1a1d27;
-            --surface2: #22263a;
+            --bg: #050505;
+            --surface: rgba(25, 25, 25, 0.8);
+            --surface2: rgba(40, 40, 40, 0.9);
             --border: rgba(255,255,255,.08);
-            --accent: #6c63ff;
-            --accent-hover: #7d75ff;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --radius: 12px;
-            --shadow: 0 4px 24px rgba(0,0,0,.45);
+            --accent: #00f2fe;
+            --accent-hover: #4facfe;
             --green: #22c55e;
+            --yellow: #eab308;
+            --blue: #3b82f6;
+            --orange: #f97316;
             --red: #ef4444;
+            --gray: #6b7280;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,.6);
         }
 
         .page-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 16px; }
@@ -84,7 +89,7 @@
             align-items: center;
             gap: 6px;
         }
-        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary { background: var(--accent); color: #000; }
         .btn-primary:hover { background: var(--accent-hover); }
         .btn-secondary { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--border); }
         .btn-danger { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.4); }

@@ -5,22 +5,22 @@
     <style>
         /* Keep the original vibe styles, but rely on adminLayout for shell/sidebar */
         :root {
-            --bg: #0f1117;
-            --surface: #1a1d27;
-            --surface2: #22263a;
+            --bg: #050505;
+            --surface: rgba(25, 25, 25, 0.8);
+            --surface2: rgba(40, 40, 40, 0.9);
             --border: rgba(255,255,255,.08);
-            --accent: #6c63ff;
-            --accent-hover: #7d75ff;
+            --accent: #00f2fe;
+            --accent-hover: #4facfe;
             --green: #22c55e;
             --yellow: #eab308;
             --blue: #3b82f6;
             --orange: #f97316;
             --red: #ef4444;
             --gray: #6b7280;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
             --radius: 12px;
-            --shadow: 0 4px 24px rgba(0,0,0,.45);
+            --shadow: 0 4px 24px rgba(0,0,0,.6);
         }
 
         /* original page-specific styles (table, toolbar, badges, toast, modal...) */
@@ -69,13 +69,13 @@
         }
         .filter-btn:hover, .filter-btn.active {
             border-color: var(--accent);
-            color: var(--text);
-            background: rgba(108,99,255,.15);
+            color: #000;
+            background: rgba(0,242,254, 0.85);
         }
         .btn-refresh {
             padding: 7px 16px;
             background: var(--accent);
-            color: #fff;
+            color: #000;
             border: none;
             border-radius: 8px;
             cursor: pointer;

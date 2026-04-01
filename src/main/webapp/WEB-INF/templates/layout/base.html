@@ -66,16 +66,16 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-            --bg: #0f1117;
-            --surface: #1a1d27;
-            --surface2: #22263a;
+            --bg: #050505;
+            --surface: rgba(25, 25, 25, 0.8);
+            --surface2: rgba(40, 40, 40, 0.9);
             --border: rgba(255,255,255,.08);
-            --accent: #6c63ff;
-            --accent-hover: #7d75ff;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
+            --accent: #00f2fe;
+            --accent-hover: #4facfe;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
             --radius: 12px;
-            --shadow: 0 4px 24px rgba(0,0,0,.45);
+            --shadow: 0 4px 24px rgba(0,0,0,.6);
         }
 
         body {
@@ -95,7 +95,7 @@
             position: sticky;
             top: 0;
             height: 100vh;
-            background: linear-gradient(180deg, rgba(26,29,39,.98), rgba(15,17,23,.98));
+            background: linear-gradient(180deg, #050505, #111111);
             border-right: 1px solid var(--border);
             padding: 18px 16px;
         }
@@ -113,8 +113,9 @@
             font-size: 1.15rem;
             font-weight: 800;
             letter-spacing: -.5px;
-            background: linear-gradient(135deg, #6c63ff, #a78bfa);
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -135,15 +136,15 @@
 
         .nav-link:hover {
             color: var(--text);
-            border-color: rgba(108,99,255,.35);
-            background: rgba(108,99,255,.12);
+            border-color: rgba(0, 242, 254, 0.35);
+            background: rgba(0, 242, 254, 0.12);
         }
 
         .nav-link.active {
             color: var(--text);
-            border-color: rgba(108,99,255,.55);
-            background: rgba(108,99,255,.18);
-            box-shadow: 0 10px 30px rgba(108,99,255,.12);
+            border-color: rgba(0, 242, 254, 0.55);
+            background: rgba(0, 242, 254, 0.18);
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.12);
         }
 
         .admin-main { display: flex; flex-direction: column; min-width: 0; }
@@ -154,7 +155,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 24px;
-            background: rgba(26,29,39,.9);
+            background: rgba(5, 5, 5, 0.85);
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
@@ -171,9 +172,9 @@
         }
 
         .admin-badge {
-            background: rgba(108,99,255,.18);
-            color: #a78bfa;
-            border: 1px solid rgba(108,99,255,.35);
+            background: rgba(0, 242, 254, 0.18);
+            color: #00f2fe;
+            border: 1px solid rgba(0, 242, 254, 0.35);
             padding: 3px 10px;
             border-radius: 20px;
             font-size: .75rem;
