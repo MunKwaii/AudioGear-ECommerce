@@ -1,5 +1,6 @@
 package vn.edu.ute.controller.admin;
 
+import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,6 +14,7 @@ import vn.edu.ute.service.impl.OrderServiceImpl;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST Controller dành cho Admin thao tác chuyển đổi trạng thái Đơn Hàng.
@@ -25,7 +27,7 @@ import java.util.List;
  *   POST /api/admin/orders/process    → PENDING   → PROCESSING
  *   POST /api/admin/orders/ship       → PROCESSING → SHIPPED
  *   POST /api/admin/orders/deliver    → SHIPPED    → DELIVERED
- *   POST /api/admin/orders/cancel     → PENDING/SHIPPED → CANCELLED + Restock
+ *   POST /api/admin/orders/cancel     → PENDING/PROCESSING/SHIPPED → CANCELLED + Restock
  *
  * Mọi lỗi State Machine (nhảy cóc, lùi trạng thái) trả về HTTP 409 Conflict.
  */
@@ -33,6 +35,7 @@ import java.util.List;
 public class AdminOrderController extends HttpServlet {
 
     private final OrderService orderService = new OrderServiceImpl();
+    private final Gson gson = new Gson();
 
     // -----------------------------------------------------------------------
     // GET /api/admin/orders  →  Danh sách tất cả đơn hàng
@@ -48,25 +51,16 @@ public class AdminOrderController extends HttpServlet {
         try {
             List<Order> orders = orderService.getAllOrders();
 
-            // Tuần tự hóa danh sách JSON thủ công
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n  \"success\": true,\n  \"count\": ").append(orders.size()).append(",\n  \"data\": [\n");
-            for (int i = 0; i < orders.size(); i++) {
-                Order o = orders.get(i);
-                sb.append("    {\n");
-                sb.append("      \"orderId\": ").append(o.getId()).append(",\n");
-                sb.append("      \"orderCode\": \"").append(escapeJson(o.getOrderCode())).append("\",\n");
-                sb.append("      \"status\": \"").append(o.getStatus().name()).append("\",\n");
-                sb.append("      \"recipientName\": \"").append(escapeJson(o.getRecipientName())).append("\",\n");
-                sb.append("      \"email\": \"").append(escapeJson(o.getEmail())).append("\",\n");
-                sb.append("      \"totalAmount\": ").append(o.getTotalAmount()).append(",\n");
-                sb.append("      \"createdAt\": \"").append(o.getCreatedAt() != null ? o.getCreatedAt().toString() : "").append("\"\n");
-                sb.append("    }");
-                if (i < orders.size() - 1) sb.append(",");
-                sb.append("\n");
-            }
-            sb.append("  ]\n}");
-            out.print(sb.toString());
+            // Stream.map() chuyển Order entities → List<Map>, Gson.serialize
+            List<Map<String, Object>> orderList = OrderResponseDto.fromEntities(orders);
+
+            Map<String, Object> response = Map.of(
+                    "success", true,
+                    "count", orderList.size(),
+                    "data", orderList
+            );
+
+            out.print(gson.toJson(response));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -152,10 +146,5 @@ public class AdminOrderController extends HttpServlet {
                            int statusCode, String message) {
         resp.setStatus(statusCode);
         out.print(OrderResponseDto.error(message).toJson());
-    }
-
-    private static String escapeJson(String s) {
-        if (s == null) return "";
-        return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 }

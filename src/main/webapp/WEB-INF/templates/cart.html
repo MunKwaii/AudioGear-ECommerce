@@ -430,7 +430,7 @@
                         th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</span>
                 </div>
 
-                <button class="checkout-btn">Tiến hành thanh toán</button>
+                <a th:href="@{/checkout}" class="checkout-btn" style="text-align: center; text-decoration: none; display: block;">Tiến hành thanh toán</a>
             </div>
 
         </th:block>

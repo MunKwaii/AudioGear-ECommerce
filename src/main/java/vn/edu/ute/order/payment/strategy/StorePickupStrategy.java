@@ -2,10 +2,15 @@ package vn.edu.ute.order.payment.strategy;
 
 import java.math.BigDecimal;
 
+/**
+ * Nhận hàng tại cửa hàng.
+ * Luôn trả thành công — khách sẽ thanh toán khi đến lấy hàng.
+ */
 public class StorePickupStrategy implements PaymentStrategy {
+
     @Override
-    public void pay(BigDecimal amount) {
-        // TODO: Người làm Service sẽ viết logic ở đây
+    public PaymentResult pay(BigDecimal amount) {
+        return PaymentResult.success("Đặt hàng nhận tại cửa hàng — thanh toán khi nhận");
     }
 
     @Override

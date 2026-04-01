@@ -13,19 +13,21 @@ import vn.edu.ute.entity.User;
 import vn.edu.ute.entity.Voucher;
 import vn.edu.ute.entity.enums.OrderStatus;
 import vn.edu.ute.exception.VoucherException;
-import vn.edu.ute.order.payment.strategy.BankTransferStrategy;
-import vn.edu.ute.order.payment.strategy.CODStrategy;
-import vn.edu.ute.order.payment.strategy.MomoStrategy;
+import vn.edu.ute.order.payment.strategy.PaymentResult;
 import vn.edu.ute.order.payment.strategy.PaymentStrategy;
-import vn.edu.ute.order.payment.strategy.StorePickupStrategy;
+import vn.edu.ute.order.payment.strategy.PaymentStrategyFactory;
 import vn.edu.ute.service.CheckoutService;
 import vn.edu.ute.service.VoucherService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class CheckoutServiceImpl implements CheckoutService {
 
@@ -112,7 +114,15 @@ public class CheckoutServiceImpl implements CheckoutService {
 
             BigDecimal finalTotal = originalTotal.subtract(discountAmount);
 
-            // 3. Tạo Order
+            // 3. Xử lý thanh toán qua PaymentStrategy
+            PaymentStrategy strategy = PaymentStrategyFactory.fromCode(request.getPaymentMethod());
+            PaymentResult paymentResult = strategy.pay(finalTotal);
+
+            if (!paymentResult.success()) {
+                throw new RuntimeException("Thanh toán thất bại: " + paymentResult.message());
+            }
+
+            // 4. Tạo Order
             Order order = new Order();
             order.setOrderCode(generateOrderCode());
             order.setUser(user);
@@ -122,7 +132,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             order.setStreetAddress(request.getStreetAddress());
             order.setCity(request.getCity());
             order.setStatus(OrderStatus.PENDING);
-            order.setPaymentStrategy(resolvePaymentStrategy(request.getPaymentMethod()));
+            order.setPaymentStrategy(strategy);
             order.setVoucher(appliedVoucher);
             order.setTotalAmount(finalTotal);
             order.setCreatedAt(LocalDateTime.now());
@@ -130,7 +140,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 
             em.persist(order);
 
-            // 4. Gắn OrderItem vào Order + trừ tồn kho
+            // 5. Gắn OrderItem vào Order + trừ tồn kho
             for (OrderItem orderItem : orderItems) {
                 orderItem.setOrder(order);
 
@@ -151,7 +161,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                     finalTotal,
                     appliedVoucher != null ? appliedVoucher.getCode() : null,
                     order.getPaymentStrategy() != null ? order.getPaymentStrategy().getStrategyCode() : null,
-                    "Đặt hàng thành công"
+                    "Đặt hàng thành công. " + paymentResult.message()
             );
 
         } catch (VoucherException e) {
@@ -167,56 +177,37 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     /**
      * Kiểm tra dữ liệu cơ bản trước khi checkout.
+     * Sử dụng Map + Stream thay vì nhiều if-block.
      */
     private void validateCheckoutRequest(CheckoutRequest request) {
         if (request == null) {
             throw new RuntimeException("Checkout request không được null");
         }
 
-        if (request.getEmail() == null || request.getEmail().isBlank()) {
-            throw new RuntimeException("Email không được để trống");
-        }
+        // Map<String, Supplier<String>>: fieldName → getter
+        // Stream.filter() tìm field đầu tiên rỗng → ném exception
+        Map<String, Supplier<String>> requiredFields = new LinkedHashMap<>();
+        requiredFields.put("Email", request::getEmail);
+        requiredFields.put("Tên người nhận", request::getRecipientName);
+        requiredFields.put("Số điện thoại", request::getPhoneNumber);
+        requiredFields.put("Địa chỉ", request::getStreetAddress);
+        requiredFields.put("Thành phố", request::getCity);
+        requiredFields.put("Phương thức thanh toán", request::getPaymentMethod);
 
-        if (request.getRecipientName() == null || request.getRecipientName().isBlank()) {
-            throw new RuntimeException("Tên người nhận không được để trống");
-        }
+        requiredFields.entrySet().stream()
+                .filter(entry -> {
+                    String value = entry.getValue().get();
+                    return value == null || value.isBlank();
+                })
+                .findFirst()
+                .ifPresent(entry -> {
+                    throw new RuntimeException(entry.getKey() + " không được để trống");
+                });
 
-        if (request.getPhoneNumber() == null || request.getPhoneNumber().isBlank()) {
-            throw new RuntimeException("Số điện thoại không được để trống");
-        }
-
-        if (request.getStreetAddress() == null || request.getStreetAddress().isBlank()) {
-            throw new RuntimeException("Địa chỉ không được để trống");
-        }
-
-        if (request.getCity() == null || request.getCity().isBlank()) {
-            throw new RuntimeException("Thành phố không được để trống");
-        }
-
-        if (request.getPaymentMethod() == null || request.getPaymentMethod().isBlank()) {
-            throw new RuntimeException("Phương thức thanh toán không được để trống");
-        }
-
-        if (request.getItems() == null || request.getItems().isEmpty()) {
-            throw new RuntimeException("Danh sách sản phẩm không được để trống");
-        }
-    }
-
-    /**
-     * Mapping paymentMethod string từ request sang PaymentStrategy hiện có trong project.
-     */
-    private PaymentStrategy resolvePaymentStrategy(String paymentMethod) {
-        if (paymentMethod == null || paymentMethod.isBlank()) {
-            return new CODStrategy();
-        }
-
-        return switch (paymentMethod.trim().toUpperCase()) {
-            case "COD" -> new CODStrategy();
-            case "MOMO" -> new MomoStrategy();
-            case "BANK", "BANK_TRANSFER" -> new BankTransferStrategy();
-            case "STORE_PICKUP" -> new StorePickupStrategy();
-            default -> throw new RuntimeException("Phương thức thanh toán không hợp lệ: " + paymentMethod);
-        };
+        // Kiểm tra danh sách sản phẩm
+        Optional.ofNullable(request.getItems())
+                .filter(items -> !items.isEmpty())
+                .orElseThrow(() -> new RuntimeException("Danh sách sản phẩm không được để trống"));
     }
 
     /**

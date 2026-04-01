@@ -4,7 +4,11 @@ import vn.edu.ute.entity.Order;
 import vn.edu.ute.entity.enums.OrderStatus;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * DTO chuẩn hóa JSON response cho Admin Order API.
@@ -16,7 +20,7 @@ public class OrderResponseDto {
     private String message;
     private OrderData data;
 
-    // --- Static Factory Methods ---3
+    // --- Static Factory Methods ---
 
     public static OrderResponseDto success(String message, Order order) {
         OrderResponseDto dto = new OrderResponseDto();
@@ -32,6 +36,41 @@ public class OrderResponseDto {
         dto.message = message;
         dto.data = null;
         return dto;
+    }
+
+    /**
+     * Convert 1 Order entity thành Map<String, Object> để serialize bằng Gson.
+     * Dùng trong AdminOrderController.doGet().
+     */
+    public static Map<String, Object> fromEntity(Order order) {
+        return Map.of(
+                "orderId", order.getId(),
+                "orderCode", order.getOrderCode(),
+                "status", order.getStatus().name(),
+                "recipientName", order.getRecipientName() != null ? order.getRecipientName() : "",
+                "email", order.getEmail() != null ? order.getEmail() : "",
+                "totalAmount", order.getTotalAmount(),
+                "paymentMethod", order.getPaymentStrategy() != null
+                        ? order.getPaymentStrategy().getStrategyCode() : "",
+                "createdAt", formatDateTime(order.getCreatedAt()),
+                "updatedAt", formatDateTime(order.getUpdatedAt())
+        );
+    }
+
+    /**
+     * Convert danh sách Order entities thành List<Map>.
+     * Sử dụng Stream.map() để transform.
+     */
+    public static List<Map<String, Object>> fromEntities(List<Order> orders) {
+        return orders.stream()
+                .map(OrderResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    private static String formatDateTime(LocalDateTime dateTime) {
+        return dateTime != null
+                ? dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                : "";
     }
 
     // --- JSON Serialization thủ công (không cần Gson/Jackson) ---

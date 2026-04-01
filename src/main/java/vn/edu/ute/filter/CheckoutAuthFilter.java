@@ -10,16 +10,18 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import vn.edu.ute.security.CurrentUser;
-import vn.edu.ute.security.JwtUserParser;
 
 import java.io.IOException;
 import java.util.Map;
 
-@WebFilter("/api/v1/checkout")
+/**
+ * Filter bảo vệ endpoint checkout — yêu cầu đăng nhập.
+ * JwtAuthenticationFilter (chạy trước) đã parse JWT và set currentUserId lên request.
+ * Filter này chỉ kiểm tra attribute đó có tồn tại không.
+ */
+@WebFilter(urlPatterns = {"/api/v1/checkout", "/checkout"})
 public class CheckoutAuthFilter implements Filter {
 
-    private final JwtUserParser jwtUserParser = new JwtUserParser();
     private final Gson gson = new Gson();
 
     @Override
@@ -33,22 +35,23 @@ public class CheckoutAuthFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
-        CurrentUser currentUser = jwtUserParser.parseFromRequest(req);
+        // JwtAuthenticationFilter đã set attribute này khi JWT hợp lệ
+        Long currentUserId = (Long) req.getAttribute("currentUserId");
 
-        if (currentUser == null) {
+        if (currentUserId == null) {
+            if (req.getServletPath().equals("/checkout")) {
+                resp.sendRedirect(req.getContextPath() + "/login?redirect=/checkout");
+                return;
+            }
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.setContentType("application/json");
             resp.setCharacterEncoding("UTF-8");
             resp.getWriter().write(gson.toJson(Map.of(
                     "success", false,
-                    "message", "Unauthorized"
+                    "message", "Vui lòng đăng nhập để thực hiện checkout"
             )));
             return;
         }
-
-        req.setAttribute("userId", currentUser.getUserId());
-        req.setAttribute("email", currentUser.getEmail());
-        req.setAttribute("role", currentUser.getRole());
 
         chain.doFilter(req, resp);
     }
