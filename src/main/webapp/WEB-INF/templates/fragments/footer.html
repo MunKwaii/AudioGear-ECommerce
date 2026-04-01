@@ -4,6 +4,7 @@
   Để nhúng thẻ Footer này vào các trang khác, sử dụng cú pháp:
   <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 -->
+
 <body>
     <footer th:fragment="footerFragment" class="ag-footer-wrapper">
         <style>
@@ -51,6 +52,7 @@
                 margin-bottom: 15px;
                 text-decoration: none;
             }
+
             .ag-footer-logo span {
                 background: linear-gradient(to right, #4facfe, #00f2fe);
                 -webkit-background-clip: text;
@@ -103,6 +105,11 @@
                 background-color: #222;
             }
 
+            .ag-team-list a {
+                text-decoration: none;
+                display: block;
+            }
+
             .ag-team-id {
                 color: #00f2fe;
                 font-weight: bold;
@@ -138,9 +145,10 @@
             <!-- Cột 1: Thông tin dự án -->
             <div class="ag-footer-col">
                 <a href="#" class="ag-footer-logo">AUDIO<span>GEAR</span></a>
-                <p>Hệ thống thương mại điện tử chuyên cung cấp thiết bị âm thanh cao cấp. Đồ án môn học phân tích thiết kế hệ thống phần mềm áp dụng các Design Patterns chuyên sâu.</p>
+                <p>Hệ thống thương mại điện tử chuyên cung cấp thiết bị âm thanh cao cấp. Đồ án môn học phân tích thiết
+                    kế hệ thống phần mềm áp dụng các Design Patterns chuyên sâu.</p>
                 <p>📍 Địa chỉ: 1 Võ Văn Ngân, Thủ Đức, TP. Hồ Chí Minh</p>
-                <p>✉️ Email: contact@audiogear.ute.edu.vn</p>
+                <p>✉️ Email: 23110219@student.hcmute.edu.vn</p>
             </div>
 
             <!-- Cột 2: Liên kết nhanh -->
@@ -160,20 +168,36 @@
                 <h3>Thành Viên Nhóm</h3>
                 <ul class="ag-team-list">
                     <li class="ag-team-item">
-                        <span class="ag-team-id">23110219</span>
-                        <span class="ag-team-name">Võ Trí Hiệu</span>
+                        <a href="https://github.com/trihieuvo" target="_blank"
+                            style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <span class="ag-team-id">23110219</span>
+                            <span class="ag-team-name">Võ Trí Hiệu</span>
+                            <i class="fab fa-github" style="margin-left: auto; color: #888;"></i>
+                        </a>
                     </li>
                     <li class="ag-team-item">
-                        <span class="ag-team-id">23110239</span>
-                        <span class="ag-team-name">Nguyễn Quốc Khánh</span>
+                        <a href="https://github.com/MunKwaii" target="_blank"
+                            style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <span class="ag-team-id">23110239</span>
+                            <span class="ag-team-name">Nguyễn Quốc Khánh</span>
+                            <i class="fab fa-github" style="margin-left: auto; color: #888;"></i>
+                        </a>
                     </li>
                     <li class="ag-team-item">
-                        <span class="ag-team-id">23110315</span>
-                        <span class="ag-team-name">Lê Ngô Nhựt Tân</span>
+                        <a href="https://github.com/Okarin2507" target="_blank"
+                            style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <span class="ag-team-id">23110315</span>
+                            <span class="ag-team-name">Lê Ngô Nhựt Tân</span>
+                            <i class="fab fa-github" style="margin-left: auto; color: #888;"></i>
+                        </a>
                     </li>
                     <li class="ag-team-item">
-                        <span class="ag-team-id">23110305</span>
-                        <span class="ag-team-name">Huỳnh Ngọc Tài</span>
+                        <a href="https://github.com/KickHuynh" target="_blank"
+                            style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <span class="ag-team-id">23110305</span>
+                            <span class="ag-team-name">Huỳnh Ngọc Tài</span>
+                            <i class="fab fa-github" style="margin-left: auto; color: #888;"></i>
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -184,4 +208,5 @@
         </div>
     </footer>
 </body>
+
 </html>

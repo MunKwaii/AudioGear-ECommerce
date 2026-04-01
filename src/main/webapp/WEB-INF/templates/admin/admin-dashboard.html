@@ -1,191 +1,298 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/base :: adminLayout(${title}, ${activePage}, ~{::main}, ~{::style}, ~{::script})}">
+      th:replace="~{layout/base :: adminLayout(${title}, 'dashboard', ~{::main}, ~{::style}, ~{::script})}">
 <head>
     <style>
         :root {
-            --surface: #1a1d27;
-            --surface2: #22263a;
-            --border: rgba(255,255,255,.08);
-            --accent: #6c63ff;
-            --green: #22c55e;
-            --yellow: #eab308;
-            --blue: #3b82f6;
-            --orange: #f97316;
-            --red: #ef4444;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --radius: 12px;
-            --shadow: 0 4px 24px rgba(0,0,0,.45);
+            --bg-dark: #050505;
+            --surface: rgba(255, 255, 255, 0.05);
+            --surface-hover: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --card-radius: 20px;
         }
 
-        .page-title {
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: -.4px;
-            margin-bottom: 16px;
-        }
-
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
         }
 
         .stat-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 18px;
-            transition: transform .2s, box-shadow .2s;
-        }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-        .stat-label { font-size: .75rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-        .stat-value { font-size: 1.8rem; font-weight: 800; }
-
-        .split {
-            display: grid;
-            grid-template-columns: 1.4fr 1fr;
-            gap: 16px;
-        }
-        @media (max-width: 980px) { .split { grid-template-columns: 1fr; } }
-
-        .panel {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
             overflow: hidden;
         }
-        .panel-header {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border);
-            background: var(--surface2);
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: var(--surface-hover);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        /* Specific Colors */
+        .bg-purple { background: rgba(0, 242, 254, 0.15); color: #00f2fe; }
+        .bg-green { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .bg-yellow { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .bg-blue { background: rgba(79, 172, 254, 0.15); color: #4facfe; }
+
+        /* Chart & Details Split */
+        .content-split {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .glass-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            padding: 30px;
+        }
+
+        .panel-header {
+            display: flex;
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Chart Styling */
+        .chart-container {
+            width: 100%;
+            height: 350px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr;
             gap: 12px;
         }
-        .panel-title { font-weight: 700; }
-        .panel-body { padding: 16px; color: var(--text-muted); font-size: .9rem; }
 
-        .quick-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-        .qa {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: rgba(255,255,255,.02);
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 650;
-            transition: transform .15s, border-color .15s, background .15s;
-        }
-        .qa:hover { transform: translateY(-1px); border-color: rgba(108,99,255,.45); background: rgba(108,99,255,.12); }
-
-        .mini-list { display: grid; gap: 10px; }
-        .mini-item {
+        .qa-btn {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 12px;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            background: rgba(255,255,255,.02);
+            padding: 18px;
+            border-radius: 15px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
         }
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 3px 10px;
-            border-radius: 999px;
-            font-size: .75rem;
-            font-weight: 800;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-        }
-        .pill.PENDING { color: var(--yellow); border-color: rgba(234,179,8,.35); background: rgba(234,179,8,.12); }
-        .pill.PROCESSING { color: var(--blue); border-color: rgba(59,130,246,.35); background: rgba(59,130,246,.12); }
-        .pill.SHIPPED { color: var(--orange); border-color: rgba(249,115,22,.35); background: rgba(249,115,22,.12); }
-        .pill.DELIVERED { color: var(--green); border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.12); }
-        .pill.CANCELLED { color: var(--red); border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.12); }
 
-        .muted { color: var(--text-muted); }
+        .qa-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        /* Recent Orders List */
+        .recent-list {
+            margin-top: 40px;
+        }
+
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .order-table th {
+            text-align: left;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 15px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .order-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-pill {
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .PENDING { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .PROCESSING { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .SHIPPED { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        .DELIVERED { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .CANCELLED { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+        @media (max-width: 1024px) {
+            .content-split { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
+
 <main>
-    <div class="page-title">📊 Tổng quan</div>
+    <!-- Header Welcome -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: 800;">Chào ngày mới, Admin!</h1>
+            <p id="current-date" style="color: var(--text-muted); margin-top: 5px;">Hôm nay là ...</p>
+        </div>
+        <div class="glass-panel" style="padding: 10px 20px; border-radius: 999px;">
+            <span style="color: var(--text-muted);">Hệ thống: </span>
+            <span style="color: var(--success); font-weight: 700;"><i class="fas fa-circle" style="font-size: 0.6rem; vertical-align: middle;"></i> Đang hoạt động</span>
+        </div>
+    </div>
 
+    <!-- Top Stats -->
     <div class="stats-grid">
-        <div class="stat-card" style="background: rgba(108,99,255,.06); border-color: rgba(108,99,255,.22);">
-            <div class="stat-label">💰 Doanh thu (không tính huỷ)</div>
-            <div class="stat-value" id="total-revenue" style="color: var(--accent);">0 đ</div>
-        </div>
-        <div class="stat-card" style="background: rgba(34,197,94,.06); border-color: rgba(34,197,94,.22);">
-            <div class="stat-label">🛒 Tổng đơn hàng</div>
-            <div class="stat-value" id="total-orders" style="color: var(--green);">0</div>
+        <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fas fa-wallet"></i></div>
+            <div class="stat-content">
+                <div class="stat-label">Doanh thu tổng</div>
+                <div class="stat-value" id="stats-revenue">0 ₫</div>
+            </div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">⏳ Chờ duyệt</div>
-            <div class="stat-value" id="count-PENDING" style="color: var(--yellow);">0</div>
+            <div class="stat-icon bg-green"><i class="fas fa-shopping-cart"></i></div>
+            <div class="stat-content">
+                <div class="stat-label">Tổng đơn hàng</div>
+                <div class="stat-value" id="stats-orders">0</div>
+            </div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">⚙️ Đang xử lý</div>
-            <div class="stat-value" id="count-PROCESSING" style="color: var(--blue);">0</div>
+            <div class="stat-icon bg-blue"><i class="fas fa-box"></i></div>
+            <div class="stat-content">
+                <div class="stat-label">Sản phẩm hiện có</div>
+                <div class="stat-value" id="stats-products">0</div>
+            </div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">🚚 Đang giao</div>
-            <div class="stat-value" id="count-SHIPPED" style="color: var(--orange);">0</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">✅ Đã giao</div>
-            <div class="stat-value" id="count-DELIVERED" style="color: var(--green);">0</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">❌ Đã huỷ</div>
-            <div class="stat-value" id="count-CANCELLED" style="color: var(--red);">0</div>
+            <div class="stat-icon bg-yellow"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-content">
+                <div class="stat-label">Sắp hết hàng</div>
+                <div class="stat-value" id="stats-low-stock">0</div>
+            </div>
         </div>
     </div>
 
-    <div class="split">
-        <section class="panel">
+    <!-- Chart & Actions -->
+    <div class="content-split">
+        <!-- Revenue Chart -->
+        <div class="glass-panel">
             <div class="panel-header">
-                <div class="panel-title">⚡ Quick actions</div>
-                <a class="qa" th:href="@{/admin/orders}">📦 Đi tới đơn hàng</a>
+                <div class="panel-title"><i class="fas fa-chart-line" style="color: var(--primary);"></i> Biểu đồ doanh thu 7 ngày</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Cập nhật mới nhất</div>
             </div>
-            <div class="panel-body">
-                <div class="quick-actions">
-                    <a class="qa" th:href="@{/admin/orders}">🔎 Xem tất cả đơn</a>
-                    <a class="qa" th:href="@{/admin/orders}">⏳ Duyệt đơn chờ</a>
-                    <a class="qa" th:href="@{/admin/orders}">🚚 Đơn đang giao</a>
-                </div>
-                <div style="margin-top:12px;" class="muted">Dashboard chỉ hiển thị tổng quan. Quản lý đơn ở tab “Đơn hàng”.</div>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
             </div>
-        </section>
+        </div>
 
-        <aside class="panel">
+        <!-- Quick Actions -->
+        <div class="glass-panel">
             <div class="panel-header">
-                <div class="panel-title">🧾 Đơn gần đây (preview)</div>
-                <div class="muted" style="font-size:.85rem;">Top 5</div>
+                <div class="panel-title"><i class="fas fa-bolt" style="color: var(--warning);"></i> Thao tác nhanh</div>
             </div>
-            <div class="panel-body">
-                <div class="mini-list" id="recent-orders">
-                    <div class="muted">Đang tải…</div>
-                </div>
+            <div class="quick-actions">
+                <a th:href="@{/admin/products/new}" class="qa-btn"><i class="fas fa-plus"></i> Thêm sản phẩm mới</a>
+                <a th:href="@{/admin/products}" class="qa-btn"><i class="fas fa-boxes"></i> Quản lý kho hàng</a>
+                <a th:href="@{/admin/orders}" class="qa-btn"><i class="fas fa-history"></i> Kiểm tra đơn hàng</a>
+                <a th:href="@{/admin/dashboard}" class="qa-btn"><i class="fas fa-sync"></i> Làm mới dữ liệu</a>
             </div>
-        </aside>
+        </div>
     </div>
+
+    <!-- Recent Orders Table -->
+    <div class="glass-panel recent-list">
+        <div class="panel-header">
+            <div class="panel-title"><i class="fas fa-receipt" style="color: var(--secondary);"></i> Đơn hàng mới gần đây</div>
+            <a th:href="@{/admin/orders}" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; font-weight: 600;">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <table class="order-table">
+            <thead>
+                <tr>
+                    <th>Mã Đơn #</th>
+                    <th>Khách Hàng</th>
+                    <th>Ngày Đặt</th>
+                    <th>Tổng Tiền</th>
+                    <th>Trạng Thái</th>
+                </tr>
+            </thead>
+            <tbody id="recent-orders-body">
+                <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">Đang tải dữ liệu...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer Fragment -->
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 </main>
 
 <script th:inline="javascript">
-    const BASE = /*[[@{/}]]*/ '/';
-    const API  = BASE + 'api/admin/orders';
+    /*<![CDATA[*/
+    const contextPath = /*[[@{/}]]*/ '/';
+    const API_URL = contextPath + 'api/admin/stats';
 
-    function getToken() {
+    function getAuthToken() {
         const fromCookie = document.cookie.split(';')
             .map(c => c.trim())
             .find(c => c.startsWith('accessToken='));
@@ -193,66 +300,93 @@
         return localStorage.getItem('accessToken') || '';
     }
 
-    function setText(id, value) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = value;
-    }
-
-    function renderRecent(orders) {
-        const box = document.getElementById('recent-orders');
-        if (!box) return;
-        if (!orders || orders.length === 0) {
-            box.innerHTML = '<div class="muted">Chưa có đơn hàng.</div>';
-            return;
-        }
-        const top = orders.slice(0, 5);
-        box.innerHTML = top.map(o => {
-            const amount = Number(o.totalAmount || 0).toLocaleString('vi-VN') + ' ₫';
-            const code = o.orderCode || ('#' + (o.orderId || o.id));
-            return `
-              <div class="mini-item">
-                <div>
-                  <div style="font-weight:800; color: var(--text);">${code}</div>
-                  <div class="muted" style="font-size:.85rem;">${o.recipientName || '-'} • ${amount}</div>
-                </div>
-                <span class="pill ${o.status}">${o.status}</span>
-              </div>`;
-        }).join('');
-    }
-
-    function updateStats(orders) {
-        let totalRevenue = 0;
-        const counts = { PENDING:0, PROCESSING:0, SHIPPED:0, DELIVERED:0, CANCELLED:0 };
-
-        orders.forEach(o => {
-            if (counts[o.status] !== undefined) counts[o.status]++;
-            if (o.status !== 'CANCELLED') totalRevenue += (o.totalAmount || 0);
-        });
-
-        setText('total-orders', String(orders.length));
-        setText('total-revenue', totalRevenue.toLocaleString('vi-VN') + ' đ');
-        Object.keys(counts).forEach(k => setText('count-' + k, String(counts[k])));
-    }
-
-    async function load() {
+    async function loadDashboardData() {
         try {
-            const resp = await fetch(API, { headers: { 'Authorization': 'Bearer ' + getToken() } });
-            const data = await resp.json();
-            if (data && data.success) {
-                const orders = data.data || [];
-                updateStats(orders);
-                // recent: sort newest first (string date ISO)
-                const sorted = orders.slice().sort((a,b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-                renderRecent(sorted);
-            } else {
-                renderRecent([]);
+            const resp = await fetch(API_URL, {
+                headers: { 'Authorization': 'Bearer ' + getAuthToken() }
+            });
+            const result = await resp.json();
+            if (result.success) {
+                updateUI(result);
+                renderChart(result.revenueTrend);
             }
         } catch (e) {
-            renderRecent([]);
+            console.error('FAILED TO LOAD STATS', e);
         }
     }
 
-    window.addEventListener('DOMContentLoaded', load);
+    function updateUI(data) {
+        document.getElementById('stats-revenue').textContent = Number(data.totalRevenue).toLocaleString('vi-VN') + ' ₫';
+        document.getElementById('stats-orders').textContent = data.totalOrders;
+        document.getElementById('stats-products').textContent = data.totalProducts;
+        document.getElementById('stats-low-stock').textContent = data.lowStockCount;
+
+        const tableBody = document.getElementById('recent-orders-body');
+        tableBody.innerHTML = '';
+
+        if (data.recentOrders && data.recentOrders.length > 0) {
+            data.recentOrders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="font-weight: 700;">${order.orderCode}</td>
+                    <td>${order.recipientName}</td>
+                    <td style="color: var(--text-muted);">${order.createdAt}</td>
+                    <td style="font-weight: 700; color: var(--primary);">${Number(order.totalAmount).toLocaleString('vi-VN')} ₫</td>
+                    <td><span class="status-pill ${order.status}">${order.status}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } else {
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Chưa có đơn hàng nào.</td></tr>';
+        }
+    }
+
+    function renderChart(trendData) {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 242, 254, 0.4)');
+        gradient.addColorStop(1, 'rgba(0, 242, 254, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trendData.map(d => d.date),
+                datasets: [{
+                    label: 'Doanh thu (₫)',
+                    data: trendData.map(d => d.amount),
+                    borderColor: '#00f2fe',
+                    borderWidth: 4,
+                    pointBackgroundColor: '#00f2fe',
+                    pointRadius: 6,
+                    fill: true,
+                    backgroundColor: gradient,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+    }
+
+    function setDate() {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = 'Hôm nay là ' + new Date().toLocaleDateString('vi-VN', options);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setDate();
+        loadDashboardData();
+    });
+    /*]]>*/
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </body>
 </html>
