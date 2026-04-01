@@ -9,11 +9,12 @@ public class CartItemDTO {
     private String productThumbnail;
     private BigDecimal price;
     private int quantity;
+    private int stockQuantity; // Tồn kho thực tế
     private BigDecimal totalPrice; // price * quantity
 
     public CartItemDTO() {}
 
-    public CartItemDTO(Long id, Long productId, String productName, String productThumbnail, BigDecimal price, int quantity, BigDecimal totalPrice) {
+    public CartItemDTO(Long id, Long productId, String productName, String productThumbnail, BigDecimal price, int quantity, BigDecimal totalPrice, int stockQuantity) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -21,6 +22,7 @@ public class CartItemDTO {
         this.price = price;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
+        this.stockQuantity = stockQuantity;
     }
 
     public Long getId() {
@@ -77,5 +79,13 @@ public class CartItemDTO {
 
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public int getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 }

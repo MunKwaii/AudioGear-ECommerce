@@ -20,6 +20,7 @@
             --text-main: #f0f0f0;
             --text-muted: #8892b0;
             --danger: #ff4757;
+            --warning: #ffa502;
         }
 
         * {
@@ -313,6 +314,25 @@
                 right: 20px;
             }
         }
+
+        .alert-error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            color: #ff6b81;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.4s ease-out;
+            grid-column: 1 / -1;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 
@@ -328,6 +348,14 @@
             <h2>Giỏ hàng của bạn đang trống</h2>
             <p>Khám phá ngay thế giới âm thanh đỉnh cao tại AudioGear!</p>
             <a th:href="@{/products}" class="shop-now-btn">Mua sắm ngay</a>
+        </div>
+
+        <!-- Error Alert -->
+        <div class="alert-error" th:if="${session.cartError != null}">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${session.cartError}">Error message</span>
+            <!-- Clear error after showing -->
+            <th:block th:text="${#session.removeAttribute('cartError')}"></th:block>
         </div>
 
         <!-- Cart Content wrapper (only if items present) -->
@@ -361,8 +389,10 @@
                                 th:disabled="${item.quantity <= 1} ? 'disabled' : null"><i
                                     class="fas fa-minus"></i></button>
                             <input type="text" class="qty-input" th:value="${item.quantity}" readonly>
-                            <button type="submit" name="quantity" th:value="${item.quantity + 1}" class="qty-btn"><i
-                                    class="fas fa-plus"></i></button>
+                            <button type="submit" name="quantity" th:value="${item.quantity + 1}" class="qty-btn"
+                                th:disabled="${item.quantity >= item.stockQuantity} ? 'disabled' : null">
+                                <i class="fas fa-plus"></i>
+                            </button>
                         </div>
                     </form>
 

@@ -101,8 +101,18 @@ public class CartController extends HttpServlet {
                 int quantity = Integer.parseInt(req.getParameter("quantity"));
                 ServiceFactory.getCartFacadeService().updateQuantity(itemId, quantity);
             }
+        } catch (vn.edu.ute.exception.InsufficientStockException e) {
+            String requestedWith = req.getHeader("X-Requested-With");
+            if ("XMLHttpRequest".equals(requestedWith) || (req.getHeader("Accept") != null && req.getHeader("Accept").contains("application/json"))) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.setContentType("application/json;charset=UTF-8");
+                resp.getWriter().write("{\"success\":false, \"message\":\"" + e.getMessage() + "\"}");
+                return;
+            }
+            req.getSession().setAttribute("cartError", e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
+            req.getSession().setAttribute("cartError", "Có lỗi xảy ra: " + e.getMessage());
         }
         
         resp.sendRedirect(req.getContextPath() + "/cart");

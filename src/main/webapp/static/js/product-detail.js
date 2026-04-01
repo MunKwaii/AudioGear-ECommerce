@@ -70,6 +70,12 @@ function renderProduct(product) {
     document.getElementById('brand-name').textContent = `Thương hiệu: ${product.brandName}`;
     document.getElementById('product-description').innerHTML = product.description || 'Chưa có mô tả cho sản phẩm này.';
     document.getElementById('product-price').textContent = formatCurrency(product.price);
+    
+    // Set max quantity for input
+    const qtyInput = document.getElementById('qty-input');
+    if (qtyInput) {
+        qtyInput.setAttribute('max', product.stockQuantity);
+    }
 
     // Status
     const stockStatus = document.getElementById('stock-status');
@@ -184,7 +190,14 @@ async function addToCart(id, qty) {
             // Cập nhật số lượng trên header nếu có
             updateCartBadge();
         } else {
-            showToast('Có lỗi xảy ra khi thêm vào giỏ hàng.', 'error');
+            let errorMsg = 'Có lỗi xảy ra khi thêm vào giỏ hàng.';
+            try {
+                const result = await response.json();
+                if (result.message) errorMsg = result.message;
+            } catch (e) {
+                // Not JSON, use default
+            }
+            showToast(errorMsg, 'error');
         }
     } catch (error) {
         console.error('Error adding to cart:', error);
@@ -209,8 +222,34 @@ function formatCurrency(amount) {
 
 function setupQuantityControls() {
     const input = document.getElementById('qty-input');
-    document.getElementById('qty-minus').onclick = () => { if (input.value > 1) input.value--; };
-    document.getElementById('qty-plus').onclick = () => { input.value++; };
+    const stockStatus = document.getElementById('stock-status');
+    
+    // Extract stock count from product data if available
+    // We can store it in a global or data attribute. Let's use a hidden data attribute or just parse the text.
+    // Better: let's set the max attribute when rendering product.
+    
+    document.getElementById('qty-minus').onclick = () => { 
+        if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1; 
+    };
+    
+    document.getElementById('qty-plus').onclick = () => { 
+        const max = parseInt(input.getAttribute('max')) || Infinity;
+        if (parseInt(input.value) < max) {
+            input.value = parseInt(input.value) + 1; 
+        } else {
+            showToast(`Chỉ còn ${max} sản phẩm trong kho.`, 'error');
+        }
+    };
+
+    input.onchange = () => {
+        const max = parseInt(input.getAttribute('max')) || Infinity;
+        let val = parseInt(input.value);
+        if (isNaN(val) || val < 1) input.value = 1;
+        else if (val > max) {
+            input.value = max;
+            showToast(`Chỉ còn ${max} sản phẩm trong kho.`, 'error');
+        }
+    };
 }
 
 function setupTabs() {

@@ -7,6 +7,7 @@ import vn.edu.ute.entity.Cart;
 import vn.edu.ute.entity.CartItem;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.entity.User;
+import vn.edu.ute.exception.InsufficientStockException;
 import vn.edu.ute.homepage.factory.DaoFactory;
 
 import java.math.BigDecimal;
@@ -48,7 +49,8 @@ public class CartFacadeServiceImpl implements CartFacadeService {
                     thumb,
                     product.getPrice(),
                     item.getQuantity(),
-                    itemTotal
+                    itemTotal,
+                    product.getStockQuantity()
             );
         }).collect(Collectors.toList());
 
@@ -77,15 +79,23 @@ public class CartFacadeServiceImpl implements CartFacadeService {
             }
         }
 
-        Product product = DaoFactory.getProductDao().searchProducts("", null, 0, 1000).stream()
-                          .filter(p -> p.getId().equals(productId)).findFirst().orElse(null);
+        Product product = DaoFactory.getProductDao().findById(productId).orElse(null);
                           
         if (product == null) throw new IllegalArgumentException("Product không tồn tại!");
 
         CartItem existingItem = cartDao.findCartItemByCartAndProduct(cart.getId(), productId);
+        int totalQuantityRequested = quantity;
+        if (existingItem != null) {
+            totalQuantityRequested += existingItem.getQuantity();
+        }
+
+        if (totalQuantityRequested > product.getStockQuantity()) {
+            throw new InsufficientStockException(product.getName(), product.getStockQuantity());
+        }
+
         if (existingItem != null) {
             // Cộng dồn số lượng
-            cartDao.updateCartItemQuantity(existingItem.getId(), existingItem.getQuantity() + quantity);
+            cartDao.updateCartItemQuantity(existingItem.getId(), totalQuantityRequested);
         } else {
             // Thêm mới
             CartItem newItem = new CartItem(cart, product, quantity);
@@ -98,6 +108,15 @@ public class CartFacadeServiceImpl implements CartFacadeService {
         if (newQuantity <= 0) {
             removeCartItem(cartItemId);
         } else {
+            jakarta.persistence.EntityManager em = vn.edu.ute.config.DatabaseConfig.getEntityManager();
+            try {
+                CartItem item = em.find(CartItem.class, cartItemId);
+                if (item != null && newQuantity > item.getProduct().getStockQuantity()) {
+                    throw new InsufficientStockException(item.getProduct().getName(), item.getProduct().getStockQuantity());
+                }
+            } finally {
+                vn.edu.ute.config.DatabaseConfig.closeEntityManager();
+            }
             DaoFactory.getCartDao().updateCartItemQuantity(cartItemId, newQuantity);
         }
     }
