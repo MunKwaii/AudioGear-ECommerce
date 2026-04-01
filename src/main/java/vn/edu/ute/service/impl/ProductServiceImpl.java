@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class ProductServiceImpl implements ProductService {
-    private final ProductDao productDao = new ProductDaoImpl();
-    private final CategoryDao categoryDao = new CategoryDaoImpl();
+    private final ProductDao productDao = ProductDaoImpl.getInstance();
+    private final CategoryDao categoryDao = CategoryDaoImpl.getInstance();
     private final BrandDao brandDao = new BrandDaoImpl();
 
     @Override

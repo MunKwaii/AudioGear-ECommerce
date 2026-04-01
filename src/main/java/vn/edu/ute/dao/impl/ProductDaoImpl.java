@@ -1,10 +1,12 @@
 package vn.edu.ute.dao.impl;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import vn.edu.ute.config.DatabaseConfig;
 import vn.edu.ute.dao.ProductDao;
 import vn.edu.ute.entity.Product;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ProductDaoImpl implements ProductDao {

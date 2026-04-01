@@ -1,6 +1,7 @@
 package vn.edu.ute.dao.impl;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import vn.edu.ute.config.DatabaseConfig;
 import vn.edu.ute.dao.CategoryDao;
 import vn.edu.ute.entity.Category;

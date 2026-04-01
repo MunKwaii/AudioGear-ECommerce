@@ -2,6 +2,7 @@ package vn.edu.ute.dao;
 
 import vn.edu.ute.entity.Product;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProductDao {
