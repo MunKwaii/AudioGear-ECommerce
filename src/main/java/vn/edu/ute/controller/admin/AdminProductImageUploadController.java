@@ -27,12 +27,8 @@ public class AdminProductImageUploadController extends HttpServlet {
         resp.setContentType("application/json;charset=UTF-8");
 
         List<String> stored = new ArrayList<>();
-        String rootPath = getServletContext().getRealPath("/static/images/products");
-        if (rootPath == null) {
-            ApiResponse response = new ApiResponse(false, "Khong tim thay thu muc luu anh", null);
-            resp.getWriter().write(JsonUtil.toJson(response));
-            return;
-        }
+        String rootPath = System.getProperty("user.dir")
+                + "/src/main/webapp/static/images/products";
 
         File root = new File(rootPath);
         if (!root.exists() && !root.mkdirs()) {
@@ -64,7 +60,8 @@ public class AdminProductImageUploadController extends HttpServlet {
 
     private boolean isImageFile(String name) {
         String lower = name.toLowerCase(Locale.ROOT);
-        return lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") || lower.endsWith(".gif") || lower.endsWith(".webp");
+        return lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") || lower.endsWith(".gif")
+                || lower.endsWith(".webp");
     }
 
     private String getExtension(String name) {
