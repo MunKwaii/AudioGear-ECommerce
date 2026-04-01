@@ -208,11 +208,17 @@ async function addToCart(id, qty) {
 // Helpers
 function getImageUrl(url) {
     if (!url) return `${contextPath}static/images/placeholder.png`;
-    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    if (url.startsWith('http') || url.startsWith('data:') || url.startsWith('blob:')) return url;
 
-    // url đã được resolve ở Java (có kèm /static/...)
-    // Loại bỏ dấu '/' ở đầu vì contextPath thường là '/context/'
-    const cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+    let path = url;
+    if (!path.startsWith('/')) path = '/' + path;
+
+    // Nếu path bắt đầu bằng /images/products/ mà thiếu /static thì thêm vào
+    if (path.startsWith('/images/products/') && !path.startsWith('/static/')) {
+        path = '/static' + path;
+    }
+
+    const cleanUrl = path.startsWith('/') ? path.substring(1) : path;
     return `${contextPath}${cleanUrl}`;
 }
 

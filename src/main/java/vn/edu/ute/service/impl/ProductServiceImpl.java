@@ -56,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         List<String> imageUrls = parseImageUrls(request.getImageUrls(), errors);
-        String thumbnailUrl = safeTrim(request.getThumbnailUrl());
+        String thumbnailUrl = normalizeImageUrl(request.getThumbnailUrl());
         if (thumbnailUrl.isEmpty() && !imageUrls.isEmpty()) {
             thumbnailUrl = imageUrls.get(0);
         }
@@ -145,7 +145,7 @@ public class ProductServiceImpl implements ProductService {
         String rawImageUrls = request.getImageUrls();
         boolean hasImagePayload = rawImageUrls != null && !rawImageUrls.trim().isEmpty();
         List<String> imageUrls = parseImageUrls(rawImageUrls, errors);
-        String thumbnailUrl = safeTrim(request.getThumbnailUrl());
+        String thumbnailUrl = normalizeImageUrl(request.getThumbnailUrl());
         if (thumbnailUrl.isEmpty() && hasImagePayload && !imageUrls.isEmpty()) {
             thumbnailUrl = imageUrls.get(0);
         }
@@ -314,7 +314,7 @@ public class ProductServiceImpl implements ProductService {
             List<String> cleaned = new ArrayList<>();
             Set<String> seen = new LinkedHashSet<>();
             for (String url : raw) {
-                String value = safeTrim(url);
+                String value = normalizeImageUrl(url);
                 if (!value.isEmpty() && seen.add(value)) {
                     cleaned.add(value);
                 }
@@ -324,5 +324,17 @@ public class ProductServiceImpl implements ProductService {
             errors.add("Danh sách ảnh không đúng định dạng");
             return new ArrayList<>();
         }
+    }
+
+    private static String normalizeImageUrl(String url) {
+        String trimmed = safeTrim(url);
+        if (trimmed.isEmpty()) {
+            return "";
+        }
+        // Nếu là ảnh local path mà thiếu /static thì thêm vào
+        if (trimmed.startsWith("/images/products/") && !trimmed.startsWith("/static/")) {
+            return "/static" + trimmed;
+        }
+        return trimmed;
     }
 }

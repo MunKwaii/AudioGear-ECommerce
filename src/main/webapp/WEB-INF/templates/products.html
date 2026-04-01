@@ -413,9 +413,11 @@
                         <div class="product-img-wrapper">
                             <img th:if="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}"
                                 class="product-img" th:src="@{/static/img/hero_bg.png}" alt="Product">
-                            <img th:unless="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}"
-                                class="product-img" th:src="@{${prod.thumbnailUrl}}" alt="Product"
-                                onerror="this.style.display='none'">
+                             <img th:unless="${prod.thumbnailUrl == null || prod.thumbnailUrl.trim().isEmpty()}"
+                                 class="product-img" 
+                                 th:src="${prod.thumbnailUrl.startsWith('/images/products/')} ? @{'/static' + ${prod.thumbnailUrl}} : @{${prod.thumbnailUrl}}" 
+                                 alt="Product"
+                                 onerror="this.style.display='none'">
                         </div>
                     </a>
                     <div class="product-brand" th:text="${prod.brandName}">Brand</div>

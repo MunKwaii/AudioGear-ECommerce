@@ -280,8 +280,20 @@
             }
         }
 
-        function getImageSrc(path) {
-            if (!path) return '';
+        function getImageSrc(url) {
+            if (!url) return '';
+            if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
+                return url;
+            }
+            // Chuẩn hóa path: đảm bảo có / ở đầu và không bị lặp /static
+            let path = url;
+            if (!path.startsWith('/')) path = '/' + path;
+            
+            // Nếu path bắt đầu bằng /images/products/ mà thiếu /static thì thêm vào
+            if (path.startsWith('/images/products/') && !path.startsWith('/static/')) {
+                path = '/static' + path;
+            }
+
             const clean = path.startsWith('/') ? path.substring(1) : path;
             return `${contextPath}${clean}`;
         }

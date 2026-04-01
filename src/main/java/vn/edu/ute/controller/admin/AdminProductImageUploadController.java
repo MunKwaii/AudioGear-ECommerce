@@ -51,7 +51,7 @@ public class AdminProductImageUploadController extends HttpServlet {
             String filename = UUID.randomUUID() + (extension.isEmpty() ? "" : "." + extension);
             File output = new File(root, filename);
             part.write(output.getAbsolutePath());
-            stored.add("/images/products/" + filename);
+            stored.add("/static/images/products/" + filename);
         }
 
         ApiResponse response = new ApiResponse(true, "OK", stored);

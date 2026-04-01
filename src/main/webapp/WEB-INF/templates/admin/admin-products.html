@@ -169,7 +169,9 @@
                 </tr>
                 <tr th:each="p : ${products}">
                     <td>
-                        <img class="product-thumb" th:src="@{${p.thumbnailUrl}}" alt="thumb">
+                        <img class="product-thumb" 
+                             th:src="${p.thumbnailUrl != null && p.thumbnailUrl.startsWith('/images/products/')} ? @{'/static' + ${p.thumbnailUrl}} : @{${p.thumbnailUrl}}" 
+                             alt="thumb">
                     </td>
                     <td th:text="${p.name}"></td>
                     <td th:text="${p.category != null ? p.category.name : '-'}"></td>
