@@ -129,9 +129,65 @@
                         </table>
                     </div>
                     <div id="tab-reviews" class="ag-tab-pane">
-                        <div class="ag-placeholder-reviews">
-                            <i class="fas fa-comments"></i>
-                            <p>Tính năng đánh giá đang được phát triển.</p>
+                        <!-- Review Summary -->
+                        <div class="ag-review-summary">
+                            <div class="ag-review-summary-left">
+                                <div class="ag-review-avg-rating" id="review-avg-rating">0.0</div>
+                                <div class="ag-review-avg-stars" id="review-avg-stars"></div>
+                                <div class="ag-review-total" id="review-total">0 đánh giá</div>
+                            </div>
+                            <div class="ag-review-summary-right">
+                                <div class="ag-rating-histogram" id="rating-histogram">
+                                    <div class="ag-histogram-row"><span>5</span><i class="fas fa-star"></i><div class="ag-histogram-bar"><div class="ag-histogram-fill" data-star="5"></div></div><span class="ag-histogram-count" data-star="5">0</span></div>
+                                    <div class="ag-histogram-row"><span>4</span><i class="fas fa-star"></i><div class="ag-histogram-bar"><div class="ag-histogram-fill" data-star="4"></div></div><span class="ag-histogram-count" data-star="4">0</span></div>
+                                    <div class="ag-histogram-row"><span>3</span><i class="fas fa-star"></i><div class="ag-histogram-bar"><div class="ag-histogram-fill" data-star="3"></div></div><span class="ag-histogram-count" data-star="3">0</span></div>
+                                    <div class="ag-histogram-row"><span>2</span><i class="fas fa-star"></i><div class="ag-histogram-bar"><div class="ag-histogram-fill" data-star="2"></div></div><span class="ag-histogram-count" data-star="2">0</span></div>
+                                    <div class="ag-histogram-row"><span>1</span><i class="fas fa-star"></i><div class="ag-histogram-bar"><div class="ag-histogram-fill" data-star="1"></div></div><span class="ag-histogram-count" data-star="1">0</span></div>
+                                </div>
+                                <button type="button" id="btn-write-review" class="ag-btn ag-btn-primary ag-btn-write-review ag-hidden">
+                                    <i class="fas fa-pen"></i> Viết đánh giá
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sort Controls -->
+                        <div class="ag-sort-controls">
+                            <button class="ag-sort-btn active" data-sort="newest">Mới nhất</button>
+                            <button class="ag-sort-btn" data-sort="highest_rating">Đánh giá cao</button>
+                            <button class="ag-sort-btn" data-sort="most_liked">Được thích nhất</button>
+                        </div>
+
+                        <!-- Review List -->
+                        <div id="review-list" class="ag-review-list">
+                            <div class="ag-reviews-loading">
+                                <div class="spinner"></div>
+                                <p>Đang tải đánh giá...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Write Review Modal -->
+                    <div id="review-modal" class="ag-modal-overlay ag-hidden">
+                        <div class="ag-modal">
+                            <div class="ag-modal-header">
+                                <h3>Viết đánh giá</h3>
+                                <button type="button" id="btn-close-modal" class="ag-modal-close">&times;</button>
+                            </div>
+                            <div class="ag-modal-body">
+                                <div class="ag-star-selector" id="star-selector">
+                                    <i class="far fa-star" data-value="1"></i>
+                                    <i class="far fa-star" data-value="2"></i>
+                                    <i class="far fa-star" data-value="3"></i>
+                                    <i class="far fa-star" data-value="4"></i>
+                                    <i class="far fa-star" data-value="5"></i>
+                                </div>
+                                <span class="ag-star-label" id="star-label">Chọn số sao</span>
+                                <textarea id="review-comment" class="ag-textarea" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..." maxlength="1000"></textarea>
+                                <div class="ag-char-count"><span id="char-count">0</span>/1000</div>
+                            </div>
+                            <div class="ag-modal-footer">
+                                <button type="button" id="btn-submit-review" class="ag-btn ag-btn-primary">Gửi đánh giá</button>
+                            </div>
                         </div>
                     </div>
                 </div>

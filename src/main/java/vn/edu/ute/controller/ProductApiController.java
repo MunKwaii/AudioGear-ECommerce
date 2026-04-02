@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.ute.dto.response.ApiResponse;
 import vn.edu.ute.dto.response.ProductDetailDTO;
 import vn.edu.ute.entity.Product;
+import vn.edu.ute.security.CurrentUser;
+import vn.edu.ute.security.JwtUserParser;
 import vn.edu.ute.service.ProductService;
 import vn.edu.ute.service.ReviewService;
 import vn.edu.ute.service.impl.ProductServiceImpl;
@@ -24,6 +26,7 @@ public class ProductApiController extends HttpServlet {
 
     private ProductService productService;
     private ReviewService reviewService;
+    private final JwtUserParser jwtUserParser = new JwtUserParser();
 
     @Override
     public void init() throws ServletException {
@@ -55,7 +58,7 @@ public class ProductApiController extends HttpServlet {
 
             // GET /api/v1/products/{id}/reviews
             if (parts.length > 2 && parts[2].equals("reviews")) {
-                handleGetReviews(productId, response);
+                handleGetReviews(productId, request, response);
                 return;
             }
 
@@ -113,8 +116,12 @@ public class ProductApiController extends HttpServlet {
         }
     }
 
-    private void handleGetReviews(Long productId, HttpServletResponse response) throws IOException {
-        var result = reviewService.getReviewsByProductId(productId);
+    private void handleGetReviews(Long productId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        CurrentUser currentUser = jwtUserParser.parseFromRequest(request);
+        Long currentUserId = currentUser != null ? currentUser.getUserId() : null;
+        String sortBy = request.getParameter("sortBy");
+
+        var result = reviewService.getReviewsByProductId(productId, currentUserId, sortBy);
         sendSuccess(response, "Lấy danh sách đánh giá thành công", result);
     }
 

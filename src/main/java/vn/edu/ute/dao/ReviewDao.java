@@ -45,4 +45,9 @@ public interface ReviewDao {
      * Đếm tổng số review của sản phẩm.
      */
     long countByProductId(Long productId);
+
+    /**
+     * Xóa review.
+     */
+    void delete(Review review);
 }

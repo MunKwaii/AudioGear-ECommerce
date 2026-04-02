@@ -85,6 +85,40 @@ public class ReviewController extends HttpServlet {
         resp.getWriter().write(gson.toJson(Map.of("message", "Review API chỉ hỗ trợ POST cho reviews và likes qua path này")));
     }
 
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        try {
+            String uri = req.getRequestURI();
+
+            CurrentUser currentUser = jwtUserParser.parseFromRequest(req);
+            Long userId = currentUser != null ? currentUser.getUserId() : null;
+
+            // DELETE /api/v1/reviews/{id}
+            if (uri.matches(".*/api/v1/reviews/\\d+$")) {
+                Long reviewId = extractReviewId(uri);
+
+                reviewService.deleteReview(userId, reviewId);
+
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write(gson.toJson(Map.of("message", "Xóa đánh giá thành công")));
+                return;
+            }
+
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.getWriter().write(gson.toJson(Map.of("message", "Endpoint không tồn tại")));
+
+        } catch (ReviewException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write(gson.toJson(Map.of("message", e.getMessage())));
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write(gson.toJson(Map.of("message", "Lỗi hệ thống")));
+        }
+    }
+
     /**
      * Tách reviewId từ URL dạng /api/v1/reviews/{reviewId}/like
      */
