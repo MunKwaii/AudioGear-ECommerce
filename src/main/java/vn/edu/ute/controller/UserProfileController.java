@@ -24,11 +24,14 @@ import vn.edu.ute.service.impl.UserServiceImpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 
-@WebServlet({"/profile", "/profile/update", "/profile/avatar", "/profile/addresses", "/profile/addresses/add", "/profile/addresses/edit", "/profile/addresses/delete", "/profile/addresses/default", "/profile/orders"})
+@WebServlet({ "/profile", "/profile/update", "/profile/avatar", "/profile/addresses", "/profile/addresses/add",
+        "/profile/addresses/edit", "/profile/addresses/delete", "/profile/addresses/default", "/profile/orders" })
 @MultipartConfig
 public class UserProfileController extends HttpServlet {
 
@@ -89,12 +92,12 @@ public class UserProfileController extends HttpServlet {
                 String phoneNumber = req.getParameter("phoneNumber");
                 userService.updateUserProfile(userId, fullName, phoneNumber);
                 resp.sendRedirect(req.getContextPath() + "/profile?success=true");
-                
+
             } else if ("/profile/addresses/add".equals(path)) {
                 Address address = extractAddressFromRequest(req);
                 addressService.addAddress(userId, address);
                 resp.sendRedirect(req.getContextPath() + "/profile/addresses?success=true");
-                
+
             } else if ("/profile/addresses/edit".equals(path)) {
                 Address address = extractAddressFromRequest(req);
                 if (req.getParameter("id") != null) {
@@ -102,17 +105,17 @@ public class UserProfileController extends HttpServlet {
                     addressService.updateAddress(userId, address);
                 }
                 resp.sendRedirect(req.getContextPath() + "/profile/addresses?success=true");
-                
+
             } else if ("/profile/addresses/delete".equals(path)) {
                 Long addressId = Long.parseLong(req.getParameter("id"));
                 addressService.deleteAddress(addressId);
                 resp.sendRedirect(req.getContextPath() + "/profile/addresses?success=true");
-                
+
             } else if ("/profile/addresses/default".equals(path)) {
                 Long addressId = Long.parseLong(req.getParameter("id"));
                 addressService.setDefaultAddress(userId, addressId);
                 resp.sendRedirect(req.getContextPath() + "/profile/addresses?success=true");
-                
+
             } else if ("/profile/avatar".equals(path)) {
                 handleAvatarUpload(req, resp, userId);
             } else {
@@ -131,18 +134,20 @@ public class UserProfileController extends HttpServlet {
     private void showProfilePage(HttpServletRequest req, HttpServletResponse resp, Long userId) throws IOException {
         resp.setContentType("text/html;charset=UTF-8");
         User user = userService.getUserById(userId);
-        
+
         IWebExchange webExchange = application.buildExchange(req, resp);
         WebContext context = new WebContext(webExchange, webExchange.getLocale());
         context.setVariable("user", user);
-        
-        if (req.getParameter("success") != null) {
+
+        if ("true".equals(req.getParameter("success"))) {
             context.setVariable("successMessage", "Cập nhật hồ sơ thành công!");
+        } else if ("AvatarUpdated".equals(req.getParameter("success"))) {
+            context.setVariable("successMessage", "Cập nhật ảnh đại diện thành công!");
         }
         if (req.getAttribute("errorMessage") != null) {
             context.setVariable("errorMessage", req.getAttribute("errorMessage"));
         }
-        
+
         templateEngine.process("profile", context, resp.getWriter());
     }
 
@@ -150,20 +155,20 @@ public class UserProfileController extends HttpServlet {
         resp.setContentType("text/html;charset=UTF-8");
         List<Address> addresses = addressService.getAddressesByUserId(userId);
         User user = userService.getUserById(userId);
-        
+
         IWebExchange webExchange = application.buildExchange(req, resp);
         WebContext context = new WebContext(webExchange, webExchange.getLocale());
         context.setVariable("addresses", addresses);
         context.setVariable("user", user);
         context.setVariable("activePage", "addresses");
-        
+
         if (req.getParameter("success") != null) {
             context.setVariable("successMessage", "Cập nhật sổ địa chỉ thành công!");
         }
         if (req.getAttribute("errorMessage") != null) {
             context.setVariable("errorMessage", req.getAttribute("errorMessage"));
         }
-        
+
         templateEngine.process("addresses", context, resp.getWriter());
     }
 
@@ -171,17 +176,18 @@ public class UserProfileController extends HttpServlet {
         resp.setContentType("text/html;charset=UTF-8");
         List<Order> orders = orderService.getOrdersByUserId(userId);
         User user = userService.getUserById(userId);
-        
+
         IWebExchange webExchange = application.buildExchange(req, resp);
         WebContext context = new WebContext(webExchange, webExchange.getLocale());
         context.setVariable("orders", orders);
         context.setVariable("user", user);
         context.setVariable("activePage", "orders");
-        
+
         templateEngine.process("orders", context, resp.getWriter());
     }
 
-    private void handleAvatarUpload(HttpServletRequest req, HttpServletResponse resp, Long userId) throws ServletException, IOException {
+    private void handleAvatarUpload(HttpServletRequest req, HttpServletResponse resp, Long userId)
+            throws ServletException, IOException {
         Part filePart = req.getPart("avatar");
         if (filePart == null || filePart.getSize() == 0) {
             resp.sendRedirect(req.getContextPath() + "/profile?error=NoFile");
@@ -191,16 +197,35 @@ public class UserProfileController extends HttpServlet {
         String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
         String extension = fileName.substring(fileName.lastIndexOf("."));
         String newFileName = "avatar_" + userId + "_" + UUID.randomUUID() + extension;
-        
-        String uploadPath = getServletContext().getRealPath("/static/images/avatars");
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) uploadDir.mkdirs();
 
-        filePart.write(uploadPath + File.separator + newFileName);
-        
+        String rootPath = "/home/okarin/Documents/Arch_Programming/AudioGear-ECommerce";
+        String srcPath = rootPath + File.separator + "src/main/webapp/static/images/avatars";
+        String deployPath = getServletContext().getRealPath("/static/images/avatars");
+
+        // Ensure both directories exist
+        File srcDir = new File(srcPath);
+        if (!srcDir.exists())
+            srcDir.mkdirs();
+
+        File deployDir = new File(deployPath);
+        if (deployPath != null && !deployDir.exists())
+            deployDir.mkdirs();
+
+        // 1. Save to src directory (for persistence)
+        File srcFile = new File(srcDir, newFileName);
+        try (java.io.InputStream input = filePart.getInputStream()) {
+            Files.copy(input, srcFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        // 2. Also save to deploy directory (for immediate display)
+        if (deployPath != null && !srcPath.equals(deployPath)) {
+            File deployFile = new File(deployDir, newFileName);
+            Files.copy(srcFile.toPath(), deployFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+
         String avatarUrl = "/static/images/avatars/" + newFileName;
         userService.updateAvatar(userId, avatarUrl);
-        
+
         resp.sendRedirect(req.getContextPath() + "/profile?success=AvatarUpdated");
     }
 
