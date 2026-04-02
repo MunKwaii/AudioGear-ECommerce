@@ -61,7 +61,7 @@ public class OrderDaoImpl implements OrderDao {
     public List<Order> findByUserId(Long userId) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
-            return em.createQuery("SELECT o FROM Order o WHERE o.user.id = :userId ORDER BY o.createdAt DESC", Order.class)
+            return em.createQuery("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items WHERE o.user.id = :userId ORDER BY o.createdAt DESC", Order.class)
                     .setParameter("userId", userId)
                     .getResultList();
         } finally {

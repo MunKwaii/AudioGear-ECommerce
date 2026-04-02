@@ -14,7 +14,9 @@ public class AddressDaoImpl implements AddressDao {
     public List<Address> findByUserId(Long userId) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
-            return em.createQuery("SELECT a FROM Address a WHERE a.user.id = :userId ORDER BY a.isDefault DESC, a.createdAt DESC", Address.class)
+            return em.createQuery(
+                    "SELECT a FROM Address a WHERE a.user.id = :userId ORDER BY a.isDefault DESC, a.createdAt DESC",
+                    Address.class)
                     .setParameter("userId", userId)
                     .getResultList();
         } finally {
@@ -77,8 +79,8 @@ public class AddressDaoImpl implements AddressDao {
         try {
             DatabaseConfig.beginTransaction();
             em.createQuery("UPDATE Address a SET a.isDefault = false WHERE a.user.id = :userId")
-              .setParameter("userId", userId)
-              .executeUpdate();
+                    .setParameter("userId", userId)
+                    .executeUpdate();
             DatabaseConfig.commitTransaction();
         } catch (Exception e) {
             DatabaseConfig.rollbackTransaction();

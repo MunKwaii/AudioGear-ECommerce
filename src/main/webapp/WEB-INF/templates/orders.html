@@ -74,6 +74,64 @@
             padding: 60px 20px;
             color: #a0a0a0;
         }
+
+        /* Order Details Styles */
+        .order-details-btn {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #bdc3c7;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        .order-details-btn:hover {
+            background: rgba(0, 242, 254, 0.1);
+            color: #00f2fe;
+            border-color: #00f2fe;
+        }
+        .order-details-content {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+        .order-details-content.active {
+            display: block;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+        .detail-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            object-fit: cover;
+            background-color: #1a1a1a;
+        }
+        .detail-info {
+            flex-grow: 1;
+        }
+        .detail-name {
+            font-size: 14px;
+            color: #fff;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .detail-meta {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .detail-price {
+            font-size: 14px;
+            color: #ecf0f1;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +161,25 @@
                     <div class="order-total">
                         <span class="total-label">Tổng thanh toán</span>
                         <span class="total-value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">1,000,000 ₫</span>
+                        <button class="order-details-btn" th:onclick="'toggleDetails(\'details-' + ${order.id} + '\')'">Xem chi tiết</button>
+                    </div>
+                </div>
+
+                <!-- Hidden Details Section -->
+                <div th:id="'details-' + ${order.id}" class="order-details-content">
+                    <h4 style="font-size: 14px; color: #a0a0a0; margin-bottom: 15px;">Sản phẩm đã mua:</h4>
+                    <div th:each="item : ${order.items}" class="detail-item">
+                        <img th:src="@{${#lists.isEmpty(item.product.images) ? '/static/img/no-image.png' : item.product.images[0].imageUrl}}" class="detail-img">
+                        <div class="detail-info">
+                            <span class="detail-name" th:text="${item.product.productName}">Tên sản phẩm</span>
+                            <span class="detail-meta" th:text="'Số lượng: ' + ${item.quantity}">SL: 1</span>
+                        </div>
+                        <div class="detail-price" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') + ' ₫'}">
+                            500,000 ₫
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 13px; color: #7f8c8d; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px;">
+                        <p style="margin: 0;"><strong>Phương thức thanh toán:</strong> <span th:text="${order.paymentStrategy.name}">COD</span></p>
                     </div>
                 </div>
             </div>
@@ -120,7 +197,17 @@
     </main>
 
     <script th:fragment="script">
-        // any specific logic for order page could go here
+        function toggleDetails(id) {
+            const content = document.getElementById(id);
+            const btn = event.currentTarget;
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                btn.textContent = 'Xem chi tiết';
+            } else {
+                content.classList.add('active');
+                btn.textContent = 'Thu gọn';
+            }
+        }
     </script>
 </body>
 </html>
