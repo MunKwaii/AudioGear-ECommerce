@@ -88,4 +88,47 @@ public class UserDAOImpl implements UserDAO {
             DatabaseConfig.closeEntityManager();
         }
     }
+
+    @Override
+    public java.util.List<User> findAll() {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            return em.createQuery("SELECT u FROM User u ORDER BY u.createdAt DESC", User.class)
+                    .getResultList();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public java.util.List<User> search(String keyword, vn.edu.ute.entity.enums.UserRole role, vn.edu.ute.entity.enums.UserStatus status) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT u FROM User u WHERE 1=1");
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                jpql.append(" AND (LOWER(u.username) LIKE :kw OR LOWER(u.email) LIKE :kw OR LOWER(u.fullName) LIKE :kw)");
+            }
+            if (role != null) {
+                jpql.append(" AND u.role = :role");
+            }
+            if (status != null) {
+                jpql.append(" AND u.status = :status");
+            }
+            jpql.append(" ORDER BY u.createdAt DESC");
+
+            jakarta.persistence.TypedQuery<User> query = em.createQuery(jpql.toString(), User.class);
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                query.setParameter("kw", "%" + keyword.trim().toLowerCase() + "%");
+            }
+            if (role != null) {
+                query.setParameter("role", role);
+            }
+            if (status != null) {
+                query.setParameter("status", status);
+            }
+            return query.getResultList();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
 }

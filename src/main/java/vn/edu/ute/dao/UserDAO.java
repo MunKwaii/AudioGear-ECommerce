@@ -12,4 +12,6 @@ public interface UserDAO {
     Optional<User> findByUsernameOrEmail(String identifier);
     Optional<User> findById(Long id);
     User save(User user);
+    java.util.List<User> findAll();
+    java.util.List<User> search(String keyword, vn.edu.ute.entity.enums.UserRole role, vn.edu.ute.entity.enums.UserStatus status);
 }

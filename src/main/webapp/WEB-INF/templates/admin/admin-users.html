@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: adminLayout(${title}, ${activePage}, ~{::main}, ~{::style}, ~{::script})}">
+<head>
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: rgba(25, 25, 25, 0.8);
+            --surface2: rgba(40, 40, 40, 0.9);
+            --border: rgba(255,255,255,.08);
+            --accent: #00f2fe;
+            --accent-hover: #4facfe;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --blue: #3b82f6;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,.6);
+        }
+
+        .page-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 16px; }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr auto;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 1000px) {
+            .filters { grid-template-columns: 1fr; }
+            .toolbar { flex-direction: column; align-items: flex-start; }
+        }
+        label { display: block; font-weight: 700; margin-bottom: 6px; }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: inherit;
+            font-size: .95rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: middle;
+        }
+        th { color: var(--text-muted); font-weight: 700; font-size: .9rem; }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: .8rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .badge-active { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.4); }
+        .badge-locked { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.4); }
+        .badge-pending { background: rgba(234,179,8,.15); color: var(--yellow); border: 1px solid rgba(234,179,8,.4); }
+        .badge-role { background: rgba(59,130,246,.15); color: var(--blue); border: 1px solid rgba(59,130,246,.4); }
+        .btn {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary { background: var(--accent); color: #000; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-secondary { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--border); }
+        .btn-danger { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.4); }
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .user-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .muted { color: var(--text-muted); font-size: .85rem; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.65);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-content {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            width: 520px;
+            max-width: 92vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,.8);
+        }
+        .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.92rem;
+            box-sizing: border-box;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-cancel {
+            background: rgba(255,255,255,.08);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            min-width: 260px;
+        }
+        .toast-success { background: rgba(34,197,94,.9); color: #fff; }
+        .toast-error { background: rgba(239,68,68,.9); color: #fff; }
+    </style>
+</head>
+<body>
+<main>
+    <div class="toolbar">
+        <div class="page-title">👤 Quản lý Người dùng</div>
+        <button class="btn btn-primary" id="btn-add-user" type="button">＋ Thêm người dùng</button>
+    </div>
+
+    <div class="card" style="margin-bottom: 16px;">
+        <div class="filters">
+            <div>
+                <label for="keyword">Tìm kiếm</label>
+                <input id="keyword" type="text" placeholder="Tên, email, username">
+            </div>
+            <div>
+                <label for="role">Vai trò</label>
+                <select id="role">
+                    <option value="">Tất cả</option>
+                    <option value="customer">Khách hàng</option>
+                    <option value="admin">Quản trị viên</option>
+                </select>
+            </div>
+            <div>
+                <label for="status">Trạng thái</label>
+                <select id="status">
+                    <option value="">Tất cả</option>
+                    <option value="active">Đang hoạt động</option>
+                    <option value="locked">Đã khóa</option>
+                    <option value="pending">Chờ xác thực</option>
+                </select>
+            </div>
+            <div style="display:flex; align-items:flex-end; gap:8px;">
+                <button class="btn btn-secondary" id="btn-filter" type="button">Lọc</button>
+            </div>
+        </div>
+        <div class="muted" id="statsText">Tổng: 0 người dùng</div>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Người dùng</th>
+                <th>Số điện thoại</th>
+                <th>Vai trò</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody id="usersBody">
+            <tr>
+                <td colspan="7" class="muted">Đang tải...</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal-overlay" id="userModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">Thêm người dùng</div>
+            <input type="hidden" id="editUserId">
+            <div class="form-group">
+                <label for="userEmail">Email *</label>
+                <input type="email" id="userEmail" placeholder="email@domain.com">
+            </div>
+            <div class="form-group">
+                <label for="userUsername">Username</label>
+                <input type="text" id="userUsername" placeholder="Tự sinh từ email nếu để trống">
+            </div>
+            <div class="form-group">
+                <label for="userFullName">Họ và tên *</label>
+                <input type="text" id="userFullName" placeholder="Nguyễn Văn A">
+            </div>
+            <div class="form-group">
+                <label for="userPassword">Mật khẩu *</label>
+                <input type="password" id="userPassword" placeholder="Tối thiểu 6 ký tự">
+            </div>
+            <div class="form-group">
+                <label for="userPhone">Số điện thoại</label>
+                <input type="text" id="userPhone" placeholder="0123456789">
+            </div>
+            <div class="form-group">
+                <label for="userRole">Vai trò</label>
+                <select id="userRole">
+                    <option value="customer">Khách hàng</option>
+                    <option value="admin">Quản trị viên</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="userStatus">Trạng thái</label>
+                <select id="userStatus">
+                    <option value="active">Đang hoạt động</option>
+                    <option value="locked">Đã khóa</option>
+                    <option value="pending">Chờ xác thực</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="btn-cancel-user" type="button">Hủy</button>
+                <button class="btn btn-primary" id="btn-save-user" type="button">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+</main>
+
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const contextPath = /*[[@{/}]]*/ '/';
+    const API_URL = contextPath + 'api/admin/users';
+
+    let currentEdit = null;
+    const userCache = new Map();
+
+    function getAuthToken() {
+        const cookies = document.cookie.split(';');
+        for (const c of cookies) {
+            const trimmed = c.trim();
+            if (trimmed.startsWith('accessToken=')) {
+                return trimmed.substring('accessToken='.length);
+            }
+        }
+        return localStorage.getItem('accessToken') || '';
+    }
+
+    function buildHeaders() {
+        const token = getAuthToken();
+        const h = { 'Content-Type': 'application/json' };
+        if (token) h['Authorization'] = 'Bearer ' + token;
+        return h;
+    }
+
+    function showToast(message, type) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
+
+    async function parseJsonSafe(resp) {
+        const text = await resp.text();
+        if (!text) return { success: false, message: 'Phản hồi trống từ server' };
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            return { success: false, message: 'Phản hồi không hợp lệ từ server' };
+        }
+    }
+
+    function debounce(fn, wait) {
+        let timer = null;
+        return function (...args) {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => fn.apply(this, args), wait);
+        };
+    }
+
+    async function loadStats() {
+        try {
+            const url = API_URL.endsWith('/') ? API_URL + 'stats' : API_URL + '/stats';
+            const resp = await fetch(url, { headers: buildHeaders(), credentials: 'same-origin' });
+            if (!resp.ok) {
+                const fallback = await parseJsonSafe(resp);
+                showToast(fallback.message || 'Không thể tải thống kê', 'error');
+                return;
+            }
+            const result = await parseJsonSafe(resp);
+            if (result.success && result.data) {
+                const total = result.data.total || 0;
+                const active = result.data.active || 0;
+                const locked = result.data.locked || 0;
+                const pending = result.data.pending || 0;
+                document.getElementById('statsText').textContent = `Tổng: ${total} người dùng · Active: ${active} · Locked: ${locked} · Pending: ${pending}`;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function loadUsers() {
+        const keyword = document.getElementById('keyword').value.trim();
+        const role = document.getElementById('role').value;
+        const status = document.getElementById('status').value;
+        const params = new URLSearchParams();
+        if (keyword) params.append('keyword', keyword);
+        if (role) params.append('role', role);
+        if (status) params.append('status', status);
+
+        const url = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+        const finalUrl = url + (params.toString() ? '?' + params.toString() : '');
+        
+        const tbody = document.getElementById('usersBody');
+        tbody.innerHTML = '<tr><td colspan="7" class="muted">Đang tải...</td></tr>';
+
+        try {
+            const resp = await fetch(finalUrl, {
+                headers: buildHeaders(),
+                credentials: 'same-origin'
+            });
+            if (!resp.ok) {
+                const fallback = await parseJsonSafe(resp);
+                const message = fallback.message || `Không thể tải người dùng (HTTP ${resp.status})`;
+                showToast(message, 'error');
+                tbody.innerHTML = `<tr><td colspan="7" class="muted">${message}</td></tr>`;
+                return;
+            }
+            const result = await parseJsonSafe(resp);
+            if (!result.success) {
+                const message = result.message || 'Không thể tải người dùng';
+                showToast(message, 'error');
+                tbody.innerHTML = `<tr><td colspan="7" class="muted">${message}</td></tr>`;
+                return;
+            }
+            renderUsers(result.data || []);
+        } catch (e) {
+            const message = 'Lỗi kết nối khi tải người dùng';
+            showToast(message, 'error');
+            tbody.innerHTML = `<tr><td colspan="7" class="muted">${message}</td></tr>`;
+        }
+    }
+
+    function renderUsers(users) {
+        userCache.clear();
+        users.forEach(u => userCache.set(String(u.id), u));
+
+        const tbody = document.getElementById('usersBody');
+        if (!users.length) {
+            tbody.innerHTML = '<tr><td colspan="7" class="muted">Không có người dùng phù hợp.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = users.map(u => {
+            const statusBadge = u.status === 'active'
+                ? '<span class="badge badge-active">Active</span>'
+                : (u.status === 'pending' ? '<span class="badge badge-pending">Pending</span>' : '<span class="badge badge-locked">Locked</span>');
+            const roleBadge = `<span class="badge badge-role">${u.role}</span>`;
+            return `
+                <tr>
+                    <td>#${u.id}</td>
+                    <td>
+                        <div class="user-meta">
+                            <strong>${escapeHtml(u.fullName || u.username || '')}</strong>
+                            <span class="muted">${escapeHtml(u.email || '')}</span>
+                        </div>
+                    </td>
+                    <td>${escapeHtml(u.phoneNumber || '-')}</td>
+                    <td>${roleBadge}</td>
+                    <td>${statusBadge}</td>
+                    <td>${formatDate(u.createdAt)}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-secondary" data-action="edit" data-id="${u.id}">Sửa</button>
+                            <button class="btn btn-secondary" data-action="toggle" data-id="${u.id}" data-status="${u.status}">${u.status === 'active' ? 'Khóa' : 'Mở'}</button>
+                            <button class="btn btn-danger" data-action="delete" data-id="${u.id}">Xóa</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function formatDate(value) {
+        if (!value) return '-';
+        // Now value is already formatted as "dd/MM/yyyy HH:mm" from server
+        return value;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function openModal(user) {
+        currentEdit = user || null;
+        document.getElementById('modalTitle').textContent = user ? 'Sửa người dùng' : 'Thêm người dùng';
+        document.getElementById('editUserId').value = user ? user.id : '';
+        document.getElementById('userEmail').value = user ? (user.email || '') : '';
+        document.getElementById('userUsername').value = user ? (user.username || '') : '';
+        document.getElementById('userFullName').value = user ? (user.fullName || '') : '';
+        document.getElementById('userPassword').value = '';
+        document.getElementById('userPhone').value = user ? (user.phoneNumber || '') : '';
+        document.getElementById('userRole').value = user ? (user.role || 'customer') : 'customer';
+        document.getElementById('userStatus').value = user ? (user.status || 'active') : 'active';
+        document.getElementById('userModal').classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('userModal').classList.remove('show');
+    }
+
+    async function saveUser() {
+        const id = document.getElementById('editUserId').value.trim();
+        const email = document.getElementById('userEmail').value.trim();
+        const username = document.getElementById('userUsername').value.trim();
+        const fullName = document.getElementById('userFullName').value.trim();
+        const password = document.getElementById('userPassword').value;
+        const phoneNumber = document.getElementById('userPhone').value.trim();
+        const role = document.getElementById('userRole').value;
+        const status = document.getElementById('userStatus').value;
+
+        if (!email || !fullName) {
+            showToast('Vui lòng nhập email và họ tên', 'error');
+            return;
+        }
+        if (!id && !password) {
+            showToast('Vui lòng nhập mật khẩu', 'error');
+            return;
+        }
+
+        const payload = {
+            email,
+            username: username || null,
+            fullName,
+            phoneNumber: phoneNumber || null,
+            role,
+            status
+        };
+        if (password) {
+            payload.password = password;
+        }
+
+        const url = id ? `${API_URL}/${id}` : API_URL;
+        const method = id ? 'PUT' : 'POST';
+
+        try {
+            const resp = await fetch(url, {
+                method,
+                headers: buildHeaders(),
+                credentials: 'same-origin',
+                body: JSON.stringify(payload)
+            });
+            const result = await parseJsonSafe(resp);
+            if (result.success) {
+                showToast(result.message || 'Lưu thành công', 'success');
+                closeModal();
+                await loadUsers();
+                await loadStats();
+            } else {
+                showToast(result.message || 'Có lỗi xảy ra', 'error');
+            }
+        } catch (e) {
+            showToast('Lỗi kết nối khi lưu', 'error');
+        }
+    }
+
+    async function updateStatus(userId, currentStatus) {
+        const newStatus = currentStatus === 'active' ? 'locked' : 'active';
+        try {
+            const resp = await fetch(`${API_URL}/${userId}/status`, {
+                method: 'PUT',
+                headers: buildHeaders(),
+                credentials: 'same-origin',
+                body: JSON.stringify({ status: newStatus })
+            });
+            const result = await parseJsonSafe(resp);
+            if (result.success) {
+                showToast('Cập nhật trạng thái thành công', 'success');
+                await loadUsers();
+                await loadStats();
+            } else {
+                showToast(result.message || 'Không thể cập nhật trạng thái', 'error');
+            }
+        } catch (e) {
+            showToast('Lỗi khi cập nhật trạng thái', 'error');
+        }
+    }
+
+    async function deleteUser(userId) {
+        if (!confirm('Bạn có chắc muốn khóa người dùng này?')) return;
+        try {
+            const resp = await fetch(`${API_URL}/${userId}`, {
+                method: 'DELETE',
+                headers: buildHeaders(),
+                credentials: 'same-origin'
+            });
+            const result = await parseJsonSafe(resp);
+            if (result.success) {
+                showToast('Đã khóa người dùng', 'success');
+                await loadUsers();
+                await loadStats();
+            } else {
+                showToast(result.message || 'Không thể khóa người dùng', 'error');
+            }
+        } catch (e) {
+            showToast('Lỗi khi khóa người dùng', 'error');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('btn-filter').addEventListener('click', loadUsers);
+        document.getElementById('btn-add-user').addEventListener('click', () => openModal(null));
+        document.getElementById('btn-cancel-user').addEventListener('click', closeModal);
+        document.getElementById('btn-save-user').addEventListener('click', saveUser);
+
+        const keywordInput = document.getElementById('keyword');
+        if (keywordInput) {
+            keywordInput.addEventListener('input', debounce(loadUsers, 400));
+        }
+        const roleSelect = document.getElementById('role');
+        const statusSelect = document.getElementById('status');
+        if (roleSelect) roleSelect.value = '';
+        if (statusSelect) statusSelect.value = '';
+
+        document.getElementById('usersBody').addEventListener('click', function(e) {
+            const target = e.target.closest('button');
+            if (!target) return;
+            const action = target.getAttribute('data-action');
+            const id = target.getAttribute('data-id');
+            if (!action || !id) return;
+            if (action === 'edit') {
+                const user = userCache.get(String(id));
+                if (user) openModal(user);
+                return;
+            }
+            if (action === 'toggle') {
+                updateStatus(id, target.getAttribute('data-status'));
+                return;
+            }
+            if (action === 'delete') {
+                deleteUser(id);
+            }
+        });
+
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target.id === 'userModal') closeModal();
+        });
+
+        loadUsers();
+        loadStats();
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import vn.edu.ute.dao.UserDAO;
 import vn.edu.ute.dao.impl.UserDAOImpl;
 import vn.edu.ute.dto.request.RegisterRequest;
 import vn.edu.ute.entity.User;
+import vn.edu.ute.entity.enums.UserRole;
 import vn.edu.ute.entity.enums.UserStatus;
 import vn.edu.ute.service.UserService;
 import vn.edu.ute.util.PasswordUtil;
@@ -126,6 +127,107 @@ public class UserServiceImpl implements UserService {
     public void updateAvatar(Long userId, String avatarUrl) {
         User user = getUserById(userId);
         user.setAvatar(avatarUrl);
+        userDAO.save(user);
+    }
+
+    @Override
+    public java.util.List<User> searchUsers(String keyword, UserRole role, UserStatus status) {
+        return userDAO.search(keyword, role, status);
+    }
+
+    @Override
+    public User createUser(String email, String username, String fullName, String password, String phoneNumber,
+                           UserRole role, UserStatus status) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email không được để trống");
+        }
+        if (fullName == null || fullName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Họ tên không được để trống");
+        }
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mật khẩu không được để trống");
+        }
+        if (password.length() < 6) {
+            throw new IllegalArgumentException("Mật khẩu phải có ít nhất 6 ký tự");
+        }
+        if (userDAO.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("Email đã tồn tại");
+        }
+
+        String finalUsername = (username == null || username.trim().isEmpty())
+                ? email.split("@")[0]
+                : username.trim();
+        if (userDAO.findByUsername(finalUsername).isPresent()) {
+            throw new IllegalArgumentException("Username đã tồn tại");
+        }
+
+        User user = new User();
+        user.setEmail(email.trim());
+        user.setUsername(finalUsername);
+        user.setFullName(fullName.trim());
+        user.setPasswordHash(PasswordUtil.hashPassword(password));
+        user.setPhoneNumber(phoneNumber == null || phoneNumber.trim().isEmpty() ? null : phoneNumber.trim());
+        user.setRole(role == null ? UserRole.customer : role);
+        user.setStatus(status == null ? UserStatus.active : status);
+        return userDAO.save(user);
+    }
+
+    @Override
+    public User updateUser(Long id, String email, String username, String fullName, String password, String phoneNumber,
+                           UserRole role, UserStatus status) {
+        User user = getUserById(id);
+
+        if (email != null && !email.trim().isEmpty() && !email.trim().equalsIgnoreCase(user.getEmail())) {
+            if (userDAO.findByEmail(email.trim()).isPresent()) {
+                throw new IllegalArgumentException("Email đã tồn tại");
+            }
+            user.setEmail(email.trim());
+        }
+        if (username != null && !username.trim().isEmpty() && !username.trim().equalsIgnoreCase(user.getUsername())) {
+            if (userDAO.findByUsername(username.trim()).isPresent()) {
+                throw new IllegalArgumentException("Username đã tồn tại");
+            }
+            user.setUsername(username.trim());
+        }
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            user.setFullName(fullName.trim());
+        }
+        if (password != null && !password.trim().isEmpty()) {
+            if (password.length() < 6) {
+                throw new IllegalArgumentException("Mật khẩu phải có ít nhất 6 ký tự");
+            }
+            user.setPasswordHash(PasswordUtil.hashPassword(password));
+        }
+        if (phoneNumber != null) {
+            user.setPhoneNumber(phoneNumber.trim().isEmpty() ? null : phoneNumber.trim());
+        }
+        if (role != null) {
+            user.setRole(role);
+        }
+        if (status != null) {
+            user.setStatus(status);
+        }
+        return userDAO.save(user);
+    }
+
+    @Override
+    public User updateUserStatus(Long id, UserStatus status) {
+        User user = getUserById(id);
+        user.setStatus(status);
+        return userDAO.save(user);
+    }
+
+    @Override
+    public User updateUserRole(Long id, UserRole role) {
+        User user = getUserById(id);
+        user.setRole(role);
+        return userDAO.save(user);
+    }
+
+    @Override
+    public void lockUser(Long id) {
+        User user = getUserById(id);
+        user.setStatus(UserStatus.locked);
         userDAO.save(user);
     }
 }
