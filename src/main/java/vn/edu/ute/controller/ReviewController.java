@@ -24,7 +24,7 @@ import java.util.Map;
  * - Lấy danh sách review theo product
  * - Lấy thống kê review theo product
  */
-@WebServlet(urlPatterns = {"/api/v1/reviews/*", "/api/v1/products/*"})
+@WebServlet(urlPatterns = {"/api/v1/reviews/*"})
 public class ReviewController extends HttpServlet {
 
     private final Gson gson = new Gson();
@@ -79,44 +79,10 @@ public class ReviewController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-
-        try {
-            String uri = req.getRequestURI();
-
-            // API lấy toàn bộ review + summary theo product
-            if (uri.matches(".*/api/v1/products/\\d+/reviews$")) {
-                Long productId = extractProductId(uri);
-
-                var result = reviewService.getReviewsByProductId(productId);
-
-                resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write(gson.toJson(result));
-                return;
-            }
-
-            // API lấy riêng summary review theo product
-            if (uri.matches(".*/api/v1/products/\\d+/review-summary$")) {
-                Long productId = extractProductId(uri);
-
-                var result = reviewService.getReviewSummaryByProductId(productId);
-
-                resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write(gson.toJson(result));
-                return;
-            }
-
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Endpoint không tồn tại")));
-
-        } catch (ReviewException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("message", e.getMessage())));
-        } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Lỗi hệ thống")));
-        }
+        resp.getWriter().write(gson.toJson(Map.of("message", "Review API chỉ hỗ trợ POST cho reviews và likes qua path này")));
     }
 
     /**
@@ -134,19 +100,5 @@ public class ReviewController extends HttpServlet {
         throw new IllegalArgumentException("Không thể lấy reviewId từ URL");
     }
 
-    /**
-     * Tách productId từ URL dạng /api/v1/products/{productId}/reviews
-     * hoặc /api/v1/products/{productId}/review-summary
-     */
-    private Long extractProductId(String uri) {
-        String[] parts = uri.split("/");
 
-        for (int i = 0; i < parts.length; i++) {
-            if ("products".equals(parts[i]) && i + 1 < parts.length) {
-                return Long.parseLong(parts[i + 1]);
-            }
-        }
-
-        throw new IllegalArgumentException("Không thể lấy productId từ URL");
-    }
 }

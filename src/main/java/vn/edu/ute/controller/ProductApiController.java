@@ -9,7 +9,9 @@ import vn.edu.ute.dto.response.ApiResponse;
 import vn.edu.ute.dto.response.ProductDetailDTO;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.service.ProductService;
+import vn.edu.ute.service.ReviewService;
 import vn.edu.ute.service.impl.ProductServiceImpl;
+import vn.edu.ute.service.impl.ReviewServiceImpl;
 import vn.edu.ute.util.JsonUtil;
 
 import java.io.IOException;
@@ -21,10 +23,12 @@ import java.util.stream.Collectors;
 public class ProductApiController extends HttpServlet {
 
     private ProductService productService;
+    private ReviewService reviewService;
 
     @Override
     public void init() throws ServletException {
         this.productService = new ProductServiceImpl();
+        this.reviewService = new ReviewServiceImpl();
     }
 
     @Override
@@ -46,6 +50,18 @@ public class ProductApiController extends HttpServlet {
             // GET /api/v1/products/{id}/related
             if (parts.length > 2 && parts[2].equals("related")) {
                 handleGetRelatedProducts(productId, response);
+                return;
+            }
+
+            // GET /api/v1/products/{id}/reviews
+            if (parts.length > 2 && parts[2].equals("reviews")) {
+                handleGetReviews(productId, response);
+                return;
+            }
+
+            // GET /api/v1/products/{id}/review-summary
+            if (parts.length > 2 && parts[2].equals("review-summary")) {
+                handleGetReviewSummary(productId, response);
                 return;
             }
             
@@ -95,6 +111,16 @@ public class ProductApiController extends HttpServlet {
         } else {
             sendError(response, HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy sản phẩm gốc");
         }
+    }
+
+    private void handleGetReviews(Long productId, HttpServletResponse response) throws IOException {
+        var result = reviewService.getReviewsByProductId(productId);
+        sendSuccess(response, "Lấy danh sách đánh giá thành công", result);
+    }
+
+    private void handleGetReviewSummary(Long productId, HttpServletResponse response) throws IOException {
+        var result = reviewService.getReviewSummaryByProductId(productId);
+        sendSuccess(response, "Lấy thống kê đánh giá thành công", result);
     }
 
     private void sendSuccess(HttpServletResponse response, String message, Object data) throws IOException {
