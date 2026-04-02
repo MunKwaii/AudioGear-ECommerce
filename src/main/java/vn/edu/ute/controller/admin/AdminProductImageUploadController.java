@@ -13,8 +13,8 @@ import vn.edu.ute.util.JsonUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -29,43 +29,94 @@ public class AdminProductImageUploadController extends HttpServlet {
         resp.setContentType("application/json;charset=UTF-8");
 
         List<String> stored = new ArrayList<>();
-        String rootPath = "/home/okarin/Documents/Arch_Programming/AudioGear-ECommerce";
-        String srcPath = rootPath + File.separator + "src/main/webapp/static/images/products";
-        String deployPath = getServletContext().getRealPath("/static/images/products");
-        
-        File srcDir = new File(srcPath);
-        if (!srcDir.exists()) srcDir.mkdirs();
-        
-        File deployDir = new File(deployPath);
-        if (deployPath != null && !deployDir.exists()) deployDir.mkdirs();
+        String staticPath = "/static/images/products";
+        List<File> roots = new ArrayList<>();
 
+        // 1. Get deployment path (target)
+        String deployPath = getServletContext().getRealPath(staticPath);
+        if (deployPath != null) {
+            File deployRoot = new File(deployPath);
+            roots.add(deployRoot);
 
-        for (Part part : req.getParts()) {
-            if (!"images".equals(part.getName()) || part.getSize() == 0) {
-                continue;
+            // 2. Try to find 'src' by looking for 'target' folder and going up
+            File current = deployRoot;
+            while (current != null) {
+                if (current.getName().equals("target")) {
+                    File projectRoot = current.getParentFile();
+                    if (projectRoot != null) {
+                        File srcRoot = new File(projectRoot, "src/main/webapp" + staticPath.replace("/", File.separator));
+                        if (!roots.contains(srcRoot)) {
+                            // Use index 0 to prioritize saving to src
+                            roots.add(0, srcRoot);
+                        }
+                    }
+                    break;
+                }
+                current = current.getParentFile();
+            }
+        }
+
+        // 3. Fallback: Check user.dir if src was not found via target
+        if (roots.size() < 2) {
+            String userDir = System.getProperty("user.dir");
+            File projectRoot = new File(userDir);
+            // Search upwards for pom.xml or src
+            while (projectRoot != null && !new File(projectRoot, "pom.xml").exists() && !new File(projectRoot, "src").exists()) {
+                projectRoot = projectRoot.getParentFile();
             }
 
-            String submitted = Paths.get(part.getSubmittedFileName()).getFileName().toString();
-            if (!isImageFile(submitted)) {
-                continue;
+            if (projectRoot != null) {
+                File srcRoot = new File(projectRoot, "src/main/webapp" + staticPath.replace("/", File.separator));
+                if (!roots.contains(srcRoot)) {
+                    roots.add(0, srcRoot);
+                }
             }
+        }
 
-            String extension = getExtension(submitted);
-            String filename = UUID.randomUUID() + (extension.isEmpty() ? "" : "." + extension);
-            
-            // 1. Save to src directory (for persistence)
-            File srcFile = new File(srcDir, filename);
-            try (java.io.InputStream input = part.getInputStream()) {
-                Files.copy(input, srcFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        if (roots.isEmpty()) {
+            ApiResponse response = new ApiResponse(false, "Không xác định được thư mục lưu ảnh", null);
+            resp.getWriter().write(JsonUtil.toJson(response));
+            return;
+        }
+
+        for (File root : roots) {
+            if (!root.exists() && !root.mkdirs()) {
+                ApiResponse response = new ApiResponse(false, "Không tạo được thư mục: " + root.getAbsolutePath(), null);
+                resp.getWriter().write(JsonUtil.toJson(response));
+                return;
             }
-            
-            // 2. Also save to deploy directory (for immediate display)
-            if (deployPath != null && !srcPath.equals(deployPath)) {
-                File deployFile = new File(deployDir, filename);
-                Files.copy(srcFile.toPath(), deployFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        try {
+            for (Part part : req.getParts()) {
+                if (!"images".equals(part.getName()) || part.getSize() == 0) {
+                    continue;
+                }
+
+                String submitted = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+                if (!isImageFile(submitted)) {
+                    continue;
+                }
+
+                String extension = getExtension(submitted);
+                String filename = UUID.randomUUID() + (extension.isEmpty() ? "" : "." + extension);
+
+                // Write to the first root directory
+                File firstOutput = new File(roots.get(0), filename);
+                part.write(firstOutput.getAbsolutePath());
+
+                // Copy from the first output to other roots (if any)
+                for (int i = 1; i < roots.size(); i++) {
+                    File otherOutput = new File(roots.get(i), filename);
+                    Files.copy(firstOutput.toPath(), otherOutput.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+
+                stored.add(staticPath + "/" + filename);
             }
-            
-            stored.add("/static/images/products/" + filename);
+        } catch (Exception e) {
+            ApiResponse response = new ApiResponse(false, "Lỗi khi lưu ảnh: " + e.getMessage(), null);
+            resp.getWriter().write(JsonUtil.toJson(response));
+            return;
         }
 
         ApiResponse response = new ApiResponse(true, "OK", stored);

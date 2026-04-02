@@ -10,10 +10,7 @@ import vn.edu.ute.util.JsonUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 @WebServlet("/admin/products/image-library")
 public class AdminProductImageLibraryController extends HttpServlet {
@@ -23,9 +20,51 @@ public class AdminProductImageLibraryController extends HttpServlet {
         resp.setContentType("application/json;charset=UTF-8");
 
         List<String> images = new ArrayList<>();
-        String rootPath = getServletContext().getRealPath("/static/images/products");
-        if (rootPath != null) {
-            File root = new File(rootPath);
+        String staticPath = "/static/images/products";
+        List<File> roots = new ArrayList<>();
+
+        // 1. Get deployment path (target)
+        String deployPath = getServletContext().getRealPath(staticPath);
+        if (deployPath != null) {
+            File deployRoot = new File(deployPath);
+            roots.add(deployRoot);
+
+            // 2. Try to find 'src' by looking for 'target' folder and going up
+            File current = deployRoot;
+            while (current != null) {
+                if (current.getName().equals("target")) {
+                    File projectRoot = current.getParentFile();
+                    if (projectRoot != null) {
+                        File srcRoot = new File(projectRoot, "src/main/webapp" + staticPath.replace("/", File.separator));
+                        if (!roots.contains(srcRoot)) {
+                            // Add src to roots
+                            roots.add(srcRoot);
+                        }
+                    }
+                    break;
+                }
+                current = current.getParentFile();
+            }
+        }
+
+        // 3. Fallback: Check user.dir if src was not found via target
+        if (roots.size() < 2) {
+            String userDir = System.getProperty("user.dir");
+            File projectRoot = new File(userDir);
+            while (projectRoot != null && !new File(projectRoot, "pom.xml").exists() && !new File(projectRoot, "src").exists()) {
+                projectRoot = projectRoot.getParentFile();
+            }
+
+            if (projectRoot != null) {
+                File srcRoot = new File(projectRoot, "src/main/webapp" + staticPath.replace("/", File.separator));
+                if (!roots.contains(srcRoot)) {
+                    roots.add(srcRoot);
+                }
+            }
+        }
+
+        Set<String> imageNames = new TreeSet<>();
+        for (File root : roots) {
             if (root.exists() && root.isDirectory()) {
                 File[] files = root.listFiles();
                 if (files != null) {
@@ -33,10 +72,12 @@ public class AdminProductImageLibraryController extends HttpServlet {
                             .filter(File::isFile)
                             .map(File::getName)
                             .filter(this::isImageFile)
-                            .forEach(name -> images.add("/static/images/products/" + name));
+                            .forEach(imageNames::add);
                 }
             }
         }
+
+        imageNames.forEach(name -> images.add(staticPath + "/" + name));
 
         ApiResponse response = new ApiResponse(true, "OK", images);
         resp.getWriter().write(JsonUtil.toJson(response));
