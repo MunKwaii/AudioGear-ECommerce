@@ -107,4 +107,25 @@ public class UserServiceImpl implements UserService {
         user.setPasswordHash(PasswordUtil.hashPassword(newPassword));
         userDAO.save(user);
     }
+
+    @Override
+    public User getUserById(Long id) {
+        return userDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại!"));
+    }
+
+    @Override
+    public void updateUserProfile(Long userId, String fullName, String phoneNumber) {
+        User user = getUserById(userId);
+        user.setFullName(fullName);
+        user.setPhoneNumber(phoneNumber);
+        userDAO.save(user);
+    }
+
+    @Override
+    public void updateAvatar(Long userId, String avatarUrl) {
+        User user = getUserById(userId);
+        user.setAvatar(avatarUrl);
+        userDAO.save(user);
+    }
 }

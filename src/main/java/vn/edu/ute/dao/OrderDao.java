@@ -15,5 +15,6 @@ public interface OrderDao {
     Optional<Order> findByIdWithItems(Long id);
 
     List<Order> findAll();
+    List<Order> findByUserId(Long userId);
     Order save(Order order);
 }

@@ -49,6 +49,9 @@ public class User {
     @Column(name = "status", nullable = false)
     private UserStatus status = UserStatus.active;
     
+    @Column(name = "avatar")
+    private String avatar;
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -167,6 +170,14 @@ public class User {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    public String getAvatar() {
+        return avatar;
+    }
+    
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
     
     public List<Address> getAddresses() {

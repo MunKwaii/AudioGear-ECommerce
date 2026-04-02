@@ -41,6 +41,15 @@ public class Address {
     @Size(max = 10, message = "Mã tỉnh/thành không được quá 10 ký tự")
     private String provinceCode;
     
+    @NotBlank(message = "Quận/Huyện không được để trống")
+    @Size(max = 100, message = "Quận/Huyện không được quá 100 ký tự")
+    @Column(name = "district", nullable = false)
+    private String district;
+    
+    @Column(name = "district_code")
+    @Size(max = 10, message = "Mã quận/huyện không được quá 10 ký tự")
+    private String districtCode;
+    
     // Vietnam address: Ward/Commune name and code  
     @NotBlank(message = "Xã/Phường không được để trống")
     @Size(max = 100, message = "Xã/Phường không được quá 100 ký tự")
@@ -66,13 +75,14 @@ public class Address {
         this.updatedAt = LocalDateTime.now();
     }
     
-    public Address(User user, String recipientName, String phoneNumber, String streetAddress, String province, String ward) {
+    public Address(User user, String recipientName, String phoneNumber, String streetAddress, String province, String district, String ward) {
         this();
         this.user = user;
         this.recipientName = recipientName;
         this.phoneNumber = phoneNumber;
         this.streetAddress = streetAddress;
         this.province = province;
+        this.district = district;
         this.ward = ward;
     }
     
@@ -137,6 +147,22 @@ public class Address {
     
     public void setProvinceCode(String provinceCode) {
         this.provinceCode = provinceCode;
+    }
+    
+    public String getDistrict() {
+        return district;
+    }
+    
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+    
+    public String getDistrictCode() {
+        return districtCode;
+    }
+    
+    public void setDistrictCode(String districtCode) {
+        this.districtCode = districtCode;
     }
     
     public String getWard() {
