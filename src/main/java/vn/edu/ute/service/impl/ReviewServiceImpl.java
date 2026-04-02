@@ -21,7 +21,9 @@ import vn.edu.ute.service.ReviewService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -33,12 +35,22 @@ import java.util.stream.Collectors;
  * - Kiểm tra user đã review sản phẩm này chưa
  * - Lưu review mới
  * - Phát sự kiện review created bằng Observer Pattern
+ * - Strategy Pattern cho sorting (newest, highest_rating, most_liked)
  */
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewDao reviewDao;
     private final ReviewLikeDao reviewLikeDao;
     private final ReviewCreatedEventPublisher eventPublisher;
+
+    /**
+     * Strategy Pattern: Map tiêu chí sort → Comparator<ReviewResponse>
+     */
+    private static final Map<String, Comparator<ReviewResponse>> SORT_STRATEGIES = Map.of(
+            "newest", Comparator.comparing(ReviewResponse::getCreatedAt).reversed(),
+            "highest_rating", Comparator.comparingInt(ReviewResponse::getRating).reversed(),
+            "most_liked", Comparator.comparingLong(ReviewResponse::getTotalLikes).reversed()
+    );
 
     public ReviewServiceImpl() {
         this.reviewDao = new ReviewDaoImpl();
@@ -57,51 +69,41 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             DatabaseConfig.beginTransaction();
 
-            // 1. Kiểm tra đăng nhập
             if (userId == null) {
                 throw new ReviewException("Bạn cần đăng nhập để đánh giá sản phẩm");
             }
 
-            // 2. Kiểm tra request
             if (request == null) {
                 throw new ReviewException("Dữ liệu đánh giá không hợp lệ");
             }
 
-            // 3. Kiểm tra productId
             if (request.getProductId() == null) {
                 throw new ReviewException("Thiếu productId");
             }
 
-            // 4. Kiểm tra rating
             if (request.getRating() == null || request.getRating() < 1 || request.getRating() > 5) {
                 throw new ReviewException("Đánh giá phải từ 1 đến 5 sao");
             }
 
-            // 5. Kiểm tra comment
             if (request.getComment() != null && request.getComment().length() > 1000) {
                 throw new ReviewException("Bình luận không được vượt quá 1000 ký tự");
             }
 
-            // 6. Kiểm tra product tồn tại
             Product product = em.find(Product.class, request.getProductId());
             if (product == null) {
                 throw new ReviewException("Không tìm thấy sản phẩm");
             }
 
-            // 7. Kiểm tra đã mua và đơn đã DELIVERED chưa
             if (!reviewDao.hasPurchasedAndDelivered(userId, request.getProductId())) {
                 throw new ReviewException("Bạn chỉ có thể đánh giá sản phẩm đã mua và đã nhận hàng");
             }
 
-            // 8. Kiểm tra đã review chưa
             if (reviewDao.existsByUserIdAndProductId(userId, request.getProductId())) {
                 throw new ReviewException("Bạn đã đánh giá sản phẩm này rồi");
             }
 
-            // 9. Lấy user hiện tại
             User user = em.getReference(User.class, userId);
 
-            // 10. Tạo review mới
             Review review = new Review();
             review.setUser(user);
             review.setProduct(product);
@@ -110,11 +112,9 @@ public class ReviewServiceImpl implements ReviewService {
             review.setCreatedAt(LocalDateTime.now());
             review.setUpdatedAt(LocalDateTime.now());
 
-            // 11. Lưu review
             reviewDao.save(review);
             em.flush();
 
-            // 12. Phát sự kiện review created
             eventPublisher.publishReviewCreated(review);
 
             DatabaseConfig.commitTransaction();
@@ -127,6 +127,7 @@ public class ReviewServiceImpl implements ReviewService {
                     review.getRating(),
                     review.getComment(),
                     0,
+                    false,
                     review.getCreatedAt()
             );
 
@@ -142,28 +143,43 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ProductReviewsResponse getReviewsByProductId(Long productId) {
+    public ProductReviewsResponse getReviewsByProductId(Long productId, Long currentUserId, String sortBy) {
         EntityManager em = DatabaseConfig.getEntityManager();
 
         try {
             List<Review> reviews = reviewDao.findByProductId(productId);
 
+            // Stream + Lambda: map Review → ReviewResponse, xác định isLiked cho từng review
             List<ReviewResponse> reviewResponses = reviews.stream()
-                    .map(review -> new ReviewResponse(
-                            review.getId(),
-                            review.getProduct().getId(),
-                            review.getUser().getId(),
-                            review.getUser().getFullName(),
-                            review.getRating(),
-                            review.getComment(),
-                            reviewLikeDao.countByReviewId(review.getId()),
-                            review.getCreatedAt()
-                    ))
+                    .map(review -> {
+                        boolean isLiked = currentUserId != null &&
+                                reviewLikeDao.findByUserIdAndReviewId(currentUserId, review.getId()).isPresent();
+                        return new ReviewResponse(
+                                review.getId(),
+                                review.getProduct().getId(),
+                                review.getUser().getId(),
+                                review.getUser().getFullName(),
+                                review.getRating(),
+                                review.getComment(),
+                                reviewLikeDao.countByReviewId(review.getId()),
+                                isLiked,
+                                review.getCreatedAt()
+                        );
+                    })
                     .collect(Collectors.toList());
+
+            // Strategy Pattern: sort theo tiêu chí được chọn
+            if (sortBy != null && SORT_STRATEGIES.containsKey(sortBy)) {
+                reviewResponses.sort(SORT_STRATEGIES.get(sortBy));
+            }
+
+            // Tính ratingDistribution bằng Stream groupingBy + counting
+            Map<Integer, Long> ratingDistribution = reviews.stream()
+                    .collect(Collectors.groupingBy(Review::getRating, Collectors.counting()));
 
             ProductReviewSummaryResponse summary = getReviewSummaryByProductId(productId);
 
-            return new ProductReviewsResponse(summary, reviewResponses);
+            return new ProductReviewsResponse(summary, ratingDistribution, reviewResponses);
         } finally {
             DatabaseConfig.closeEntityManager();
         }
@@ -184,6 +200,39 @@ public class ReviewServiceImpl implements ReviewService {
                     reviewDao.calculateAverageRatingByProductId(productId),
                     reviewDao.countByProductId(productId)
             );
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public void deleteReview(Long userId, Long reviewId) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+
+        try {
+            DatabaseConfig.beginTransaction();
+
+            if (userId == null) {
+                throw new ReviewException("Bạn cần đăng nhập để xóa đánh giá");
+            }
+
+            Review review = reviewDao.findById(reviewId)
+                    .orElseThrow(() -> new ReviewException("Không tìm thấy đánh giá"));
+
+            if (!review.getUser().getId().equals(userId)) {
+                throw new ReviewException("Bạn chỉ có thể xóa đánh giá của mình");
+            }
+
+            reviewDao.delete(review);
+
+            DatabaseConfig.commitTransaction();
+
+        } catch (ReviewException e) {
+            DatabaseConfig.rollbackTransaction();
+            throw e;
+        } catch (Exception e) {
+            DatabaseConfig.rollbackTransaction();
+            throw new ReviewException("Không thể xóa đánh giá: " + e.getMessage());
         } finally {
             DatabaseConfig.closeEntityManager();
         }

@@ -14,6 +14,7 @@ public class ReviewResponse {
     private Integer rating;
     private String comment;
     private long totalLikes;
+    private boolean isLiked;
     private LocalDateTime createdAt;
 
     public ReviewResponse() {
@@ -26,6 +27,7 @@ public class ReviewResponse {
                           Integer rating,
                           String comment,
                           long totalLikes,
+                          boolean isLiked,
                           LocalDateTime createdAt) {
         this.id = id;
         this.productId = productId;
@@ -34,6 +36,7 @@ public class ReviewResponse {
         this.rating = rating;
         this.comment = comment;
         this.totalLikes = totalLikes;
+        this.isLiked = isLiked;
         this.createdAt = createdAt;
     }
 
@@ -63,6 +66,10 @@ public class ReviewResponse {
 
     public long getTotalLikes() {
         return totalLikes;
+    }
+
+    public boolean isLiked() {
+        return isLiked;
     }
 
     public LocalDateTime getCreatedAt() {

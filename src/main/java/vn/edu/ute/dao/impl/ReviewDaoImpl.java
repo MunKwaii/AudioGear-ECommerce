@@ -108,4 +108,11 @@ public class ReviewDaoImpl implements ReviewDao {
 
         return count == null ? 0 : count;
     }
+
+    @Override
+    public void delete(Review review) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        Review managed = em.contains(review) ? review : em.merge(review);
+        em.remove(managed);
+    }
 }

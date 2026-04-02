@@ -17,11 +17,18 @@ public interface ReviewService {
 
     /**
      * Lấy toàn bộ review + thống kê review của sản phẩm.
+     * @param currentUserId ID của user hiện tại (có thể null nếu chưa đăng nhập)
+     * @param sortBy        Tiêu chí sắp xếp: "newest", "highest_rating", "most_liked"
      */
-    ProductReviewsResponse getReviewsByProductId(Long productId);
+    ProductReviewsResponse getReviewsByProductId(Long productId, Long currentUserId, String sortBy);
 
     /**
      * Lấy riêng thống kê review của sản phẩm.
      */
     ProductReviewSummaryResponse getReviewSummaryByProductId(Long productId);
+
+    /**
+     * Xóa review của user.
+     */
+    void deleteReview(Long userId, Long reviewId);
 }

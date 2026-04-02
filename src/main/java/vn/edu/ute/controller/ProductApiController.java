@@ -55,7 +55,7 @@ public class ProductApiController extends HttpServlet {
 
             // GET /api/v1/products/{id}/reviews
             if (parts.length > 2 && parts[2].equals("reviews")) {
-                handleGetReviews(productId, response);
+                handleGetReviews(productId, request, response);
                 return;
             }
 
@@ -113,8 +113,12 @@ public class ProductApiController extends HttpServlet {
         }
     }
 
-    private void handleGetReviews(Long productId, HttpServletResponse response) throws IOException {
-        var result = reviewService.getReviewsByProductId(productId);
+    private void handleGetReviews(Long productId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // Lấy userId trực tiếp từ attribute mà JwtAuthenticationFilter đã set
+        Long currentUserId = (Long) request.getAttribute("currentUserId");
+        String sortBy = request.getParameter("sortBy");
+
+        var result = reviewService.getReviewsByProductId(productId, currentUserId, sortBy);
         sendSuccess(response, "Lấy danh sách đánh giá thành công", result);
     }
 
