@@ -35,7 +35,7 @@ public interface ProductDao {
     /**
      * Truy vấn danh sách sản phẩm theo từ khóa (LIKE %keyword%) và/hoặc danh mục, có phân trang.
      */
-    List<Product> searchProducts(String keyword, Long categoryId, int offset, int limit);
+    List<Product> searchProducts(String keyword, Long categoryId, String sort, int offset, int limit);
 
     /**
      * Lấy tổng số lượng sản phẩm từ query search đề dùng cho thuật toán đếm trang `(total / limit)`.

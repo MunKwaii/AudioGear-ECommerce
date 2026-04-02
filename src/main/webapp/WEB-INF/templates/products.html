@@ -372,7 +372,7 @@
                         </a>
                     </li>
                     <li class="category-item" th:each="cat : ${categories}">
-                        <a th:href="@{/products(catId=${cat.id}, q=${keyword})}"
+                        <a th:href="@{/products(catId=${cat.id}, q=${keyword}, sort=${sort})}"
                             th:classappend="${categoryId == cat.id} ? 'active' : ''" class="category-link">
                             <i class="fas fa-chevron-right"></i> <span th:text="${cat.name}">Category</span>
                         </a>
@@ -385,17 +385,35 @@
         <main class="main-content">
             <!-- Search Form -->
             <form th:action="@{/products}" method="GET" class="search-bar">
-                <!-- Keep category selected if any -->
+                <!-- Keep category and sort selected if any -->
                 <input type="hidden" name="catId" th:value="${categoryId}" th:if="${categoryId != null}">
+                <input type="hidden" name="sort" th:value="${sort}" th:if="${sort != null}">
                 <input type="text" name="q" class="search-input" placeholder="Tìm kiếm tai nghe, loa..."
                     th:value="${keyword}">
                 <button type="submit" class="search-btn"><i class="fas fa-search"></i> Tìm kiếm</button>
             </form>
 
-            <div class="results-info">
-                <span>Hiển thị <span th:text="${productPage.totalElements}">0</span> kết quả.</span>
-                <span th:if="${keyword != null and !keyword.isEmpty()}"
-                    th:text="' Kết quả tìm kiếm cho: &quot;' + ${keyword} + '&quot;'"></span>
+            <div class="results-info" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 10px 0; border-bottom: 1px solid var(--glass-border);">
+                <div>
+                    <span style="color: var(--text-muted);">Hiển thị <strong th:text="${productPage.totalElements}" style="color: var(--primary-glow);">0</strong> sản phẩm</span>
+                    <span th:if="${keyword != null and !keyword.isEmpty()}"
+                        th:text="' cho &quot;' + ${keyword} + '&quot;'"></span>
+                </div>
+                
+                <!-- Sort Dropdown -->
+                <div class="sort-container" style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 14px; color: var(--text-muted); white-space: nowrap;"><i class="fas fa-sort-amount-down"></i> Sắp xếp:</span>
+                    <select id="productSort" 
+                            style="background: var(--surface-color); color: #fff; border: 1px solid var(--glass-border); border-radius: 8px; padding: 8px 12px; cursor: pointer; outline: none; font-size: 14px; min-width: 160px;" 
+                            onchange="const val = this.value; if(val) window.location.href = val;">
+                        <option th:value="@{/products(q=${keyword}, catId=${categoryId}, sort='newest')}" 
+                                th:selected="${sort == null || sort == 'newest'}">Mới nhất</option>
+                        <option th:value="@{/products(q=${keyword}, catId=${categoryId}, sort='price_asc')}" 
+                                th:selected="${sort == 'price_asc'}">Giá: Thấp đến Cao</option>
+                        <option th:value="@{/products(q=${keyword}, catId=${categoryId}, sort='price_desc')}" 
+                                th:selected="${sort == 'price_desc'}">Giá: Cao đến Thấp</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Empty State -->
@@ -441,19 +459,19 @@
             <!-- Pagination Controls -->
             <div class="pagination" th:if="${productPage.totalPages > 1}">
                 <!-- Nút Prev -->
-                <a th:href="@{/products(page=${productPage.currentPage - 1}, q=${keyword}, catId=${categoryId})}"
+                <a th:href="@{/products(page=${productPage.currentPage - 1}, q=${keyword}, catId=${categoryId}, sort=${sort})}"
                     class="page-item" th:classappend="${!productPage.hasPrevious} ? 'disabled' : ''">
                     <i class="fas fa-chevron-left"></i>
                 </a>
 
                 <!-- Hiển thị dãy số trang -->
                 <th:block th:each="i : ${#numbers.sequence(1, productPage.totalPages)}">
-                    <a th:href="@{/products(page=${i}, q=${keyword}, catId=${categoryId})}" class="page-item"
+                    <a th:href="@{/products(page=${i}, q=${keyword}, catId=${categoryId}, sort=${sort})}" class="page-item"
                         th:classappend="${productPage.currentPage == i} ? 'active' : ''" th:text="${i}">1</a>
                 </th:block>
 
                 <!-- Nút Next -->
-                <a th:href="@{/products(page=${productPage.currentPage + 1}, q=${keyword}, catId=${categoryId})}"
+                <a th:href="@{/products(page=${productPage.currentPage + 1}, q=${keyword}, catId=${categoryId}, sort=${sort})}"
                     class="page-item" th:classappend="${!productPage.hasNext} ? 'disabled' : ''">
                     <i class="fas fa-chevron-right"></i>
                 </a>
