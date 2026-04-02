@@ -57,13 +57,18 @@ public class JwtUserParser {
 
             JsonObject payloadObject = gson.fromJson(jsonPayload, JsonObject.class);
 
-            Long userId = payloadObject.has("id") && !payloadObject.get("id").isJsonNull()
-                    ? payloadObject.get("id").getAsLong()
-                    : null;
+            Long userId = null;
+            if (payloadObject.has("userId") && !payloadObject.get("userId").isJsonNull()) {
+                userId = payloadObject.get("userId").getAsLong();
+            } else if (payloadObject.has("id") && !payloadObject.get("id").isJsonNull()) {
+                userId = payloadObject.get("id").getAsLong();
+            }
 
-            String email = payloadObject.has("email") && !payloadObject.get("email").isJsonNull()
-                    ? payloadObject.get("email").getAsString()
-                    : null;
+            String email = payloadObject.has("sub") && !payloadObject.get("sub").isJsonNull()
+                    ? payloadObject.get("sub").getAsString()
+                    : (payloadObject.has("email") && !payloadObject.get("email").isJsonNull()
+                        ? payloadObject.get("email").getAsString()
+                        : null);
 
             String role = payloadObject.has("role") && !payloadObject.get("role").isJsonNull()
                     ? payloadObject.get("role").getAsString()

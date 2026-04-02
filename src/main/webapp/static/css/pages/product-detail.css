@@ -503,6 +503,20 @@ body.ag-dark-theme {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    flex-grow: 1;
+}
+
+.ag-review-delete-btn {
+    background: none;
+    border: none;
+    color: var(--ag-text-muted);
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 5px;
+}
+
+.ag-review-delete-btn:hover {
+    color: #e74c3c;
 }
 
 .ag-review-name {

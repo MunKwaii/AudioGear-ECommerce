@@ -1,21 +1,21 @@
 package vn.edu.ute.controller;
 
-import com.google.gson.Gson;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.ute.dto.request.CreateReviewRequest;
 import vn.edu.ute.exception.ReviewException;
-import vn.edu.ute.security.CurrentUser;
-import vn.edu.ute.security.JwtUserParser;
+import vn.edu.ute.dto.response.ApiResponse;
 import vn.edu.ute.service.ReviewLikeService;
 import vn.edu.ute.service.ReviewService;
 import vn.edu.ute.service.impl.ReviewLikeServiceImpl;
 import vn.edu.ute.service.impl.ReviewServiceImpl;
+import vn.edu.ute.util.JsonUtil;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Controller xử lý API liên quan đến review:
@@ -27,8 +27,6 @@ import java.util.Map;
 @WebServlet(urlPatterns = {"/api/v1/reviews/*"})
 public class ReviewController extends HttpServlet {
 
-    private final Gson gson = new Gson();
-    private final JwtUserParser jwtUserParser = new JwtUserParser();
     private final ReviewService reviewService = new ReviewServiceImpl();
     private final ReviewLikeService reviewLikeService = new ReviewLikeServiceImpl();
 
@@ -40,17 +38,18 @@ public class ReviewController extends HttpServlet {
         try {
             String uri = req.getRequestURI();
 
-            CurrentUser currentUser = jwtUserParser.parseFromRequest(req);
-            Long userId = currentUser != null ? currentUser.getUserId() : null;
+            // Lấy userId trực tiếp từ attribute mà JwtAuthenticationFilter đã set
+            Long userId = (Long) req.getAttribute("currentUserId");
 
             // API tạo review
             if (uri.endsWith("/api/v1/reviews") || uri.endsWith("/api/v1/reviews/")) {
-                CreateReviewRequest request = gson.fromJson(req.getReader(), CreateReviewRequest.class);
+                String body = readBody(req);
+                CreateReviewRequest request = JsonUtil.fromJson(body, CreateReviewRequest.class);
 
                 var result = reviewService.createReview(userId, request);
 
                 resp.setStatus(HttpServletResponse.SC_CREATED);
-                resp.getWriter().write(gson.toJson(result));
+                resp.getWriter().write(JsonUtil.toJson(new ApiResponse(true, "Tạo đánh giá thành công", result)));
                 return;
             }
 
@@ -61,19 +60,19 @@ public class ReviewController extends HttpServlet {
                 var result = reviewLikeService.toggleLike(userId, reviewId);
 
                 resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write(gson.toJson(result));
+                resp.getWriter().write(JsonUtil.toJson(new ApiResponse(true, "Thao tác thành công", result)));
                 return;
             }
 
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Endpoint không tồn tại")));
+            resp.getWriter().write(JsonUtil.toJson(new ApiResponse(false, "Endpoint không tồn tại", null)));
 
         } catch (ReviewException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("message", e.getMessage())));
+            resp.getWriter().write(JsonUtil.toJson(new ApiResponse(false, e.getMessage(), null)));
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Lỗi hệ thống")));
+            resp.getWriter().write(JsonUtil.toJson(new ApiResponse(false, "Lỗi hệ thống: " + e.getMessage(), null)));
         }
     }
 
@@ -82,7 +81,7 @@ public class ReviewController extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().write(gson.toJson(Map.of("message", "Review API chỉ hỗ trợ POST cho reviews và likes qua path này")));
+        resp.getWriter().write(JsonUtil.toJson(new ApiResponse(false, "Review API chỉ hỗ trợ POST cho reviews và likes qua path này", null)));
     }
 
     @Override
@@ -93,8 +92,8 @@ public class ReviewController extends HttpServlet {
         try {
             String uri = req.getRequestURI();
 
-            CurrentUser currentUser = jwtUserParser.parseFromRequest(req);
-            Long userId = currentUser != null ? currentUser.getUserId() : null;
+            // Lấy userId trực tiếp từ attribute mà JwtAuthenticationFilter đã set
+            Long userId = (Long) req.getAttribute("currentUserId");
 
             // DELETE /api/v1/reviews/{id}
             if (uri.matches(".*/api/v1/reviews/\\d+$")) {
@@ -103,25 +102,22 @@ public class ReviewController extends HttpServlet {
                 reviewService.deleteReview(userId, reviewId);
 
                 resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write(gson.toJson(Map.of("message", "Xóa đánh giá thành công")));
+                resp.getWriter().write(JsonUtil.toJson(new ApiResponse(true, "Xóa đánh giá thành công", null)));
                 return;
             }
 
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Endpoint không tồn tại")));
+            resp.getWriter().write(JsonUtil.toJson(new ApiResponse(false, "Endpoint không tồn tại", null)));
 
         } catch (ReviewException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("message", e.getMessage())));
+            resp.getWriter().write(JsonUtil.toJson(new ApiResponse(false, e.getMessage(), null)));
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Lỗi hệ thống")));
+            resp.getWriter().write(JsonUtil.toJson(new ApiResponse(false, "Lỗi hệ thống: " + e.getMessage(), null)));
         }
     }
 
-    /**
-     * Tách reviewId từ URL dạng /api/v1/reviews/{reviewId}/like
-     */
     private Long extractReviewId(String uri) {
         String[] parts = uri.split("/");
 
@@ -134,5 +130,9 @@ public class ReviewController extends HttpServlet {
         throw new IllegalArgumentException("Không thể lấy reviewId từ URL");
     }
 
-
+    private String readBody(HttpServletRequest request) throws IOException {
+        try (BufferedReader reader = request.getReader()) {
+            return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+        }
+    }
 }

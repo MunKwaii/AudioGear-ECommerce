@@ -221,7 +221,7 @@ async function addToCart(id, qty) {
 async function fetchReviews(id, sortBy) {
     try {
         const headers = {};
-        const token = localStorage.getItem('accessToken');
+        const token = getCookie('accessToken');
         if (token) headers['Authorization'] = 'Bearer ' + token;
 
         const url = `${contextPath}api/v1/products/${id}/reviews?sortBy=${sortBy || 'newest'}`;
@@ -284,7 +284,7 @@ function renderReviews(data) {
     // Show/hide write review button
     const writeBtn = document.getElementById('btn-write-review');
     if (writeBtn) {
-        const token = localStorage.getItem('accessToken');
+        const token = getCookie('accessToken');
         if (token) {
             writeBtn.classList.remove('ag-hidden');
         } else {
@@ -307,7 +307,17 @@ function renderReviews(data) {
  */
 function renderReviewCard(review) {
     const timeAgo = formatTimeAgo(review.createdAt);
-    const token = localStorage.getItem('accessToken');
+    const token = getCookie('accessToken');
+    
+    // Parse token to get current user ID (for delete button)
+    let currentUserId = null;
+    if (token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            currentUserId = payload.userId || payload.id;
+        } catch (e) {}
+    }
+    const isOwner = currentUserId && review.userId === currentUserId;
 
     return `
         <div class="ag-review-card" data-review-id="${review.id}">
@@ -317,14 +327,19 @@ function renderReviewCard(review) {
                     <span class="ag-review-name">${escapeHtml(review.userName)}</span>
                     <span class="ag-review-time">${timeAgo}</span>
                 </div>
+                ${isOwner ? `
+                    <button class="ag-review-delete-btn" title="Xóa đánh giá" onclick="handleDeleteReview(${review.id})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                ` : ''}
             </div>
             <div class="ag-review-stars">${renderStars(review.rating)}</div>
             <p class="ag-review-comment">${escapeHtml(review.comment || '')}</p>
             <div class="ag-review-actions">
-                <button class="ag-like-btn ${review.liked ? 'liked' : ''}"
+                <button class="ag-like-btn ${review.isLiked ? 'liked' : ''}"
                         onclick="handleLike(${review.id})"
                         ${!token ? 'title="Đăng nhập để thích"' : ''}>
-                    <i class="${review.liked ? 'fas' : 'far'} fa-heart"></i>
+                    <i class="${review.isLiked ? 'fas' : 'far'} fa-heart"></i>
                     <span>${review.totalLikes}</span>
                 </button>
             </div>
@@ -350,7 +365,7 @@ function renderStars(rating) {
  * Handle like/unlike toggle
  */
 async function handleLike(reviewId) {
-    const token = localStorage.getItem('accessToken');
+    const token = getCookie('accessToken');
     if (!token) {
         showToast('Vui lòng đăng nhập để thích đánh giá', 'error');
         return;
@@ -401,7 +416,7 @@ async function handleLike(reviewId) {
  * Submit a new review
  */
 async function handleSubmitReview() {
-    const token = localStorage.getItem('accessToken');
+    const token = getCookie('accessToken');
     if (!token) {
         showToast('Vui lòng đăng nhập để đánh giá', 'error');
         return;
@@ -413,6 +428,9 @@ async function handleSubmitReview() {
     }
 
     const comment = document.getElementById('review-comment').value.trim();
+    const btn = document.getElementById('btn-submit-review');
+    btn.disabled = true;
+    btn.textContent = 'Đang gửi...';
 
     try {
         const response = await fetch(`${contextPath}api/v1/reviews`, {
@@ -440,6 +458,38 @@ async function handleSubmitReview() {
         }
     } catch (error) {
         console.error('Error submitting review:', error);
+        showToast('Lỗi kết nối máy chủ', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Gửi đánh giá';
+    }
+}
+
+/**
+ * Handle delete review
+ */
+async function handleDeleteReview(reviewId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa đánh giá này?')) return;
+
+    const token = getCookie('accessToken');
+    try {
+        const response = await fetch(`${contextPath}api/v1/reviews/${reviewId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            showToast('Đã xóa đánh giá', 'success');
+            fetchReviews(productId, currentSortBy);
+        } else {
+            showToast(result.message || 'Không thể xóa đánh giá', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting review:', error);
         showToast('Lỗi kết nối máy chủ', 'error');
     }
 }
@@ -557,6 +607,16 @@ function formatTimeAgo(dateStr) {
     if (diffDay < 30) return `${diffDay} ngày trước`;
 
     return date.toLocaleDateString('vi-VN');
+}
+
+/**
+ * Get cookie value by name
+ */
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
 }
 
 function escapeHtml(text) {
