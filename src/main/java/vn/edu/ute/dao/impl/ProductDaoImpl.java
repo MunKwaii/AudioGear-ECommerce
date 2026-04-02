@@ -120,7 +120,7 @@ public class ProductDaoImpl implements ProductDao {
                 jpql.append(" AND LOWER(p.name) LIKE LOWER(:keyword)");
             }
             if (categoryId != null) {
-                jpql.append(" AND c.id = :categoryId");
+                jpql.append(" AND (c.id = :categoryId OR c.parent.id = :categoryId)");
             }
             jpql.append(" ORDER BY p.createdAt DESC"); // Sắp xếp mới nhất trên cùng
 
@@ -155,7 +155,7 @@ public class ProductDaoImpl implements ProductDao {
                 jpql.append(" AND LOWER(p.name) LIKE LOWER(:keyword)");
             }
             if (categoryId != null) {
-                jpql.append(" AND c.id = :categoryId");
+                jpql.append(" AND (c.id = :categoryId OR c.parent.id = :categoryId)");
             }
 
             TypedQuery<Long> query = em.createQuery(jpql.toString(), Long.class);
