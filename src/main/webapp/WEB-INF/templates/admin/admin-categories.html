@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: adminLayout(${title}, ${activePage}, ~{::main}, ~{::style}, ~{::script})}">
+<head>
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: rgba(25, 25, 25, 0.8);
+            --surface2: rgba(40, 40, 40, 0.9);
+            --border: rgba(255,255,255,.08);
+            --accent: #00f2fe;
+            --accent-hover: #4facfe;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,.6);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .page-title { font-size: 1.25rem; font-weight: 800; }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Tree styles */
+        .tree-container { width: 100%; }
+        .tree-node { border-bottom: 1px solid var(--border); }
+        .tree-node:last-child { border-bottom: none; }
+        .tree-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: background 0.15s ease;
+            gap: 10px;
+        }
+        .tree-row:hover { background: rgba(255,255,255,.04); }
+        .tree-toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: var(--accent);
+            background: rgba(0,242,254,.1);
+            border: 1px solid rgba(0,242,254,.2);
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .tree-toggle:hover { background: rgba(0,242,254,.25); }
+        .tree-toggle.empty { visibility: hidden; }
+        .tree-toggle.expanded { transform: rotate(90deg); }
+
+        .tree-info { flex: 1; min-width: 0; }
+        .tree-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tree-meta {
+            display: flex;
+            gap: 12px;
+            margin-top: 3px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+        .tree-meta-item { display: flex; align-items: center; gap: 4px; }
+
+        .tree-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .tree-badge-products {
+            background: rgba(79,172,254,.15);
+            color: #4facfe;
+            border: 1px solid rgba(79,172,254,.3);
+        }
+        .tree-badge-level {
+            background: rgba(0,242,254,.1);
+            color: var(--accent);
+            border: 1px solid rgba(0,242,254,.25);
+        }
+        .tree-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+        .tree-children {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .tree-children.collapsed { max-height: 0 !important; }
+        .tree-children-inner {
+            margin-left: 40px;
+            border-left: 2px solid rgba(0,242,254,.15);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            transition: all 0.15s ease;
+        }
+        .btn-primary { background: var(--accent); color: #000; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.78rem;
+            border-radius: 8px;
+        }
+        .btn-edit {
+            background: rgba(245,158,11,.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245,158,11,.3);
+        }
+        .btn-edit:hover { background: rgba(245,158,11,.3); }
+        .btn-delete {
+            background: rgba(239,68,68,.15);
+            color: var(--red);
+            border: 1px solid rgba(239,68,68,.3);
+        }
+        .btn-delete:hover { background: rgba(239,68,68,.3); }
+        .btn-add-child {
+            background: rgba(34,197,94,.15);
+            color: var(--green);
+            border: 1px solid rgba(34,197,94,.3);
+        }
+        .btn-add-child:hover { background: rgba(34,197,94,.3); }
+
+        /* Modal overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.65);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal-content {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            width: 460px;
+            max-width: 92vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,.8);
+            animation: modalIn 0.25s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.92rem;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,242,254,.15);
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        /* Fix select option color in dark mode */
+        .form-group select option { background: #1a1a1a; color: #fff; }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-cancel {
+            background: rgba(255,255,255,.08);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-cancel:hover { background: rgba(255,255,255,.15); }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            animation: toastIn 0.3s ease;
+            min-width: 260px;
+        }
+        .toast-success { background: rgba(34,197,94,.9); color: #fff; }
+        .toast-error { background: rgba(239,68,68,.9); color: #fff; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 12px; }
+
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div class="page-header">
+        <div class="page-title">📁 Quản lý Danh mục</div>
+        <div class="toolbar">
+            <button class="btn btn-primary" id="btn-add-root" onclick="openAddModal(null)">＋ Thêm danh mục</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div id="loadingState" class="loading-state">⏳ Đang tải danh sách danh mục...</div>
+        <div class="tree-container" id="treeContainer" style="display:none;"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <div class="empty-state-icon">📂</div>
+            <p>Chưa có danh mục nào. Nhấn "Thêm danh mục" để bắt đầu.</p>
+        </div>
+    </div>
+</main>
+
+<!-- Modal Add/Edit -->
+<div class="modal-overlay" id="categoryModal">
+    <div class="modal-content">
+        <div class="modal-title" id="modalTitle">Thêm danh mục</div>
+        <input type="hidden" id="editId">
+        <div class="form-group">
+            <label for="catName">Tên danh mục *</label>
+            <input type="text" id="catName" placeholder="Nhập tên danh mục..." maxlength="100">
+        </div>
+        <div class="form-group">
+            <label for="catDesc">Mô tả</label>
+            <textarea id="catDesc" placeholder="Mô tả danh mục..."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="catParent">Danh mục cha</label>
+            <select id="catParent">
+                <option value="">-- Không có (danh mục gốc) --</option>
+            </select>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-cancel" onclick="closeModal()">Hủy</button>
+            <button class="btn btn-primary" id="btnSave" onclick="saveCategory()">Lưu</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirm Delete -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-content">
+        <div class="modal-title" style="color:var(--red);">⚠️ Xác nhận xóa</div>
+        <p id="deleteMessage" style="color:var(--text-muted); margin-bottom:8px; line-height:1.6;"></p>
+        <input type="hidden" id="deleteId">
+        <div class="modal-actions">
+            <button class="btn btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+            <button class="btn btn-delete" id="btnConfirmDelete" onclick="confirmDelete()">Xóa</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const contextPath = /*[[@{/}]]*/ '/';
+    const API_BASE = contextPath.endsWith('/') ? contextPath.slice(0,-1) : contextPath;
+    const API_URL = API_BASE + '/api/admin/categories';
+
+    // Dữ liệu khởi tạo từ server-side rendering (không dùng Thymeleaf inline JS để tránh lỗi Jackson với LocalDateTime)
+    // Thay vào đó, tải qua API để đảm bảo an toàn
+    let treeData = [];
+    let flatCategories = [];
+
+    // --- Auth Token ---
+    function getAuthToken() {
+        // Tìm trong Cookie trước
+        const cookies = document.cookie.split(';');
+        for (const c of cookies) {
+            const trimmed = c.trim();
+            if (trimmed.startsWith('accessToken=')) {
+                return trimmed.substring('accessToken='.length);
+            }
+        }
+        // Fallback: localStorage
+        return localStorage.getItem('accessToken') || '';
+    }
+
+    function buildHeaders() {
+        const token = getAuthToken();
+        const h = { 'Content-Type': 'application/json' };
+        if (token) h['Authorization'] = 'Bearer ' + token;
+        return h;
+    }
+
+    // --- Toast ---
+    function showToast(message, type) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
+
+    // --- Tree Rendering ---
+    function renderTree(data) {
+        const container = document.getElementById('treeContainer');
+        const loading = document.getElementById('loadingState');
+        const empty = document.getElementById('emptyState');
+
+        loading.style.display = 'none';
+
+        if (!data || data.length === 0) {
+            container.style.display = 'none';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+        container.style.display = 'block';
+        container.innerHTML = renderNodes(data, 0);
+        bindToggleEvents();
+    }
+
+    function renderNodes(nodes, depth) {
+        if (!nodes || depth > 20) return '';
+        return nodes.map(node => {
+            const hasChildren = node.children && node.children.length > 0;
+            const indent = depth * 28;
+            const childHtml = hasChildren
+                ? `<div class="tree-children" id="children-${node.id}">
+                       <div class="tree-children-inner">${renderNodes(node.children, depth + 1)}</div>
+                   </div>`
+                : '';
+
+            const desc = node.description ? `<span class="tree-meta-item">📝 ${esc(node.description)}</span>` : '';
+            const parent = node.parentName
+                ? `<span class="tree-meta-item">📁 ${esc(node.parentName)}</span>`
+                : `<span class="tree-meta-item">🌐 Gốc</span>`;
+            const created = node.createdAt ? `<span class="tree-meta-item">🕐 Tạo: ${node.createdAt}</span>` : '';
+            const updated = node.updatedAt ? `<span class="tree-meta-item">✏️ Sửa: ${node.updatedAt}</span>` : '';
+
+            return `
+                <div class="tree-node">
+                    <div class="tree-row" style="padding-left:${indent + 16}px">
+                        <div class="tree-toggle ${hasChildren ? 'expanded' : 'empty'}"
+                             data-target="children-${node.id}" title="Mở/Thu">▶</div>
+                        <div class="tree-info">
+                            <div class="tree-name">${esc(node.name)}</div>
+                            <div class="tree-meta">
+                                ${desc}
+                                ${parent}
+                                ${created}
+                                ${updated}
+                            </div>
+                        </div>
+                        <span class="tree-badge tree-badge-products">${node.productCount} SP</span>
+                        <span class="tree-badge tree-badge-level">Lv ${node.level}</span>
+                        <div class="tree-actions">
+                            <button class="btn btn-sm btn-add-child" onclick="openAddModal(${node.id})" title="Thêm danh mục con">＋</button>
+                            <button class="btn btn-sm btn-edit" onclick="openEditModal(${node.id})" title="Sửa">✎</button>
+                            <button class="btn btn-sm btn-delete" onclick="openDeleteModal(${node.id}, ${node.productCount})" title="Xóa">✕</button>
+                        </div>
+                    </div>
+                    ${childHtml}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function bindToggleEvents() {
+        document.querySelectorAll('.tree-toggle:not(.empty)').forEach(el => {
+            el.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const child = document.getElementById(targetId);
+                if (child) {
+                    child.classList.toggle('collapsed');
+                    this.classList.toggle('expanded');
+                }
+            });
+        });
+    }
+
+    function esc(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // --- Flatten tree for dropdown ---
+    function flattenTree(nodes, result) {
+        if (!nodes) return;
+        nodes.forEach(n => {
+            result.push({ id: n.id, name: n.name, level: n.level || 0 });
+            if (n.children) flattenTree(n.children, result);
+        });
+    }
+
+    function findInFlat(id) {
+        return flatCategories.find(c => c.id === id) || null;
+    }
+
+    function findInTree(nodes, id) {
+        if (!nodes) return null;
+        for (const n of nodes) {
+            if (n.id === id) return n;
+            const found = findInTree(n.children, id);
+            if (found) return found;
+        }
+        return null;
+    }
+
+    // --- Load data ---
+    async function loadTree() {
+        try {
+            const resp = await fetch(API_URL, { headers: buildHeaders() });
+            if (resp.status === 401) { showToast('Phiên đăng nhập hết hạn, vui lòng đăng nhập lại', 'error'); return; }
+            if (resp.status === 403) { showToast('Bạn không có quyền Admin', 'error'); return; }
+            const result = await resp.json();
+            if (result.success) {
+                treeData = result.data || [];
+                flatCategories = [];
+                flattenTree(treeData, flatCategories);
+                renderTree(treeData);
+            } else {
+                showToast(result.message || 'Tải dữ liệu thất bại', 'error');
+                document.getElementById('loadingState').textContent = '❌ Không thể tải danh mục';
+            }
+        } catch (e) {
+            console.error('Lỗi tải dữ liệu:', e);
+            document.getElementById('loadingState').textContent = '❌ Lỗi kết nối: ' + e.message;
+        }
+    }
+
+    // --- Modal Add/Edit ---
+    function openAddModal(parentId) {
+        document.getElementById('editId').value = '';
+        document.getElementById('catName').value = '';
+        document.getElementById('catDesc').value = '';
+        document.getElementById('modalTitle').textContent = parentId ? 'Thêm danh mục con' : 'Thêm danh mục gốc';
+        populateParentSelect(parentId, null);
+        document.getElementById('categoryModal').classList.add('show');
+        setTimeout(() => document.getElementById('catName').focus(), 100);
+    }
+
+    function openEditModal(id) {
+        const cat = findInTree(treeData, id);
+        if (!cat) { showToast('Không tìm thấy danh mục', 'error'); return; }
+        document.getElementById('editId').value = id;
+        document.getElementById('catName').value = cat.name || '';
+        document.getElementById('catDesc').value = cat.description || '';
+        document.getElementById('modalTitle').textContent = 'Sửa danh mục: ' + cat.name;
+        populateParentSelect(cat.parentId, id);
+        document.getElementById('categoryModal').classList.add('show');
+        setTimeout(() => document.getElementById('catName').focus(), 100);
+    }
+
+    function closeModal() {
+        document.getElementById('categoryModal').classList.remove('show');
+    }
+
+    function populateParentSelect(selectedParentId, excludeId) {
+        const select = document.getElementById('catParent');
+        select.innerHTML = '<option value="">-- Không có (danh mục gốc) --</option>';
+        flatCategories.forEach(c => {
+            if (c.id === excludeId) return; // Loại chính nó
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = getLevelPrefix(c.level) + c.name;
+            if (selectedParentId && c.id === selectedParentId) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
+    function getLevelPrefix(level) {
+        return level > 0 ? '└─ '.repeat(level) : '';
+    }
+
+    // --- Save ---
+    async function saveCategory() {
+        const editId = document.getElementById('editId').value;
+        const name = document.getElementById('catName').value.trim();
+        const description = document.getElementById('catDesc').value.trim();
+        const parentIdVal = document.getElementById('catParent').value;
+
+        if (!name) {
+            showToast('Tên danh mục không được để trống', 'error');
+            document.getElementById('catName').focus();
+            return;
+        }
+
+        const body = {
+            name: name,
+            description: description || null,
+            parentId: parentIdVal ? parseInt(parentIdVal) : null
+        };
+
+        const btnSave = document.getElementById('btnSave');
+        btnSave.disabled = true;
+        btnSave.textContent = 'Đang lưu...';
+
+        try {
+            const url = editId ? `${API_URL}/${editId}` : API_URL;
+            const method = editId ? 'PUT' : 'POST';
+            const resp = await fetch(url, {
+                method: method,
+                headers: buildHeaders(),
+                body: JSON.stringify(body)
+            });
+            const result = await resp.json();
+
+            if (result.success) {
+                showToast(result.message || 'Lưu thành công!', 'success');
+                closeModal();
+                await loadTree();
+            } else {
+                showToast(result.message || 'Có lỗi xảy ra', 'error');
+            }
+        } catch (e) {
+            showToast('Lỗi kết nối: ' + e.message, 'error');
+        } finally {
+            btnSave.disabled = false;
+            btnSave.textContent = 'Lưu';
+        }
+    }
+
+    // --- Delete ---
+    function openDeleteModal(id, productCount) {
+        const cat = findInTree(treeData, id);
+        const name = cat ? cat.name : ('ID #' + id);
+        document.getElementById('deleteId').value = id;
+
+        let msg = `Bạn có chắc muốn xóa danh mục "${name}"?`;
+        if (productCount > 0) {
+            msg += `\n\n⚠️ Danh mục này đang có ${productCount} sản phẩm — không thể xóa, hãy chuyển sản phẩm sang danh mục khác trước.`;
+        }
+        if (cat && cat.children && cat.children.length > 0) {
+            msg += `\n\nℹ️ Các danh mục con (${cat.children.length} danh mục) sẽ được chuyển thành danh mục gốc.`;
+        }
+
+        document.getElementById('deleteMessage').textContent = msg;
+        document.getElementById('btnConfirmDelete').disabled = productCount > 0;
+        document.getElementById('deleteModal').classList.add('show');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('show');
+    }
+
+    async function confirmDelete() {
+        const id = document.getElementById('deleteId').value;
+        const btn = document.getElementById('btnConfirmDelete');
+        btn.disabled = true;
+        btn.textContent = 'Đang xóa...';
+
+        try {
+            const resp = await fetch(`${API_URL}/${id}`, {
+                method: 'DELETE',
+                headers: buildHeaders()
+            });
+            const result = await resp.json();
+
+            if (result.success) {
+                showToast(result.message || 'Đã xóa thành công!', 'success');
+                closeDeleteModal();
+                await loadTree();
+            } else {
+                showToast(result.message || 'Không thể xóa', 'error');
+            }
+        } catch (e) {
+            showToast('Lỗi: ' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Xóa';
+        }
+    }
+
+    // Đóng modal khi click ra ngoài
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'categoryModal') closeModal();
+        if (e.target.id === 'deleteModal') closeDeleteModal();
+    });
+
+    // Phím ESC để đóng modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeDeleteModal();
+        }
+    });
+
+    // Khởi tạo: tải dữ liệu qua API thay vì inline Thymeleaf để tránh vấn đề serialize
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTree();
+    });
+    /*]]>*/
+</script>
+</body>
+</html>
