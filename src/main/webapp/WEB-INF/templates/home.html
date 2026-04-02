@@ -433,7 +433,7 @@
     <section class="section" id="featured">
         <div class="section-header">
             <h2 class="section-title">Sản phẩm nổi bật</h2>
-            <a href="/products" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            <a th:href="@{/products}" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
         </div>
         
         <div class="product-grid" th:if="${featuredProducts != null}">
@@ -464,7 +464,7 @@
     <section class="section">
         <div class="section-header">
             <h2 class="section-title">Hàng mới về</h2>
-            <a href="/products?sort=new" class="view-all">Khám phá <i class="fas fa-arrow-right"></i></a>
+            <a th:href="@{/products(sort='new')}" class="view-all">Khám phá <i class="fas fa-arrow-right"></i></a>
         </div>
         
         <div class="product-grid" th:if="${newProducts != null}">

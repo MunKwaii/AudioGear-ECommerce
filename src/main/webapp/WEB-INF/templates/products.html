@@ -362,7 +362,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Search Form -->
-            <form action="/products" method="GET" class="search-bar">
+            <form th:action="@{/products}" method="GET" class="search-bar">
                 <!-- Keep category selected if any -->
                 <input type="hidden" name="catId" th:value="${categoryId}" th:if="${categoryId != null}">
                 <input type="text" name="q" class="search-input" placeholder="Tìm kiếm tai nghe, loa..." th:value="${keyword}">
