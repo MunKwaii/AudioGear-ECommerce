@@ -124,6 +124,7 @@ public class AdminProductEditController extends HttpServlet {
         if (product.getImages() != null && !product.getImages().isEmpty()) {
             List<String> imageUrls = product.getImages().stream()
                     .map(image -> image.getImageUrl())
+                    .distinct()
                     .collect(Collectors.toList());
             if (product.getThumbnailUrl() != null && !product.getThumbnailUrl().isBlank()
                     && !imageUrls.contains(product.getThumbnailUrl())) {

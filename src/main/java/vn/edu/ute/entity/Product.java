@@ -58,7 +58,7 @@ public class Product {
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
     
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private java.util.Set<ProductImage> images = new java.util.HashSet<>();
     
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

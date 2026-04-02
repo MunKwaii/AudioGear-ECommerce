@@ -27,16 +27,6 @@ public class ProcessingState implements OrderState {
 
     @Override
     public void cancelOrder(OrderContext context, String cancelReason) {
-        // 1. Cập nhật trạng thái Entity
-        context.getOrder().setStatus(OrderStatus.CANCELLED);
-
-        // 2. Chuyển State Machine sang CancelledState (terminal)
-        context.setState(new CancelledState());
-
-        // 3. Hoàn trả kho (Admin hủy sau khi đã duyệt → hoàn lại tồn kho)
-        context.getRestockService().restoreStock(context.getOrder());
-
-        // 4. Gửi email thông báo hủy + lý do cho khách
-        context.getNotificationService().notifyCancelled(context.getOrder(), cancelReason);
+        throw new IllegalStateException("Không thể hủy đơn khi đang xử lý");
     }
 }

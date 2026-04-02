@@ -187,17 +187,16 @@ public class ProductServiceImpl implements ProductService {
 
         if (hasImagePayload) {
             product.setThumbnailUrl(thumbnailUrl);
+            product.getImages().clear();
             if (!imageUrls.isEmpty()) {
-                Set<ProductImage> images = new LinkedHashSet<>();
                 for (String url : imageUrls) {
                     ProductImage image = new ProductImage();
                     image.setProduct(product);
                     image.setImageUrl(url);
                     image.setAltText(name);
                     image.setIsPrimary(url.equals(thumbnailUrl));
-                    images.add(image);
+                    product.getImages().add(image);
                 }
-                product.setImages(images);
             }
         }
 
