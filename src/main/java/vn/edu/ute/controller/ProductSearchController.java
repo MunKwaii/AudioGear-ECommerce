@@ -39,6 +39,7 @@ public class ProductSearchController extends HttpServlet {
         String keyword = request.getParameter("q");
         String catIdStr = request.getParameter("catId");
         String pageStr = request.getParameter("page");
+        String sort = request.getParameter("sort");
 
         Long categoryId = null;
         if (catIdStr != null && !catIdStr.trim().isEmpty()) {
@@ -51,7 +52,7 @@ public class ProductSearchController extends HttpServlet {
         }
 
         // Limit 12 products per page
-        PageDTO<ProductDTO> productPage = productFacadeService.searchAndPaginate(keyword, categoryId, page, 12);
+        PageDTO<ProductDTO> productPage = productFacadeService.searchAndPaginate(keyword, categoryId, sort, page, 12);
 
         IWebExchange webExchange = application.buildExchange(request, response);
         WebContext context = new WebContext(webExchange, webExchange.getLocale());
@@ -59,6 +60,7 @@ public class ProductSearchController extends HttpServlet {
         context.setVariable("productPage", productPage);
         context.setVariable("keyword", keyword);
         context.setVariable("categoryId", categoryId);
+        context.setVariable("sort", sort);
         // Fetch categories directly to populate the sidebar filter UI
         context.setVariable("categories", DaoFactory.getCategoryDao().getAllCategories());
 

@@ -53,7 +53,7 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public List<Product> searchProducts(String keyword, Long categoryId, int offset, int limit) {
+    public List<Product> searchProducts(String keyword, Long categoryId, String sort, int offset, int limit) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
             StringBuilder jpql = new StringBuilder("SELECT p FROM Product p JOIN FETCH p.category c LEFT JOIN FETCH p.brand WHERE p.status = true");
@@ -64,7 +64,15 @@ public class ProductDaoImpl implements ProductDao {
             if (categoryId != null) {
                 jpql.append(" AND (c.id = :categoryId OR c.parent.id = :categoryId)");
             }
-            jpql.append(" ORDER BY p.createdAt DESC"); // Sắp xếp mới nhất trên cùng
+
+            // Xử lý sắp xếp
+            if ("price_asc".equals(sort)) {
+                jpql.append(" ORDER BY p.price ASC");
+            } else if ("price_desc".equals(sort)) {
+                jpql.append(" ORDER BY p.price DESC");
+            } else {
+                jpql.append(" ORDER BY p.createdAt DESC"); // Mặc định: Mới nhất
+            }
 
             TypedQuery<Product> query = em.createQuery(jpql.toString(), Product.class);
             

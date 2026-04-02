@@ -7,5 +7,5 @@ public interface ProductFacadeService {
     /**
      * Tìm kiếm và phân trang sản phẩm theo từ khóa, danh mục.
      */
-    PageDTO<ProductDTO> searchAndPaginate(String keyword, Long categoryId, int page, int pageSize);
+    PageDTO<ProductDTO> searchAndPaginate(String keyword, Long categoryId, String sort, int page, int pageSize);
 }

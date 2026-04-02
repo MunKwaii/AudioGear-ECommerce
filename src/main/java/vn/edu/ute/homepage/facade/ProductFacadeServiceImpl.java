@@ -24,6 +24,7 @@ public class ProductFacadeServiceImpl implements ProductFacadeService {
 
     @Override
     public PageDTO<ProductDTO> searchAndPaginate(String keyword, Long categoryId, int page, int pageSize) {
+    public PageDTO<ProductDTO> searchAndPaginate(String keyword, Long categoryId, String sort, int page, int pageSize) {
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 12;
 
@@ -35,6 +36,7 @@ public class ProductFacadeServiceImpl implements ProductFacadeService {
         int totalPages = (int) Math.ceil((double) totalElements / pageSize);
 
         List<Product> products = productDao.searchProducts(keyword, categoryId, offset, pageSize);
+        List<Product> products = productDao.searchProducts(keyword, categoryId, sort, offset, pageSize);
 
         List<ProductDTO> content = products.stream()
                 .map(this::mapToProductDTO)
