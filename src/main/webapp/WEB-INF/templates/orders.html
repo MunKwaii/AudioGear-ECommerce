@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/profile-layout :: profileLayout('Đơn hàng của tôi', 'orders', ~{::mainContent}, ~{::style}, ~{::script})}">
+<head>
+    <style th:fragment="style">
+        .order-card {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        .order-card:hover {
+            border-color: rgba(0, 242, 254, 0.3);
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 16px;
+        }
+        .order-code {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00f2fe;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .order-date {
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+        .order-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .order-info p {
+            margin: 4px 0;
+            font-size: 14px;
+            color: #bdc3c7;
+        }
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        /* Status Colors */
+        .status-pending { background: rgba(241, 196, 15, 0.1); color: #f1c40f; border: 1px solid rgba(241, 196, 15, 0.3); }
+        .status-processing { background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.3); }
+        .status-shipped { background: rgba(155, 89, 182, 0.1); color: #9b59b6; border: 1px solid rgba(155, 89, 182, 0.3); }
+        .status-delivered { background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
+        .status-cancelled { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); }
+
+        .order-total {
+            text-align: right;
+        }
+        .total-label {
+            font-size: 13px;
+            color: #a0a0a0;
+            display: block;
+        }
+        .total-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .empty-orders {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+
+        /* Order Details Styles */
+        .order-details-btn {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #bdc3c7;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        .order-details-btn:hover {
+            background: rgba(0, 242, 254, 0.1);
+            color: #00f2fe;
+            border-color: #00f2fe;
+        }
+        .order-details-content {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+        .order-details-content.active {
+            display: block;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+        .detail-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            object-fit: cover;
+            background-color: #1a1a1a;
+        }
+        .detail-info {
+            flex-grow: 1;
+        }
+        .detail-name {
+            font-size: 14px;
+            color: #fff;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .detail-meta {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .detail-price {
+            font-size: 14px;
+            color: #ecf0f1;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <main th:fragment="mainContent">
+        <div class="content-header">
+            <h1>Đơn hàng của tôi</h1>
+            <p>Theo dõi và quản lý lịch sử mua hàng</p>
+        </div>
+
+        <div class="order-list">
+            <div th:each="order : ${orders}" class="order-card">
+                <div class="order-header">
+                    <div class="order-code-group">
+                        <span class="order-code" th:text="${order.orderCode}">#ORD-123456</span>
+                        <span class="order-date" th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">24/11/2023</span>
+                    </div>
+                    <span class="order-status" 
+                          th:classappend="'status-' + ${#strings.toLowerCase(order.status)}"
+                          th:text="${order.status}">PENDING</span>
+                </div>
+                <div class="order-body">
+                    <div class="order-info">
+                        <p><strong>Người nhận:</strong> <span th:text="${order.recipientName}">Nguyễn Văn A</span></p>
+                        <p><strong>SĐT:</strong> <span th:text="${order.phoneNumber}">090xxxxxxx</span></p>
+                        <p><strong>Địa chỉ:</strong> <span th:text="${order.streetAddress + ', ' + order.city}">123 Đường ABC...</span></p>
+                    </div>
+                    <div class="order-total">
+                        <span class="total-label">Tổng thanh toán</span>
+                        <span class="total-value" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">1,000,000 ₫</span>
+                        <button class="order-details-btn" th:onclick="'toggleDetails(\'details-' + ${order.id} + '\')'">Xem chi tiết</button>
+                    </div>
+                </div>
+
+                <!-- Hidden Details Section -->
+                <div th:id="'details-' + ${order.id}" class="order-details-content">
+                    <h4 style="font-size: 14px; color: #a0a0a0; margin-bottom: 15px;">Sản phẩm đã mua:</h4>
+                    <div th:each="item : ${order.items}" class="detail-item">
+                        <img th:src="@{${#lists.isEmpty(item.product.images) ? '/static/img/no-image.png' : item.product.images[0].imageUrl}}" class="detail-img">
+                        <div class="detail-info">
+                            <span class="detail-name" th:text="${item.product.productName}">Tên sản phẩm</span>
+                            <span class="detail-meta" th:text="'Số lượng: ' + ${item.quantity}">SL: 1</span>
+                        </div>
+                        <div class="detail-price" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') + ' ₫'}">
+                            500,000 ₫
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 13px; color: #7f8c8d; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px;">
+                        <p style="margin: 0;"><strong>Phương thức thanh toán:</strong> <span th:text="${order.paymentStrategy.name}">COD</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(orders)}" class="empty-orders">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.2; margin-bottom: 20px;">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                    <path d="M3 6h18"></path>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <p>Bạn chưa có đơn hàng nào.</p>
+                <a th:href="@{/}" class="btn btn-outline btn-small" style="margin-top: 20px;">Tiếp tục mua sắm</a>
+            </div>
+        </div>
+    </main>
+
+    <script th:fragment="script">
+        function toggleDetails(id) {
+            const content = document.getElementById(id);
+            const btn = event.currentTarget;
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                btn.textContent = 'Xem chi tiết';
+            } else {
+                content.classList.add('active');
+                btn.textContent = 'Thu gọn';
+            }
+        }
+    </script>
+</body>
+</html>

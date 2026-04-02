@@ -9,4 +9,7 @@ public interface UserService {
     User registerPendingUser(RegisterRequest request);
     User activateUser(String email);
     void resetPassword(String email, String newPassword);
+    User getUserById(Long id);
+    void updateUserProfile(Long userId, String fullName, String phoneNumber);
+    void updateAvatar(Long userId, String avatarUrl);
 }

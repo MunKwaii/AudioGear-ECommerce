@@ -112,4 +112,9 @@ public class OrderServiceImpl implements OrderService, OrderSubject {
         notifyObservers(saved, OrderEventType.ORDER_CANCELLED, displayReason);
         return saved;
     }
+
+    @Override
+    public List<Order> getOrdersByUserId(Long userId) {
+        return orderDao.findByUserId(userId);
+    }
 }

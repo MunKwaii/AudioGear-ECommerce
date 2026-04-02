@@ -59,6 +59,17 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
+    public Optional<User> findById(Long id) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            User user = em.find(User.class, id);
+            return Optional.ofNullable(user);
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
     public User save(User user) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {

@@ -41,15 +41,8 @@ public class JwtAuthenticationFilter implements Filter {
         String requestURI = httpRequest.getRequestURI();
         String path = requestURI.substring(contextPath.length());
 
-        // 1. Kiểm tra Permission: Nếu là URL PermitAll thì cho qua ngay lập tức
-        if (WebSecurityConfig.isPermitAll(path)) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        // =============== TỪ ĐÂY TRỞ XUỐNG LÀ REQUIRED AUTHENTICATED ===============
-
-        // 2. Tìm JWT Token (Đầu tiên trong Header, sau đó fallback Cookie)
+        // =============== XỬ LÝ TOKEN (LUÔN CHẠY) ===============
+        // Mục đích: Để các page công khai (PermitAll) vẫn biết User nào đang đăng nhập (nếu có)
         String authHeader = httpRequest.getHeader("Authorization");
         String token = jwtUtil.extractTokenFromHeader(authHeader);
 
@@ -62,37 +55,43 @@ public class JwtAuthenticationFilter implements Filter {
             }
         }
 
-        // 3. Xác thực tính hợp lệ của Token
-        boolean isValid = token != null && jwtUtil.validateToken(token) && !redisService.isTokenBlacklisted(token);
+        boolean hasValidToken = false;
+        if (token != null && jwtUtil.validateToken(token) && !redisService.isTokenBlacklisted(token)) {
+            hasValidToken = true;
+            try {
+                String email = jwtUtil.getEmailFromToken(token);
+                Long userId = jwtUtil.getUserIdFromToken(token);
+                String role = jwtUtil.getRoleFromToken(token);
 
-        if (!isValid) {
-            handleUnauthorized(path, httpRequest, httpResponse);
-            return;
-        }
-
-        // 4. Giải mã JWT và nạp thông tin User vào Request (Security Context)
-        try {
-            String email = jwtUtil.getEmailFromToken(token);
-            Long userId = jwtUtil.getUserIdFromToken(token);
-            String role = jwtUtil.getRoleFromToken(token);
-
-            httpRequest.setAttribute("currentUserEmail", email);
-            httpRequest.setAttribute("currentUserId", userId);
-            httpRequest.setAttribute("currentUserRole", role);
-
-            // 5. Kiểm tra Role Authorization (RBAC - Role Based Access Control)
-            if (WebSecurityConfig.requiresAdminRole(path) && !"admin".equalsIgnoreCase(role)) {
-                handleForbidden(path, httpRequest, httpResponse);
-                return;
+                httpRequest.setAttribute("currentUserEmail", email);
+                httpRequest.setAttribute("currentUserId", userId);
+                httpRequest.setAttribute("currentUserRole", role);
+                
+                // Nếu path yêu cầu Admin mà User không phải Admin -> Báo lỗi 403
+                if (WebSecurityConfig.requiresAdminRole(path) && !"admin".equalsIgnoreCase(role)) {
+                    handleForbidden(path, httpRequest, httpResponse);
+                    return;
+                }
+            } catch (Exception e) {
+                logger.error("Lỗi Parsing Token ở Filter", e);
+                hasValidToken = false; 
+                // Token lỗi -> coi như chưa đăng nhập
             }
+        }
 
-        } catch (Exception e) {
-            logger.error("Lỗi Parsing Token", e);
+        // =============== 1. KIỂM TRA QUYỀN TRUY CẬP (PERMIT ALL) ===============
+        if (WebSecurityConfig.isPermitAll(path)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        // =============== 2. KIỂM TRA XÁC THỰC BẮT BUỘC ===============
+        if (!hasValidToken) {
             handleUnauthorized(path, httpRequest, httpResponse);
             return;
         }
 
-        // 6. Passed mọi chốt chặn -> Tiếp tục Request
+        // 3. Passed mọi chốt chặn -> Tiếp tục Request
         chain.doFilter(request, response);
     }
 

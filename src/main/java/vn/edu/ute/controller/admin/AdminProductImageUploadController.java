@@ -12,7 +12,9 @@ import vn.edu.ute.util.JsonUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -27,17 +29,16 @@ public class AdminProductImageUploadController extends HttpServlet {
         resp.setContentType("application/json;charset=UTF-8");
 
         List<String> stored = new ArrayList<>();
-        String rootPath = getServletContext().getRealPath("/static/images/products");
-        if (rootPath == null || rootPath.trim().isEmpty()) {
-            rootPath = System.getProperty("user.dir") + File.separator + "src/main/webapp/static/images/products";
-        }
+        String rootPath = "/home/okarin/Documents/Arch_Programming/AudioGear-ECommerce";
+        String srcPath = rootPath + File.separator + "src/main/webapp/static/images/products";
+        String deployPath = getServletContext().getRealPath("/static/images/products");
+        
+        File srcDir = new File(srcPath);
+        if (!srcDir.exists()) srcDir.mkdirs();
+        
+        File deployDir = new File(deployPath);
+        if (deployPath != null && !deployDir.exists()) deployDir.mkdirs();
 
-        File root = new File(rootPath);
-        if (!root.exists() && !root.mkdirs()) {
-            ApiResponse response = new ApiResponse(false, "Khong tao duoc thu muc luu anh", null);
-            resp.getWriter().write(JsonUtil.toJson(response));
-            return;
-        }
 
         for (Part part : req.getParts()) {
             if (!"images".equals(part.getName()) || part.getSize() == 0) {
@@ -51,8 +52,19 @@ public class AdminProductImageUploadController extends HttpServlet {
 
             String extension = getExtension(submitted);
             String filename = UUID.randomUUID() + (extension.isEmpty() ? "" : "." + extension);
-            File output = new File(root, filename);
-            part.write(output.getAbsolutePath());
+            
+            // 1. Save to src directory (for persistence)
+            File srcFile = new File(srcDir, filename);
+            try (java.io.InputStream input = part.getInputStream()) {
+                Files.copy(input, srcFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            
+            // 2. Also save to deploy directory (for immediate display)
+            if (deployPath != null && !srcPath.equals(deployPath)) {
+                File deployFile = new File(deployDir, filename);
+                Files.copy(srcFile.toPath(), deployFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            
             stored.add("/static/images/products/" + filename);
         }
 
