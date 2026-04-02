@@ -349,16 +349,9 @@
                         </a>
                     </li>
                     <li class="category-item" th:each="cat : ${categories}">
-<<<<<<< Updated upstream
-                        <a th:href="@{/products(catId=${cat.id}, q=${keyword})}" 
-                           th:classappend="${categoryId == cat.id} ? 'active' : ''" 
-                           class="category-link">
-                           <i class="fas fa-chevron-right"></i> <span th:text="${cat.name}">Category</span>
-=======
                         <a th:href="@{/products(catId=${cat.id}, q=${keyword}, sort=${sort})}"
                             th:classappend="${categoryId == cat.id} ? 'active' : ''" class="category-link">
                             <i class="fas fa-chevron-right"></i> <span th:text="${cat.name}">Category</span>
->>>>>>> Stashed changes
                         </a>
                     </li>
                 </ul>
@@ -369,18 +362,8 @@
         <main class="main-content">
             <!-- Search Form -->
             <form th:action="@{/products}" method="GET" class="search-bar">
-                <!-- Keep category selected if any -->
                 <!-- Keep category and sort selected if any -->
                 <input type="hidden" name="catId" th:value="${categoryId}" th:if="${categoryId != null}">
-<<<<<<< Updated upstream
-                <input type="text" name="q" class="search-input" placeholder="Tìm kiếm tai nghe, loa..." th:value="${keyword}">
-                <button type="submit" class="search-btn"><i class="fas fa-search"></i> Tìm kiếm</button>
-            </form>
-
-            <div class="results-info">
-                <span>Hiển thị <span th:text="${productPage.totalElements}">0</span> kết quả.</span>
-                <span th:if="${keyword != null and !keyword.isEmpty()}" th:text="' Kết quả tìm kiếm cho: &quot;' + ${keyword} + '&quot;'"></span>
-=======
                 <input type="hidden" name="sort" th:value="${sort}" th:if="${sort != null}">
                 <input type="text" name="q" class="search-input" placeholder="Tìm kiếm tai nghe, loa..."
                     th:value="${keyword}">
@@ -407,7 +390,6 @@
                                 th:selected="${sort == 'price_desc'}">Giá: Cao đến Thấp</option>
                     </select>
                 </div>
->>>>>>> Stashed changes
             </div>
 
             <!-- Empty State -->
@@ -441,34 +423,12 @@
 
             <!-- Pagination Controls -->
             <div class="pagination" th:if="${productPage.totalPages > 1}">
-                <!-- Nút Prev -->
-<<<<<<< Updated upstream
-                <a th:href="@{/products(page=${productPage.currentPage - 1}, q=${keyword}, catId=${categoryId})}" 
-                   class="page-item" 
-                   th:classappend="${!productPage.hasPrevious} ? 'disabled' : ''">
-                   <i class="fas fa-chevron-left"></i>
-=======
                 <a th:href="@{/products(page=${productPage.currentPage - 1}, q=${keyword}, catId=${categoryId}, sort=${sort})}"
                     class="page-item" th:classappend="${!productPage.hasPrevious} ? 'disabled' : ''">
                     <i class="fas fa-chevron-left"></i>
->>>>>>> Stashed changes
                 </a>
-
                 <!-- Hiển thị dãy số trang -->
                 <th:block th:each="i : ${#numbers.sequence(1, productPage.totalPages)}">
-<<<<<<< Updated upstream
-                    <a th:href="@{/products(page=${i}, q=${keyword}, catId=${categoryId})}" 
-                       class="page-item" 
-                       th:classappend="${productPage.currentPage == i} ? 'active' : ''" 
-                       th:text="${i}">1</a>
-                </th:block>
-
-                <!-- Nút Next -->
-                <a th:href="@{/products(page=${productPage.currentPage + 1}, q=${keyword}, catId=${categoryId})}" 
-                   class="page-item" 
-                   th:classappend="${!productPage.hasNext} ? 'disabled' : ''">
-                   <i class="fas fa-chevron-right"></i>
-=======
                     <a th:href="@{/products(page=${i}, q=${keyword}, catId=${categoryId}, sort=${sort})}" class="page-item"
                         th:classappend="${productPage.currentPage == i} ? 'active' : ''" th:text="${i}">1</a>
                 </th:block>
@@ -477,7 +437,6 @@
                 <a th:href="@{/products(page=${productPage.currentPage + 1}, q=${keyword}, catId=${categoryId}, sort=${sort})}"
                     class="page-item" th:classappend="${!productPage.hasNext} ? 'disabled' : ''">
                     <i class="fas fa-chevron-right"></i>
->>>>>>> Stashed changes
                 </a>
             </div>
 

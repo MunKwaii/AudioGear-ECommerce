@@ -7,8 +7,64 @@ import vn.edu.ute.dao.ProductDao;
 import vn.edu.ute.entity.Product;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ProductDaoImpl implements ProductDao {
+
+    @Override
+    public Product save(Product product) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            DatabaseConfig.beginTransaction();
+            if (product.getId() == null) {
+                em.persist(product);
+            } else {
+                product = em.merge(product);
+            }
+            DatabaseConfig.commitTransaction();
+            return product;
+        } catch (Exception e) {
+            DatabaseConfig.rollbackTransaction();
+            throw new RuntimeException("Loi khi luu Product: " + e.getMessage(), e);
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            DatabaseConfig.beginTransaction();
+            Product product = em.find(Product.class, id);
+            if (product != null) {
+                em.remove(product);
+            }
+            DatabaseConfig.commitTransaction();
+        } catch (Exception e) {
+            DatabaseConfig.rollbackTransaction();
+            throw new RuntimeException("Loi khi xoa Product: " + e.getMessage(), e);
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public Optional<Product> findById(Long id) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            String jpql = "SELECT DISTINCT p FROM Product p " +
+                    "LEFT JOIN FETCH p.category " +
+                    "LEFT JOIN FETCH p.brand " +
+                    "LEFT JOIN FETCH p.images " +
+                    "WHERE p.id = :id";
+            TypedQuery<Product> query = em.createQuery(jpql, Product.class);
+            query.setParameter("id", id);
+            return query.getResultList().stream().findFirst();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
 
     // Áp dụng Singleton Pattern (Lazy Initialization)
     private static ProductDaoImpl instance;
@@ -56,8 +112,9 @@ public class ProductDaoImpl implements ProductDao {
     public List<Product> searchProducts(String keyword, Long categoryId, String sort, int offset, int limit) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
-            StringBuilder jpql = new StringBuilder("SELECT p FROM Product p JOIN FETCH p.category c LEFT JOIN FETCH p.brand WHERE p.status = true");
-            
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT p FROM Product p JOIN FETCH p.category c LEFT JOIN FETCH p.brand WHERE p.status = true");
+
             if (keyword != null && !keyword.trim().isEmpty()) {
                 jpql.append(" AND LOWER(p.name) LIKE LOWER(:keyword)");
             }
@@ -75,17 +132,17 @@ public class ProductDaoImpl implements ProductDao {
             }
 
             TypedQuery<Product> query = em.createQuery(jpql.toString(), Product.class);
-            
+
             if (keyword != null && !keyword.trim().isEmpty()) {
                 query.setParameter("keyword", "%" + keyword.trim() + "%");
             }
             if (categoryId != null) {
                 query.setParameter("categoryId", categoryId);
             }
-            
+
             query.setFirstResult(offset);
             query.setMaxResults(limit);
-            
+
             return query.getResultList();
         } finally {
             DatabaseConfig.closeEntityManager();
@@ -96,9 +153,10 @@ public class ProductDaoImpl implements ProductDao {
     public long countSearchProducts(String keyword, Long categoryId) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
-            // Dùng COUNT(p) để đếm và tối ưu join, KHÔNG dùng FETCH JOIN vì nó ko hợp lệ lệnh Count Query của Hibernate.
-            StringBuilder jpql = new StringBuilder("SELECT COUNT(p) FROM Product p JOIN p.category c WHERE p.status = true");
-            
+            // Dùng COUNT(p) để đếm và tối ưu join
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT COUNT(p) FROM Product p JOIN p.category c WHERE p.status = true");
+
             if (keyword != null && !keyword.trim().isEmpty()) {
                 jpql.append(" AND LOWER(p.name) LIKE LOWER(:keyword)");
             }
@@ -107,15 +165,106 @@ public class ProductDaoImpl implements ProductDao {
             }
 
             TypedQuery<Long> query = em.createQuery(jpql.toString(), Long.class);
-            
+
             if (keyword != null && !keyword.trim().isEmpty()) {
                 query.setParameter("keyword", "%" + keyword.trim() + "%");
             }
             if (categoryId != null) {
                 query.setParameter("categoryId", categoryId);
             }
-            
+
             return query.getSingleResult();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public List<Product> searchProductsForAdmin(String keyword, Long categoryId, Boolean status, int offset, int limit) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT p FROM Product p JOIN FETCH p.category c LEFT JOIN FETCH p.brand b WHERE 1=1");
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                jpql.append(" AND LOWER(p.name) LIKE LOWER(:keyword)");
+            }
+            if (categoryId != null) {
+                jpql.append(" AND c.id = :categoryId");
+            }
+            if (status != null) {
+                jpql.append(" AND p.status = :status");
+            }
+            jpql.append(" ORDER BY p.createdAt DESC");
+
+            TypedQuery<Product> query = em.createQuery(jpql.toString(), Product.class);
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                query.setParameter("keyword", "%" + keyword.trim() + "%");
+            }
+            if (categoryId != null) {
+                query.setParameter("categoryId", categoryId);
+            }
+            if (status != null) {
+                query.setParameter("status", status);
+            }
+
+            query.setFirstResult(offset);
+            query.setMaxResults(limit);
+
+            return query.getResultList();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public long countSearchProductsForAdmin(String keyword, Long categoryId, Boolean status) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT COUNT(p) FROM Product p JOIN p.category c WHERE 1=1");
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                jpql.append(" AND LOWER(p.name) LIKE LOWER(:keyword)");
+            }
+            if (categoryId != null) {
+                jpql.append(" AND c.id = :categoryId");
+            }
+            if (status != null) {
+                jpql.append(" AND p.status = :status");
+            }
+
+            TypedQuery<Long> query = em.createQuery(jpql.toString(), Long.class);
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                query.setParameter("keyword", "%" + keyword.trim() + "%");
+            }
+            if (categoryId != null) {
+                query.setParameter("categoryId", categoryId);
+            }
+            if (status != null) {
+                query.setParameter("status", status);
+            }
+
+            return query.getSingleResult();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public List<Product> findRelatedProducts(Long categoryId, Long excludeProductId, int limit) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            String jpql = "SELECT p FROM Product p JOIN FETCH p.category JOIN FETCH p.brand " +
+                    "WHERE p.category.id = :categoryId AND p.id != :excludeProductId " +
+                    "AND p.status = true ORDER BY p.createdAt DESC";
+            TypedQuery<Product> query = em.createQuery(jpql, Product.class);
+            query.setParameter("categoryId", categoryId);
+            query.setParameter("excludeProductId", excludeProductId);
+            query.setMaxResults(limit);
+            return query.getResultList();
         } finally {
             DatabaseConfig.closeEntityManager();
         }

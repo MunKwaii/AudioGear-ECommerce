@@ -1,10 +1,25 @@
 package vn.edu.ute.dao;
 
 import vn.edu.ute.entity.Product;
+
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductDao {
+    Product save(Product product);
+    Optional<Product> findById(Long id);
+    void deleteById(Long id);
+
     /**
+     * Lấy danh sách sản phẩm liên quan (cùng danh mục, loại trừ sản phẩm hiện tại)
+     * @param categoryId ID danh mục
+     * @param excludeProductId ID sản phẩm loại trừ
+     * @param limit số lượng tối đa
+     * @return List<Product>
+     */
+    List<Product> findRelatedProducts(Long categoryId, Long excludeProductId, int limit);
+    
+     /**
      * Lấy danh sách sản phẩm nổi bật (Ví dụ: sắp xếp theo id hoặc random)
      * @param limit số lượng tối đa
      * @return List<Product>
@@ -26,4 +41,7 @@ public interface ProductDao {
      * Lấy tổng số lượng sản phẩm từ query search đề dùng cho thuật toán đếm trang `(total / limit)`.
      */
     long countSearchProducts(String keyword, Long categoryId);
+
+    List<Product> searchProductsForAdmin(String keyword, Long categoryId, Boolean status, int offset, int limit);
+    long countSearchProductsForAdmin(String keyword, Long categoryId, Boolean status);
 }
