@@ -32,6 +32,21 @@
             gap: 10px;
             align-items: center;
         }
+        .toolbar .search-input {
+            min-width: 260px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .toolbar .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,242,254,.15);
+        }
 
         .card {
             background: var(--surface);
@@ -80,6 +95,14 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+        .tree-name-link {
+            color: var(--text);
+            text-decoration: none;
+        }
+        .tree-name-link:hover {
+            color: var(--accent);
+            text-decoration: underline;
         }
         .tree-meta {
             display: flex;
@@ -278,11 +301,15 @@
     <div class="page-header">
         <div class="page-title">📁 Quản lý Danh mục</div>
         <div class="toolbar">
-            <button class="btn btn-primary" id="btn-add-root" onclick="openAddModal(null)">＋ Thêm danh mục</button>
+            <input class="search-input" id="categorySearch" type="text" placeholder="Tìm danh mục...">
+            <button class="btn btn-primary" id="btn-add-root" type="button">＋ Thêm danh mục</button>
         </div>
     </div>
 
     <div class="card">
+        <div id="debugStatus" style="font-size:0.7rem; color:var(--text-muted); margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:5px; display:none;">
+            JS: <span id="jsStatus">Initializing...</span> | API: <span id="apiStatus">Pending</span>
+        </div>
         <div id="loadingState" class="loading-state">⏳ Đang tải danh sách danh mục...</div>
         <div class="tree-container" id="treeContainer" style="display:none;"></div>
         <div class="empty-state" id="emptyState" style="display:none;">
@@ -290,60 +317,74 @@
             <p>Chưa có danh mục nào. Nhấn "Thêm danh mục" để bắt đầu.</p>
         </div>
     </div>
+    <!-- Modal Add/Edit -->
+    <div class="modal-overlay" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">Thêm danh mục</div>
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label for="catName">Tên danh mục *</label>
+                <input type="text" id="catName" placeholder="Nhập tên danh mục..." maxlength="100">
+            </div>
+            <div class="form-group">
+                <label for="catDesc">Mô tả</label>
+                <textarea id="catDesc" placeholder="Mô tả danh mục..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="catParent">Danh mục cha</label>
+                <select id="catParent">
+                    <option value="">-- Không có (danh mục gốc) --</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="btn-cancel-modal" type="button">Hủy</button>
+                <button class="btn btn-primary" id="btnSave" type="button">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirm Delete -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-title" style="color:var(--red);">⚠️ Xác nhận xóa</div>
+            <p id="deleteMessage" style="color:var(--text-muted); margin-bottom:8px; line-height:1.6;"></p>
+            <input type="hidden" id="deleteId">
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="btn-cancel-delete" type="button">Hủy</button>
+                <button class="btn btn-delete" id="btnConfirmDelete" type="button">Xóa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
 </main>
-
-<!-- Modal Add/Edit -->
-<div class="modal-overlay" id="categoryModal">
-    <div class="modal-content">
-        <div class="modal-title" id="modalTitle">Thêm danh mục</div>
-        <input type="hidden" id="editId">
-        <div class="form-group">
-            <label for="catName">Tên danh mục *</label>
-            <input type="text" id="catName" placeholder="Nhập tên danh mục..." maxlength="100">
-        </div>
-        <div class="form-group">
-            <label for="catDesc">Mô tả</label>
-            <textarea id="catDesc" placeholder="Mô tả danh mục..."></textarea>
-        </div>
-        <div class="form-group">
-            <label for="catParent">Danh mục cha</label>
-            <select id="catParent">
-                <option value="">-- Không có (danh mục gốc) --</option>
-            </select>
-        </div>
-        <div class="modal-actions">
-            <button class="btn btn-cancel" onclick="closeModal()">Hủy</button>
-            <button class="btn btn-primary" id="btnSave" onclick="saveCategory()">Lưu</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Confirm Delete -->
-<div class="modal-overlay" id="deleteModal">
-    <div class="modal-content">
-        <div class="modal-title" style="color:var(--red);">⚠️ Xác nhận xóa</div>
-        <p id="deleteMessage" style="color:var(--text-muted); margin-bottom:8px; line-height:1.6;"></p>
-        <input type="hidden" id="deleteId">
-        <div class="modal-actions">
-            <button class="btn btn-cancel" onclick="closeDeleteModal()">Hủy</button>
-            <button class="btn btn-delete" id="btnConfirmDelete" onclick="confirmDelete()">Xóa</button>
-        </div>
-    </div>
-</div>
-
-<!-- Toast container -->
-<div class="toast-container" id="toastContainer"></div>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    const contextPath = /*[[@{/}]]*/ '/';
-    const API_BASE = contextPath.endsWith('/') ? contextPath.slice(0,-1) : contextPath;
+    console.log("Category script initializing...");
+    function updateStatus(id, text, color) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = text;
+            if (color) el.style.color = color;
+            const parent = document.getElementById('debugStatus');
+            if (parent) parent.style.display = 'block';
+        }
+    }
+    updateStatus('jsStatus', 'Script Loaded', '#22c55e');
+
+    const API_BASE = window.location.origin + (/*[[@{/}]]*/ '/').replace(/\/$/, "");
     const API_URL = API_BASE + '/api/admin/categories';
+    const ADMIN_PRODUCTS_URL = API_BASE + '/admin/products';
+    console.log("API_URL:", API_URL);
 
     // Dữ liệu khởi tạo từ server-side rendering (không dùng Thymeleaf inline JS để tránh lỗi Jackson với LocalDateTime)
     // Thay vào đó, tải qua API để đảm bảo an toàn
     let treeData = [];
     let flatCategories = [];
+    let currentQuery = '';
+    let searchTimer = null;
 
     // --- Auth Token ---
     function getAuthToken() {
@@ -416,10 +457,14 @@
             return `
                 <div class="tree-node">
                     <div class="tree-row" style="padding-left:${indent + 16}px">
-                        <div class="tree-toggle ${hasChildren ? 'expanded' : 'empty'}"
-                             data-target="children-${node.id}" title="Mở/Thu">▶</div>
+                        <button class="tree-toggle ${hasChildren ? 'expanded' : 'empty'}" type="button"
+                                data-action="toggle" data-target="children-${node.id}" title="Mở/Thu">▶</button>
                         <div class="tree-info">
-                            <div class="tree-name">${esc(node.name)}</div>
+                            <div class="tree-name">
+                                <a class="tree-name-link" href="${ADMIN_PRODUCTS_URL}?categoryId=${node.id}" title="Xem sản phẩm theo danh mục">
+                                    ${esc(node.name)}
+                                </a>
+                            </div>
                             <div class="tree-meta">
                                 ${desc}
                                 ${parent}
@@ -430,9 +475,9 @@
                         <span class="tree-badge tree-badge-products">${node.productCount} SP</span>
                         <span class="tree-badge tree-badge-level">Lv ${node.level}</span>
                         <div class="tree-actions">
-                            <button class="btn btn-sm btn-add-child" onclick="openAddModal(${node.id})" title="Thêm danh mục con">＋</button>
-                            <button class="btn btn-sm btn-edit" onclick="openEditModal(${node.id})" title="Sửa">✎</button>
-                            <button class="btn btn-sm btn-delete" onclick="openDeleteModal(${node.id}, ${node.productCount})" title="Xóa">✕</button>
+                            <button class="btn btn-sm btn-add-child" type="button" data-action="add" data-id="${node.id}" title="Thêm danh mục con">＋</button>
+                            <button class="btn btn-sm btn-edit" type="button" data-action="edit" data-id="${node.id}" title="Sửa">✎</button>
+                            <button class="btn btn-sm btn-delete" type="button" data-action="delete" data-id="${node.id}" data-count="${node.productCount}" title="Xóa">✕</button>
                         </div>
                     </div>
                     ${childHtml}
@@ -442,15 +487,42 @@
     }
 
     function bindToggleEvents() {
-        document.querySelectorAll('.tree-toggle:not(.empty)').forEach(el => {
-            el.addEventListener('click', function () {
-                const targetId = this.getAttribute('data-target');
-                const child = document.getElementById(targetId);
+        const container = document.getElementById('treeContainer');
+        if (!container || container.dataset.bound === 'true') return;
+        container.dataset.bound = 'true';
+        container.addEventListener('click', function (event) {
+            console.log("Tree container clicked", event.target);
+            const btn = event.target.closest('[data-action]');
+            if (!btn) {
+                console.log("No [data-action] button found from click");
+                return;
+            }
+            const action = btn.getAttribute('data-action');
+            console.log("Action triggered:", action);
+            if (action === 'toggle') {
+                const targetId = btn.getAttribute('data-target');
+                const child = targetId ? document.getElementById(targetId) : null;
                 if (child) {
                     child.classList.toggle('collapsed');
-                    this.classList.toggle('expanded');
+                    btn.classList.toggle('expanded');
                 }
-            });
+                return;
+            }
+            if (action === 'add') {
+                const id = parseInt(btn.getAttribute('data-id') || '', 10);
+                if (!isNaN(id)) openAddModal(id);
+                return;
+            }
+            if (action === 'edit') {
+                const id = parseInt(btn.getAttribute('data-id') || '', 10);
+                if (!isNaN(id)) openEditModal(id);
+                return;
+            }
+            if (action === 'delete') {
+                const id = parseInt(btn.getAttribute('data-id') || '', 10);
+                const count = parseInt(btn.getAttribute('data-count') || '0', 10);
+                if (!isNaN(id)) openDeleteModal(id, count);
+            }
         });
     }
 
@@ -470,63 +542,121 @@
         });
     }
 
-    function findInFlat(id) {
-        return flatCategories.find(c => c.id === id) || null;
+    function filterTree(nodes, query) {
+        if (!nodes) return [];
+        return nodes.map(node => {
+            const children = filterTree(node.children || [], query);
+            const nameMatch = (node.name || '').toLowerCase().includes(query);
+            const descMatch = (node.description || '').toLowerCase().includes(query);
+            if (nameMatch || descMatch || children.length > 0) {
+                return Object.assign({}, node, { children: children });
+            }
+            return null;
+        }).filter(Boolean);
     }
 
-    function findInTree(nodes, id) {
-        if (!nodes) return null;
-        for (const n of nodes) {
-            if (n.id === id) return n;
-            const found = findInTree(n.children, id);
-            if (found) return found;
+    function expandAllNodes() {
+        document.querySelectorAll('.tree-children').forEach(el => el.classList.remove('collapsed'));
+        document.querySelectorAll('.tree-toggle:not(.empty)').forEach(el => el.classList.add('expanded'));
+    }
+
+    function applyFilter() {
+        if (!currentQuery) {
+            renderTree(treeData);
+            return;
         }
-        return null;
+        const filtered = filterTree(treeData, currentQuery);
+        renderTree(filtered);
+        expandAllNodes();
+    }
+
+    async function parseJsonSafe(resp) {
+        const text = await resp.text();
+        if (!text) return { success: false, message: 'Phản hồi trống từ server' };
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            return { success: false, message: 'Phản hồi không hợp lệ từ server' };
+        }
     }
 
     // --- Load data ---
     async function loadTree() {
         try {
-            const resp = await fetch(API_URL, { headers: buildHeaders() });
+            const resp = await fetch(API_URL, { headers: buildHeaders(), credentials: 'same-origin' });
             if (resp.status === 401) { showToast('Phiên đăng nhập hết hạn, vui lòng đăng nhập lại', 'error'); return; }
             if (resp.status === 403) { showToast('Bạn không có quyền Admin', 'error'); return; }
-            const result = await resp.json();
+            const result = await parseJsonSafe(resp);
             if (result.success) {
+                updateStatus('apiStatus', 'Success (' + (result.data ? result.data.length : 0) + ')', '#22c55e');
                 treeData = result.data || [];
                 flatCategories = [];
                 flattenTree(treeData, flatCategories);
-                renderTree(treeData);
+                applyFilter();
             } else {
+                updateStatus('apiStatus', 'API Error', '#ef4444');
                 showToast(result.message || 'Tải dữ liệu thất bại', 'error');
                 document.getElementById('loadingState').textContent = '❌ Không thể tải danh mục';
             }
         } catch (e) {
             console.error('Lỗi tải dữ liệu:', e);
+            updateStatus('apiStatus', 'Network Error', '#ef4444');
             document.getElementById('loadingState').textContent = '❌ Lỗi kết nối: ' + e.message;
         }
     }
 
+    function findInTree(nodes, id) {
+        if (!nodes) return null;
+        for (const node of nodes) {
+            if (node.id === id) return node;
+            if (node.children) {
+                const found = findInTree(node.children, id);
+                if (found) return found;
+            }
+        }
+        return null;
+    }
+
     // --- Modal Add/Edit ---
     function openAddModal(parentId) {
+        console.log("openAddModal called with parentId:", parentId);
         document.getElementById('editId').value = '';
         document.getElementById('catName').value = '';
         document.getElementById('catDesc').value = '';
         document.getElementById('modalTitle').textContent = parentId ? 'Thêm danh mục con' : 'Thêm danh mục gốc';
         populateParentSelect(parentId, null);
-        document.getElementById('categoryModal').classList.add('show');
-        setTimeout(() => document.getElementById('catName').focus(), 100);
+        const modal = document.getElementById('categoryModal');
+        if (modal) {
+            modal.classList.add('show');
+            console.log("Modal 'categoryModal' displayed");
+        } else {
+            console.error("CRITICAL: modal 'categoryModal' NOT FOUND");
+        }
+        setTimeout(() => {
+            const input = document.getElementById('catName');
+            if (input) input.focus();
+        }, 100);
     }
 
     function openEditModal(id) {
+        console.log("openEditModal called for id:", id);
         const cat = findInTree(treeData, id);
-        if (!cat) { showToast('Không tìm thấy danh mục', 'error'); return; }
+        if (!cat) { 
+            console.warn("Could not find category in treeData for id:", id);
+            showToast('Không tìm thấy danh mục', 'error'); 
+            return; 
+        }
         document.getElementById('editId').value = id;
         document.getElementById('catName').value = cat.name || '';
         document.getElementById('catDesc').value = cat.description || '';
         document.getElementById('modalTitle').textContent = 'Sửa danh mục: ' + cat.name;
         populateParentSelect(cat.parentId, id);
-        document.getElementById('categoryModal').classList.add('show');
-        setTimeout(() => document.getElementById('catName').focus(), 100);
+        const modal = document.getElementById('categoryModal');
+        if (modal) modal.classList.add('show');
+        setTimeout(() => {
+            const input = document.getElementById('catName');
+            if (input) input.focus();
+        }, 100);
     }
 
     function closeModal() {
@@ -579,9 +709,10 @@
             const resp = await fetch(url, {
                 method: method,
                 headers: buildHeaders(),
+                credentials: 'same-origin',
                 body: JSON.stringify(body)
             });
-            const result = await resp.json();
+            const result = await parseJsonSafe(resp);
 
             if (result.success) {
                 showToast(result.message || 'Lưu thành công!', 'success');
@@ -630,9 +761,10 @@
         try {
             const resp = await fetch(`${API_URL}/${id}`, {
                 method: 'DELETE',
-                headers: buildHeaders()
+                headers: buildHeaders(),
+                credentials: 'same-origin'
             });
-            const result = await resp.json();
+            const result = await parseJsonSafe(resp);
 
             if (result.success) {
                 showToast(result.message || 'Đã xóa thành công!', 'success');
@@ -664,9 +796,61 @@
     });
 
     // Khởi tạo: tải dữ liệu qua API thay vì inline Thymeleaf để tránh vấn đề serialize
-    document.addEventListener('DOMContentLoaded', function() {
-        loadTree();
-    });
+    async function initializePage() {
+        console.log("initializePage firing...");
+        updateStatus('jsStatus', 'DOM Loaded', '#22c55e');
+        
+        const searchInput = document.getElementById('categorySearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                if (searchTimer) {
+                    clearTimeout(searchTimer);
+                }
+                const value = this.value;
+                searchTimer = setTimeout(() => {
+                    currentQuery = value.trim().toLowerCase();
+                    applyFilter();
+                }, 200);
+            });
+        }
+
+        const addRootBtn = document.getElementById('btn-add-root');
+        if (addRootBtn) {
+            console.log("Binding 'Add Root' button listener");
+            addRootBtn.addEventListener('click', function () {
+                console.log("'Add Root' button clicked");
+                openAddModal(null);
+            });
+        } else {
+            console.error("CRITICAL: button 'btn-add-root' NOT FOUND");
+        }
+        
+        const cancelModalBtn = document.getElementById('btn-cancel-modal');
+        if (cancelModalBtn) {
+            cancelModalBtn.addEventListener('click', closeModal);
+        }
+        const saveBtn = document.getElementById('btnSave');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', saveCategory);
+        }
+        const cancelDeleteBtn = document.getElementById('btn-cancel-delete');
+        if (cancelDeleteBtn) {
+            cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+        }
+        const confirmDeleteBtn = document.getElementById('btnConfirmDelete');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', confirmDelete);
+        }
+
+        updateStatus('apiStatus', 'Loading...', '#eab308');
+        await loadTree();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+        initializePage();
+    }
     /*]]>*/
 </script>
 </body>

@@ -66,7 +66,8 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category saved = categoryDao.save(category);
-        return toDTO(saved, 0L);
+        Category reloaded = categoryDao.findById(saved.getId()).orElse(saved);
+        return toDTO(reloaded, categoryDao.countProductsByCategory(saved.getId()));
     }
 
     @Override
@@ -102,7 +103,8 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category updated = categoryDao.update(category);
-        return toDTO(updated, categoryDao.countProductsByCategory(id));
+        Category reloaded = categoryDao.findById(updated.getId()).orElse(updated);
+        return toDTO(reloaded, categoryDao.countProductsByCategory(updated.getId()));
     }
 
     private boolean isAncestor(Long potentialAncestorId, Long descendantId, Map<Long, CategoryDTO> dtoMap) {

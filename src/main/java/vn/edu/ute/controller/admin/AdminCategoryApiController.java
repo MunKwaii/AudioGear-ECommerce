@@ -69,8 +69,8 @@ public class AdminCategoryApiController extends HttpServlet {
 
         try {
             JsonObject body = parseRequestBody(req);
-            String name = body.get("name").getAsString();
-            String description = body.has("description") ? body.get("description").getAsString() : null;
+            String name = getRequiredString(body, "name");
+            String description = getOptionalString(body, "description");
             Long parentId = body.has("parentId") && !body.get("parentId").isJsonNull()
                     ? body.get("parentId").getAsLong() : null;
 
@@ -110,8 +110,8 @@ public class AdminCategoryApiController extends HttpServlet {
 
         try {
             JsonObject body = parseRequestBody(req);
-            String name = body.get("name").getAsString();
-            String description = body.has("description") ? body.get("description").getAsString() : null;
+            String name = getRequiredString(body, "name");
+            String description = getOptionalString(body, "description");
             Long parentId = body.has("parentId") && !body.get("parentId").isJsonNull()
                     ? body.get("parentId").getAsLong() : null;
 
@@ -184,7 +184,30 @@ public class AdminCategoryApiController extends HttpServlet {
                 sb.append(line);
             }
         }
-        return JsonParser.parseString(sb.toString()).getAsJsonObject();
+        String raw = sb.toString().trim();
+        if (raw.isEmpty()) {
+            throw new IllegalArgumentException("Dữ liệu không hợp lệ");
+        }
+        return JsonParser.parseString(raw).getAsJsonObject();
+    }
+
+    private String getRequiredString(JsonObject body, String fieldName) {
+        if (!body.has(fieldName) || body.get(fieldName).isJsonNull()) {
+            throw new IllegalArgumentException("Thiếu trường bắt buộc: " + fieldName);
+        }
+        String value = body.get(fieldName).getAsString().trim();
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException("Tên danh mục không được để trống");
+        }
+        return value;
+    }
+
+    private String getOptionalString(JsonObject body, String fieldName) {
+        if (!body.has(fieldName) || body.get(fieldName).isJsonNull()) {
+            return null;
+        }
+        String value = body.get(fieldName).getAsString().trim();
+        return value.isEmpty() ? null : value;
     }
 
     private void sendError(HttpServletResponse resp, String message, int status) throws IOException {
