@@ -27,8 +27,10 @@ public class AdminProductImageUploadController extends HttpServlet {
         resp.setContentType("application/json;charset=UTF-8");
 
         List<String> stored = new ArrayList<>();
-        String rootPath = System.getProperty("user.dir")
-                + "/src/main/webapp/static/images/products";
+        String rootPath = getServletContext().getRealPath("/static/images/products");
+        if (rootPath == null || rootPath.trim().isEmpty()) {
+            rootPath = System.getProperty("user.dir") + File.separator + "src/main/webapp/static/images/products";
+        }
 
         File root = new File(rootPath);
         if (!root.exists() && !root.mkdirs()) {

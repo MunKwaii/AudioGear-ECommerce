@@ -33,7 +33,7 @@ public class AdminProductImageLibraryController extends HttpServlet {
                             .filter(File::isFile)
                             .map(File::getName)
                             .filter(this::isImageFile)
-                            .forEach(name -> images.add("/images/products/" + name));
+                            .forEach(name -> images.add("/static/images/products/" + name));
                 }
             }
         }
