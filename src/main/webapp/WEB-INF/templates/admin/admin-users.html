@@ -189,7 +189,7 @@
         <div class="filters">
             <div>
                 <label for="keyword">Tìm kiếm</label>
-                <input id="keyword" type="text" placeholder="Tên, email, username">
+                <input id="keyword" type="text" placeholder="Tên, email, username" autocomplete="off">
             </div>
             <div>
                 <label for="role">Vai trò</label>
@@ -579,6 +579,7 @@
 
         const keywordInput = document.getElementById('keyword');
         if (keywordInput) {
+            keywordInput.value = ''; // Đảm bảo xóa trắng khi load
             keywordInput.addEventListener('input', debounce(loadUsers, 400));
         }
         const roleSelect = document.getElementById('role');
