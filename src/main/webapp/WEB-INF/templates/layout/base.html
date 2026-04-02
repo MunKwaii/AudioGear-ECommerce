@@ -98,6 +98,8 @@
             background: linear-gradient(180deg, #050505, #111111);
             border-right: 1px solid var(--border);
             padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
         }
 
         .admin-brand {
@@ -120,6 +122,7 @@
         }
 
         .nav-group { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+        .nav-group.logout { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border); }
 
         .nav-link {
             display: flex;
@@ -211,6 +214,10 @@
             <a class="nav-link" th:href="@{/admin/dashboard}" th:classappend="${activePage}=='dashboard' ? ' active' : ''">📊 Dashboard</a>
             <a class="nav-link" th:href="@{/admin/orders}" th:classappend="${activePage}=='orders' ? ' active' : ''">📦 Đơn hàng</a>
             <a class="nav-link" th:href="@{/admin/products}" th:classappend="${activePage}=='products' ? ' active' : ''">🧾 Sản phẩm</a>
+        </nav>
+
+        <nav class="nav-group logout">
+            <a class="nav-link" th:href="@{/api/auth/logout}">🚪 Đăng xuất</a>
         </nav>
     </aside>
 
