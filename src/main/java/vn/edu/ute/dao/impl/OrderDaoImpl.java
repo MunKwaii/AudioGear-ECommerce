@@ -58,6 +58,26 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
+    public List<Order> findAllWithItems() {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT o FROM Order o " +
+                    "LEFT JOIN FETCH o.items i " +
+                    "LEFT JOIN FETCH i.product " +
+                    "LEFT JOIN FETCH i.product.brand " +
+                    "LEFT JOIN FETCH i.product.category " +
+                    "ORDER BY o.createdAt DESC", Order.class)
+                    .getResultList();
+        } catch (Exception e) {
+            return em.createQuery("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items ORDER BY o.createdAt DESC", Order.class)
+                    .getResultList();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
     public List<Order> findByUserId(Long userId) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
