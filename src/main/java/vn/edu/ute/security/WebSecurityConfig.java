@@ -24,6 +24,7 @@ public class WebSecurityConfig {
             "/register",
             "/forgot-password",
             "/product/",
+            "/products",
             
             // Public APIs (Duyệt & Tìm kiếm)
             "/api/products", // Xem danh sách, chi tiết, đánh giá, lọc

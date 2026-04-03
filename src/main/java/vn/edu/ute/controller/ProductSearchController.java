@@ -62,7 +62,7 @@ public class ProductSearchController extends HttpServlet {
         context.setVariable("categoryId", categoryId);
         context.setVariable("sort", sort);
         // Fetch categories directly to populate the sidebar filter UI
-        context.setVariable("categories", DaoFactory.getCategoryDao().getAllCategories());
+        context.setVariable("categories", ServiceFactory.getCategoryService().getAllCategoriesAsTree());
 
         templateEngine.process("products", context, response.getWriter());
     }

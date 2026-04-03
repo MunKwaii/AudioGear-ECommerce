@@ -13,8 +13,18 @@ import java.util.stream.Collectors;
 
 public class CategoryServiceImpl implements CategoryService {
 
+    private static CategoryServiceImpl instance;
     private final CategoryDao categoryDao = CategoryDaoImpl.getInstance();
     private CategorySortStrategy sortStrategy = new SortByNameStrategy();
+
+    public CategoryServiceImpl() {}
+
+    public static synchronized CategoryServiceImpl getInstance() {
+        if (instance == null) {
+            instance = new CategoryServiceImpl();
+        }
+        return instance;
+    }
 
     public void setSortStrategy(CategorySortStrategy strategy) {
         this.sortStrategy = strategy;
