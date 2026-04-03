@@ -29,7 +29,7 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
     private final ProductDao productDao = ProductDaoImpl.getInstance();
     private final CategoryDao categoryDao = CategoryDaoImpl.getInstance();
-    private final BrandDao brandDao = new BrandDaoImpl();
+    private final BrandDao brandDao = BrandDaoImpl.getInstance();
 
     @Override
     public Product createProduct(CreateProductRequest request) {

@@ -8,4 +8,9 @@ import java.util.Optional;
 public interface BrandDao {
     Optional<Brand> findById(Long id);
     List<Brand> findAll();
+    Brand save(Brand brand);
+    Brand update(Brand brand);
+    void delete(Long id);
+    Optional<Brand> findByName(String name);
+    long countProductsByBrandId(Long brandId);
 }

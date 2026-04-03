@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: adminLayout(${title}, ${activePage}, ~{::main}, ~{::style}, ~{::script})}">
+<head>
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: rgba(25, 25, 25, 0.8);
+            --surface2: rgba(40, 40, 40, 0.9);
+            --border: rgba(255,255,255,.08);
+            --accent: #00f2fe;
+            --accent-hover: #4facfe;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,.6);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .page-title { font-size: 1.25rem; font-weight: 800; }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .toolbar .search-input {
+            min-width: 260px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .toolbar .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,242,254,.15);
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .brand-table thead th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+        .brand-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s ease;
+        }
+        .brand-table tbody tr:last-child { border-bottom: none; }
+        .brand-table tbody tr:hover { background: rgba(255,255,255,.04); }
+        .brand-table td {
+            padding: 14px 16px;
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+        }
+        .brand-logo-placeholder {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        .brand-name { font-weight: 600; }
+        .brand-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            max-width: 280px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .badge {
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .badge-products {
+            background: rgba(79,172,254,.15);
+            color: #4facfe;
+            border: 1px solid rgba(79,172,254,.3);
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            transition: all 0.15s ease;
+        }
+        .btn-primary { background: var(--accent); color: #000; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.78rem;
+            border-radius: 8px;
+        }
+        .btn-edit {
+            background: rgba(245,158,11,.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245,158,11,.3);
+        }
+        .btn-edit:hover { background: rgba(245,158,11,.3); }
+        .btn-delete {
+            background: rgba(239,68,68,.15);
+            color: var(--red);
+            border: 1px solid rgba(239,68,68,.3);
+        }
+        .btn-delete:hover { background: rgba(239,68,68,.3); }
+
+        .table-actions { display: flex; gap: 6px; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.65);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal-content {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            width: 460px;
+            max-width: 92vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,.8);
+            animation: modalIn 0.25s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.92rem;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,242,254,.15);
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-cancel {
+            background: rgba(255,255,255,.08);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-cancel:hover { background: rgba(255,255,255,.15); }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            animation: toastIn 0.3s ease;
+            min-width: 260px;
+        }
+        .toast-success { background: rgba(34,197,94,.9); color: #fff; }
+        .toast-error { background: rgba(239,68,68,.9); color: #fff; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 12px; }
+
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div class="page-header">
+        <div class="page-title">🏷️ Quản lý Thương hiệu</div>
+        <div class="toolbar">
+            <input class="search-input" id="brandSearch" type="text" placeholder="Tìm thương hiệu...">
+            <button class="btn btn-primary" id="btn-add" type="button">＋ Thêm thương hiệu</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div id="loadingState" class="loading-state">⏳ Đang tải danh sách thương hiệu...</div>
+        <div id="tableContainer" style="display:none;">
+            <table class="brand-table">
+                <thead>
+                    <tr>
+                        <th style="width:60px;">ID</th>
+                        <th style="width:60px;">Logo</th>
+                        <th>Tên thương hiệu</th>
+                        <th>Mô tả</th>
+                        <th style="width:90px;">Sản phẩm</th>
+                        <th style="width:150px;">Ngày tạo</th>
+                        <th style="width:150px;">Cập nhật</th>
+                        <th style="width:120px;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="brandTableBody"></tbody>
+            </table>
+        </div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <div class="empty-state-icon">🏷️</div>
+            <p>Chưa có thương hiệu nào. Nhấn "Thêm thương hiệu" để bắt đầu.</p>
+        </div>
+    </div>
+
+    <!-- Modal Add/Edit -->
+    <div class="modal-overlay" id="brandModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">Thêm thương hiệu</div>
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label for="brandName">Tên thương hiệu *</label>
+                <input type="text" id="brandName" placeholder="Nhập tên thương hiệu..." maxlength="100">
+            </div>
+            <div class="form-group">
+                <label for="brandDesc">Mô tả</label>
+                <textarea id="brandDesc" placeholder="Mô tả thương hiệu..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="brandLogo">URL Logo</label>
+                <input type="text" id="brandLogo" placeholder="https://example.com/logo.png">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="btn-cancel-modal" type="button">Hủy</button>
+                <button class="btn btn-primary" id="btnSave" type="button">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirm Delete -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-title" style="color:var(--red);">⚠️ Xác nhận xóa</div>
+            <p id="deleteMessage" style="color:var(--text-muted); margin-bottom:8px; line-height:1.6;"></p>
+            <input type="hidden" id="deleteId">
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="btn-cancel-delete" type="button">Hủy</button>
+                <button class="btn btn-delete" id="btnConfirmDelete" type="button">Xóa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+</main>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    console.log("Brand script initializing...");
+
+    const API_BASE = window.location.origin + (/*[[@{/}]]*/ '/').replace(/\/$/, "");
+    const API_URL = API_BASE + '/api/admin/brands';
+
+    let brandsData = [];
+    let currentQuery = '';
+    let searchTimer = null;
+
+    function getAuthToken() {
+        const cookies = document.cookie.split(';');
+        for (const c of cookies) {
+            const trimmed = c.trim();
+            if (trimmed.startsWith('accessToken=')) {
+                return trimmed.substring('accessToken='.length);
+            }
+        }
+        return localStorage.getItem('accessToken') || '';
+    }
+
+    function buildHeaders() {
+        const token = getAuthToken();
+        const h = { 'Content-Type': 'application/json' };
+        if (token) h['Authorization'] = 'Bearer ' + token;
+        return h;
+    }
+
+    function showToast(message, type) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
+
+    async function parseJsonSafe(resp) {
+        const text = await resp.text();
+        if (!text) return { success: false, message: 'Phản hồi trống từ server' };
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            return { success: false, message: 'Phản hồi không hợp lệ từ server' };
+        }
+    }
+
+    function esc(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('brandTableBody');
+        const loading = document.getElementById('loadingState');
+        const tableContainer = document.getElementById('tableContainer');
+        const empty = document.getElementById('emptyState');
+
+        loading.style.display = 'none';
+
+        if (!data || data.length === 0) {
+            tableContainer.style.display = 'none';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+        tableContainer.style.display = 'block';
+
+        tbody.innerHTML = data.map(brand => {
+            const logoHtml = brand.logoUrl
+                ? `<img class="brand-logo" src="${esc(brand.logoUrl)}" alt="${esc(brand.name)}" onerror="this.outerHTML='<div class=\\'brand-logo-placeholder\\'>🏷️</div>'">`
+                : `<div class="brand-logo-placeholder">🏷️</div>`;
+
+            const descHtml = brand.description
+                ? `<div class="brand-desc" title="${esc(brand.description)}">${esc(brand.description)}</div>`
+                : `<span style="color:var(--text-muted); font-size:0.82rem;">—</span>`;
+
+            return `
+                <tr>
+                    <td style="color:var(--text-muted); font-size:0.82rem;">#${brand.id}</td>
+                    <td>${logoHtml}</td>
+                    <td><span class="brand-name">${esc(brand.name)}</span></td>
+                    <td>${descHtml}</td>
+                    <td><span class="badge badge-products">${brand.productCount} SP</span></td>
+                    <td style="color:var(--text-muted); font-size:0.82rem;">${brand.createdAt || '—'}</td>
+                    <td style="color:var(--text-muted); font-size:0.82rem;">${brand.updatedAt || '—'}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn btn-sm btn-edit" data-action="edit" data-id="${brand.id}" title="Sửa">✎</button>
+                            <button class="btn btn-sm btn-delete" data-action="delete" data-id="${brand.id}" data-count="${brand.productCount}" title="Xóa">✕</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function filterBrands(query) {
+        if (!query) return brandsData;
+        return brandsData.filter(b =>
+            (b.name || '').toLowerCase().includes(query) ||
+            (b.description || '').toLowerCase().includes(query)
+        );
+    }
+
+    async function loadBrands() {
+        try {
+            const resp = await fetch(API_URL, { headers: buildHeaders(), credentials: 'same-origin' });
+            if (resp.status === 401) { showToast('Phiên đăng nhập hết hạn, vui lòng đăng nhập lại', 'error'); return; }
+            if (resp.status === 403) { showToast('Bạn không có quyền Admin', 'error'); return; }
+            const result = await parseJsonSafe(resp);
+            if (result.success) {
+                brandsData = result.data || [];
+                applyFilter();
+            } else {
+                showToast(result.message || 'Tải dữ liệu thất bại', 'error');
+                document.getElementById('loadingState').textContent = '❌ Không thể tải thương hiệu';
+            }
+        } catch (e) {
+            console.error('Lỗi tải dữ liệu:', e);
+            document.getElementById('loadingState').textContent = '❌ Lỗi kết nối: ' + e.message;
+        }
+    }
+
+    function applyFilter() {
+        const filtered = filterBrands(currentQuery);
+        renderTable(filtered);
+    }
+
+    function findBrand(id) {
+        return brandsData.find(b => b.id === id) || null;
+    }
+
+    function openAddModal() {
+        document.getElementById('editId').value = '';
+        document.getElementById('brandName').value = '';
+        document.getElementById('brandDesc').value = '';
+        document.getElementById('brandLogo').value = '';
+        document.getElementById('modalTitle').textContent = 'Thêm thương hiệu';
+        document.getElementById('brandModal').classList.add('show');
+        setTimeout(() => document.getElementById('brandName').focus(), 100);
+    }
+
+    function openEditModal(id) {
+        const brand = findBrand(id);
+        if (!brand) { showToast('Không tìm thấy thương hiệu', 'error'); return; }
+        document.getElementById('editId').value = id;
+        document.getElementById('brandName').value = brand.name || '';
+        document.getElementById('brandDesc').value = brand.description || '';
+        document.getElementById('brandLogo').value = brand.logoUrl || '';
+        document.getElementById('modalTitle').textContent = 'Sửa thương hiệu: ' + brand.name;
+        document.getElementById('brandModal').classList.add('show');
+        setTimeout(() => document.getElementById('brandName').focus(), 100);
+    }
+
+    function closeModal() {
+        document.getElementById('brandModal').classList.remove('show');
+    }
+
+    async function saveBrand() {
+        const editId = document.getElementById('editId').value;
+        const name = document.getElementById('brandName').value.trim();
+        const description = document.getElementById('brandDesc').value.trim();
+        const logoUrl = document.getElementById('brandLogo').value.trim();
+
+        if (!name) {
+            showToast('Tên thương hiệu không được để trống', 'error');
+            document.getElementById('brandName').focus();
+            return;
+        }
+
+        const body = {
+            name: name,
+            description: description || null,
+            logoUrl: logoUrl || null
+        };
+
+        const btnSave = document.getElementById('btnSave');
+        btnSave.disabled = true;
+        btnSave.textContent = 'Đang lưu...';
+
+        try {
+            const url = editId ? `${API_URL}/${editId}` : API_URL;
+            const method = editId ? 'PUT' : 'POST';
+            const resp = await fetch(url, {
+                method: method,
+                headers: buildHeaders(),
+                credentials: 'same-origin',
+                body: JSON.stringify(body)
+            });
+            const result = await parseJsonSafe(resp);
+
+            if (result.success) {
+                showToast(result.message || 'Lưu thành công!', 'success');
+                closeModal();
+                await loadBrands();
+            } else {
+                showToast(result.message || 'Có lỗi xảy ra', 'error');
+            }
+        } catch (e) {
+            showToast('Lỗi kết nối: ' + e.message, 'error');
+        } finally {
+            btnSave.disabled = false;
+            btnSave.textContent = 'Lưu';
+        }
+    }
+
+    function openDeleteModal(id, productCount) {
+        const brand = findBrand(id);
+        const name = brand ? brand.name : ('ID #' + id);
+        document.getElementById('deleteId').value = id;
+
+        let msg = `Bạn có chắc muốn xóa thương hiệu "${name}"?`;
+        if (productCount > 0) {
+            msg += `\n\n⚠️ Thương hiệu này đang có ${productCount} sản phẩm — không thể xóa.`;
+        }
+
+        document.getElementById('deleteMessage').textContent = msg;
+        document.getElementById('btnConfirmDelete').disabled = productCount > 0;
+        document.getElementById('deleteModal').classList.add('show');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('show');
+    }
+
+    async function confirmDelete() {
+        const id = document.getElementById('deleteId').value;
+        const btn = document.getElementById('btnConfirmDelete');
+        btn.disabled = true;
+        btn.textContent = 'Đang xóa...';
+
+        try {
+            const resp = await fetch(`${API_URL}/${id}`, {
+                method: 'DELETE',
+                headers: buildHeaders(),
+                credentials: 'same-origin'
+            });
+            const result = await parseJsonSafe(resp);
+
+            if (result.success) {
+                showToast(result.message || 'Đã xóa thành công!', 'success');
+                closeDeleteModal();
+                await loadBrands();
+            } else {
+                showToast(result.message || 'Không thể xóa', 'error');
+            }
+        } catch (e) {
+            showToast('Lỗi: ' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Xóa';
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'brandModal') closeModal();
+        if (e.target.id === 'deleteModal') closeDeleteModal();
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const action = btn.getAttribute('data-action');
+        const id = parseInt(btn.getAttribute('data-id') || '', 10);
+        const count = parseInt(btn.getAttribute('data-count') || '0', 10);
+        if (action === 'edit' && !isNaN(id)) openEditModal(id);
+        if (action === 'delete' && !isNaN(id)) openDeleteModal(id, count);
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeDeleteModal();
+        }
+    });
+
+    async function initializePage() {
+        const searchInput = document.getElementById('brandSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                if (searchTimer) clearTimeout(searchTimer);
+                const value = this.value;
+                searchTimer = setTimeout(() => {
+                    currentQuery = value.trim().toLowerCase();
+                    applyFilter();
+                }, 200);
+            });
+        }
+
+        const addBtn = document.getElementById('btn-add');
+        if (addBtn) addBtn.addEventListener('click', openAddModal);
+
+        document.getElementById('btn-cancel-modal').addEventListener('click', closeModal);
+        document.getElementById('btnSave').addEventListener('click', saveBrand);
+        document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
+        document.getElementById('btnConfirmDelete').addEventListener('click', confirmDelete);
+
+        await loadBrands();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+        initializePage();
+    }
+    /*]]>*/
+</script>
+</body>
+</html>
