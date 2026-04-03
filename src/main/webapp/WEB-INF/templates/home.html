@@ -441,11 +441,7 @@
                 <div class="product-footer">
                     <!-- Format price in VN -->
                     <span class="product-price" th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
-                    <form th:action="@{/cart/add}" method="post" style="margin: 0;">
-                        <input type="hidden" name="productId" th:value="${prod.id}" />
-                        <input type="hidden" name="quantity" value="1" />
-                        <button type="submit" class="add-to-cart-btn" title="Thêm vào giỏ"><i class="fas fa-plus"></i></button>
-                    </form>
+                    <button class="add-to-cart-btn"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
             
