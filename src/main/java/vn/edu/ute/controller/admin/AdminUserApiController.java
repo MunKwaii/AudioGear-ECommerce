@@ -99,8 +99,14 @@ public class AdminUserApiController extends BaseApiController {
                 return;
             }
 
-            userService.lockUser(id);
-            sendSuccess(resp, "Đã khóa người dùng", null);
+            User user = userService.getUserById(id);
+            if (user.getStatus() == UserStatus.locked) {
+                userService.activateUser(user.getEmail());
+                sendSuccess(resp, "Đã mở khóa người dùng", null);
+            } else {
+                userService.lockUser(id);
+                sendSuccess(resp, "Đã khóa người dùng", null);
+            }
         });
     }
 
@@ -108,8 +114,16 @@ public class AdminUserApiController extends BaseApiController {
         String keyword = req.getParameter("keyword");
         UserRole role = parseRole(req.getParameter("role"));
         UserStatus status = parseStatus(req.getParameter("status"));
+        int page = parseInt(req.getParameter("page"), 1);
+        int size = parseInt(req.getParameter("size"), 10);
+        if (page < 1) page = 1;
+        if (size < 5) size = 5;
 
-        List<User> users = userService.searchUsers(keyword, role, status);
+        long totalItems = userService.countSearchUsers(keyword, role, status);
+        int totalPages = (int) Math.ceil((double) totalItems / size);
+        int offset = (page - 1) * size;
+
+        List<User> users = userService.searchUsers(keyword, role, status, offset, size);
         List<Map<String, Object>> data = users.stream()
                 .map(this::toUserResponse)
                 .collect(Collectors.toList());
@@ -117,8 +131,20 @@ public class AdminUserApiController extends BaseApiController {
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
         result.put("data", data);
-        result.put("total", data.size());
+        result.put("total", totalItems);
+        result.put("totalPages", totalPages);
+        result.put("page", page);
+        result.put("size", size);
         resp.getWriter().write(gson.toJson(result));
+    }
+
+    private int parseInt(String value, int defaultValue) {
+        if (value == null || value.trim().isEmpty()) return defaultValue;
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException ex) {
+            return defaultValue;
+        }
     }
 
     private void handleUserStats(HttpServletResponse resp) throws Exception {

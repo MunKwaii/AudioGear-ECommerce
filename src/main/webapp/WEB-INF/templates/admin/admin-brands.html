@@ -3,6 +3,7 @@
       th:replace="~{layout/base :: adminLayout(${title}, ${activePage}, ~{::main}, ~{::style}, ~{::script})}">
 <head>
     <style>
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css');
         :root {
             --bg: #050505;
             --surface: rgba(25, 25, 25, 0.8);
@@ -266,6 +267,100 @@
             padding: 40px;
             color: var(--text-muted);
         }
+
+        .logo-upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-preview-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            border: 2px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: var(--surface);
+        }
+        .logo-preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .logo-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .logo-placeholder span { font-size: 2rem; }
+
+        .cropper-modal-content {
+            width: 700px;
+            max-width: 95vw;
+        }
+        .cropper-wrapper {
+            width: 100%;
+            height: 400px;
+            background: var(--surface);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .cropper-wrapper img {
+            max-width: 100%;
+            display: block;
+        }
+        .cropper-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .cropper-size-inputs {
+            display: flex;
+            gap: 12px;
+        }
+        .size-input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .size-input-group label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .size-input-group input,
+        .size-input-group select {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.88rem;
+        }
+        .size-input-group input:focus,
+        .size-input-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .cropper-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .cropper-view-box { outline: 2px solid var(--accent); outline-color: rgba(0,242,254,.75); }
+        .cropper-line { background: var(--accent); opacity: 0.5; }
+        .cropper-point { background: var(--accent); opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -317,8 +412,20 @@
                 <textarea id="brandDesc" placeholder="Mô tả thương hiệu..."></textarea>
             </div>
             <div class="form-group">
-                <label for="brandLogo">URL Logo</label>
-                <input type="text" id="brandLogo" placeholder="https://example.com/logo.png">
+                <label>Logo thương hiệu</label>
+                <div class="logo-upload-area">
+                    <div class="logo-preview-container" id="logoPreviewContainer">
+                        <img id="logoPreview" style="display:none;" alt="Preview">
+                        <div class="logo-placeholder" id="logoPlaceholder">
+                            <span>🏷️</span>
+                            <p>Chưa có logo</p>
+                        </div>
+                    </div>
+                    <input type="file" id="brandLogoFile" accept="image/*" style="display:none;">
+                    <button class="btn btn-sm btn-primary" id="btnChooseLogo" type="button">Chọn ảnh</button>
+                    <button class="btn btn-sm btn-delete" id="btnRemoveLogo" type="button" style="display:none;">Xóa logo</button>
+                </div>
+                <input type="hidden" id="brandLogoUrl">
             </div>
             <div class="modal-actions">
                 <button class="btn btn-cancel" id="btn-cancel-modal" type="button">Hủy</button>
@@ -340,10 +447,53 @@
         </div>
     </div>
 
+    <!-- Cropper Modal -->
+    <div class="modal-overlay" id="cropperModal">
+        <div class="modal-content cropper-modal-content">
+            <div class="modal-title">Cắt và điều chỉnh logo</div>
+            <div class="cropper-wrapper">
+                <img id="cropperImage" src="" alt="Crop">
+            </div>
+            <div class="cropper-controls">
+                <div class="cropper-size-inputs">
+                    <div class="size-input-group">
+                        <label for="cropWidth">Rộng (px)</label>
+                        <input type="number" id="cropWidth" placeholder="Tự động" min="50" max="2000">
+                    </div>
+                    <div class="size-input-group">
+                        <label for="cropHeight">Cao (px)</label>
+                        <input type="number" id="cropHeight" placeholder="Tự động" min="50" max="2000">
+                    </div>
+                    <div class="size-input-group">
+                        <label for="cropRatio">Tỉ lệ</label>
+                        <select id="cropRatio">
+                            <option value="free">Tự do</option>
+                            <option value="1">1:1 (Vuông)</option>
+                            <option value="1.5">3:2</option>
+                            <option value="1.777">16:9</option>
+                            <option value="0.666">2:3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="cropper-actions">
+                    <button class="btn btn-sm btn-primary" id="btnRotateLeft" type="button">↺ Xoay trái</button>
+                    <button class="btn btn-sm btn-primary" id="btnRotateRight" type="button">↻ Xoay phải</button>
+                    <button class="btn btn-sm btn-primary" id="btnFlipH" type="button">↔ Lật ngang</button>
+                    <button class="btn btn-sm btn-primary" id="btnFlipV" type="button">↕ Lật dọc</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="btn-cancel-cropper" type="button">Hủy</button>
+                <button class="btn btn-primary" id="btnApplyCrop" type="button">Áp dụng</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast container -->
     <div class="toast-container" id="toastContainer"></div>
 </main>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" onload="window.CropperLoaded = true;"></script>
 <script th:inline="javascript">
     /*<![CDATA[*/
     console.log("Brand script initializing...");
@@ -354,6 +504,10 @@
     let brandsData = [];
     let currentQuery = '';
     let searchTimer = null;
+    let cropperInstance = null;
+    let pendingCropFile = null;
+    let flipH = false;
+    let flipV = false;
 
     function getAuthToken() {
         const cookies = document.cookie.split(';');
@@ -484,7 +638,11 @@
         document.getElementById('editId').value = '';
         document.getElementById('brandName').value = '';
         document.getElementById('brandDesc').value = '';
-        document.getElementById('brandLogo').value = '';
+        document.getElementById('brandLogoUrl').value = '';
+        document.getElementById('brandLogoFile').value = '';
+        document.getElementById('logoPreview').style.display = 'none';
+        document.getElementById('logoPlaceholder').style.display = 'flex';
+        document.getElementById('btnRemoveLogo').style.display = 'none';
         document.getElementById('modalTitle').textContent = 'Thêm thương hiệu';
         document.getElementById('brandModal').classList.add('show');
         setTimeout(() => document.getElementById('brandName').focus(), 100);
@@ -496,7 +654,23 @@
         document.getElementById('editId').value = id;
         document.getElementById('brandName').value = brand.name || '';
         document.getElementById('brandDesc').value = brand.description || '';
-        document.getElementById('brandLogo').value = brand.logoUrl || '';
+        document.getElementById('brandLogoUrl').value = brand.logoUrl || '';
+
+        const preview = document.getElementById('logoPreview');
+        const placeholder = document.getElementById('logoPlaceholder');
+        const removeBtn = document.getElementById('btnRemoveLogo');
+
+        if (brand.logoUrl) {
+            preview.src = brand.logoUrl;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+            removeBtn.style.display = 'inline-flex';
+        } else {
+            preview.style.display = 'none';
+            placeholder.style.display = 'flex';
+            removeBtn.style.display = 'none';
+        }
+
         document.getElementById('modalTitle').textContent = 'Sửa thương hiệu: ' + brand.name;
         document.getElementById('brandModal').classList.add('show');
         setTimeout(() => document.getElementById('brandName').focus(), 100);
@@ -510,7 +684,7 @@
         const editId = document.getElementById('editId').value;
         const name = document.getElementById('brandName').value.trim();
         const description = document.getElementById('brandDesc').value.trim();
-        const logoUrl = document.getElementById('brandLogo').value.trim();
+        const logoUrl = document.getElementById('brandLogoUrl').value.trim();
 
         if (!name) {
             showToast('Tên thương hiệu không được để trống', 'error');
@@ -605,6 +779,7 @@
     document.addEventListener('click', function(e) {
         if (e.target.id === 'brandModal') closeModal();
         if (e.target.id === 'deleteModal') closeDeleteModal();
+        if (e.target.id === 'cropperModal') closeCropperModal();
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
         const action = btn.getAttribute('data-action');
@@ -618,8 +793,111 @@
         if (e.key === 'Escape') {
             closeModal();
             closeDeleteModal();
+            closeCropperModal();
         }
     });
+
+    function openCropperModal(file) {
+        if (typeof Cropper === 'undefined') {
+            showToast('Đang tải thư viện Cropper, vui lòng thử lại sau...', 'error');
+            return;
+        }
+        
+        pendingCropFile = file;
+        flipH = false;
+        flipV = false;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.getElementById('cropperImage');
+            img.src = e.target.result;
+
+            document.getElementById('cropperModal').classList.add('show');
+            document.getElementById('cropWidth').value = '';
+            document.getElementById('cropHeight').value = '';
+            document.getElementById('cropRatio').value = 'free';
+
+            setTimeout(() => {
+                if (cropperInstance) cropperInstance.destroy();
+                cropperInstance = new Cropper(img, {
+                    viewMode: 1,
+                    autoCropArea: 0.8,
+                    responsive: true,
+                    zoomable: true,
+                    movable: true,
+                    rotatable: true,
+                    scalable: true,
+                    aspectRatio: NaN,
+                });
+            }, 200);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function applyCrop() {
+        if (!cropperInstance) return;
+
+        const width = document.getElementById('cropWidth').value;
+        const height = document.getElementById('cropHeight').value;
+
+        let options = { imageType: pendingCropFile.type, quality: 0.92 };
+        if (width && height) {
+            options.width = parseInt(width);
+            options.height = parseInt(height);
+        } else if (width) {
+            options.width = parseInt(width);
+        } else if (height) {
+            options.height = parseInt(height);
+        }
+
+        const canvas = cropperInstance.getCroppedCanvas(options);
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], 'cropped-logo.' + pendingCropFile.type.split('/')[1],
+                { type: pendingCropFile.type });
+
+            const formData = new FormData();
+            formData.append('logo', file);
+
+            try {
+                const resp = await fetch(API_URL + '/upload-logo', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + getAuthToken() },
+                    body: formData
+                });
+                const result = await parseJsonSafe(resp);
+
+                if (result.success) {
+                    document.getElementById('brandLogoUrl').value = result.url;
+                    const preview = document.getElementById('logoPreview');
+                    preview.src = result.url;
+                    preview.style.display = 'block';
+                    document.getElementById('logoPlaceholder').style.display = 'none';
+                    document.getElementById('btnRemoveLogo').style.display = 'inline-flex';
+                    showToast('Upload logo thành công!', 'success');
+                } else {
+                    showToast(result.message || 'Upload thất bại', 'error');
+                }
+            } catch (e) {
+                showToast('Lỗi upload: ' + e.message, 'error');
+            }
+
+            closeCropperModal();
+        }, pendingCropFile.type, 0.92);
+    }
+
+    function closeCropperModal() {
+        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+        document.getElementById('cropperModal').classList.remove('show');
+        pendingCropFile = null;
+    }
+
+    function removeLogo() {
+        document.getElementById('brandLogoUrl').value = '';
+        document.getElementById('logoPreview').style.display = 'none';
+        document.getElementById('logoPlaceholder').style.display = 'flex';
+        document.getElementById('btnRemoveLogo').style.display = 'none';
+        document.getElementById('brandLogoFile').value = '';
+    }
 
     async function initializePage() {
         const searchInput = document.getElementById('brandSearch');
@@ -641,6 +919,46 @@
         document.getElementById('btnSave').addEventListener('click', saveBrand);
         document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
         document.getElementById('btnConfirmDelete').addEventListener('click', confirmDelete);
+
+        const logoFileInput = document.getElementById('brandLogoFile');
+        if (logoFileInput) {
+            logoFileInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) openCropperModal(e.target.files[0]);
+                this.value = '';
+            });
+        }
+        const chooseLogoBtn = document.getElementById('btnChooseLogo');
+        if (chooseLogoBtn) {
+            chooseLogoBtn.addEventListener('click', () => document.getElementById('brandLogoFile').click());
+        }
+        const removeLogoBtn = document.getElementById('btnRemoveLogo');
+        if (removeLogoBtn) removeLogoBtn.addEventListener('click', removeLogo);
+        const cancelCropperBtn = document.getElementById('btn-cancel-cropper');
+        if (cancelCropperBtn) cancelCropperBtn.addEventListener('click', closeCropperModal);
+        const applyCropBtn = document.getElementById('btnApplyCrop');
+        if (applyCropBtn) applyCropBtn.addEventListener('click', applyCrop);
+        const rotateLeftBtn = document.getElementById('btnRotateLeft');
+        if (rotateLeftBtn) rotateLeftBtn.addEventListener('click', () =>
+            cropperInstance && cropperInstance.rotate(-90));
+        const rotateRightBtn = document.getElementById('btnRotateRight');
+        if (rotateRightBtn) rotateRightBtn.addEventListener('click', () =>
+            cropperInstance && cropperInstance.rotate(90));
+        const flipHBtn = document.getElementById('btnFlipH');
+        if (flipHBtn) flipHBtn.addEventListener('click', () => {
+            flipH = !flipH;
+            cropperInstance && cropperInstance.scaleX(flipH ? -1 : 1);
+        });
+        const flipVBtn = document.getElementById('btnFlipV');
+        if (flipVBtn) flipVBtn.addEventListener('click', () => {
+            flipV = !flipV;
+            cropperInstance && cropperInstance.scaleY(flipV ? -1 : 1);
+        });
+        const cropRatioSelect = document.getElementById('cropRatio');
+        if (cropRatioSelect) cropRatioSelect.addEventListener('change', function() {
+            if (!cropperInstance) return;
+            const val = this.value;
+            cropperInstance.setAspectRatio(val === 'free' ? NaN : parseFloat(val));
+        });
 
         await loadBrands();
     }

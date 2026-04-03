@@ -136,6 +136,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public java.util.List<User> searchUsers(String keyword, UserRole role, UserStatus status, int offset, int limit) {
+        return userDAO.search(keyword, role, status, offset, limit);
+    }
+
+    @Override
+    public long countSearchUsers(String keyword, UserRole role, UserStatus status) {
+        return userDAO.countSearch(keyword, role, status);
+    }
+
+    @Override
     public User createUser(String email, String username, String fullName, String password, String phoneNumber,
                            UserRole role, UserStatus status) {
         if (email == null || email.trim().isEmpty()) {
