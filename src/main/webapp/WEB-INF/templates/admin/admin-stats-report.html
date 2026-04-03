@@ -147,11 +147,14 @@
         .rank-3 { background: linear-gradient(135deg, #cd7c2f, #b45309); color: #000; }
         .rank-default { background: var(--surface2); color: var(--text-muted); }
 
-        .donut-container { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
-        .donut-canvas { width: 180px; height: 180px; }
-        .donut-legend { display: flex; flex-direction: column; gap: 8px; }
-        .legend-item { display: flex; align-items: center; gap: 8px; font-size: .82rem; }
+        .donut-container { display: flex; align-items: center; justify-content: center; gap: 32px; flex-wrap: wrap; min-height: 220px; }
+        .donut-wrapper { position: relative; width: 220px; height: 220px; flex-shrink: 0; }
+        .donut-canvas { width: 100% !important; height: 100% !important; }
+        .donut-legend { display: flex; flex-direction: column; gap: 10px; min-width: 150px; }
+        .legend-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: .85rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,.03); }
+        .legend-label-group { display: flex; align-items: center; gap: 8px; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .legend-value { font-weight: 700; color: var(--text); }
 
         .loading-overlay {
             display: flex; align-items: center; justify-content: center;
@@ -236,26 +239,29 @@
 
     function destroyCharts() {
         if (chartInstances.length === 0) return;
-        console.log(`[StatsTrace] destroyCharts clearing ${chartInstances.length} instances at ${new Date().toISOString()}`);
+        console.log(`[StatsTrace] destroyCharts clearing ${chartInstances.length} instances`);
         
-        chartInstances.forEach(chart => {
-            if (chart && typeof chart.destroy === 'function') {
+        while(chartInstances.length > 0) {
+            const chart = chartInstances.pop();
+            if (chart) {
                 try {
-                    // Stop any internal animations/listeners
                     chart.stop();
-                    // Explicitly clear canvas context to assist GC
                     const ctx = chart.ctx;
                     if (ctx && ctx.canvas) {
+                        // Explicitly clear and zero-size the canvas to aid GC
                         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                         ctx.canvas.width = 0;
                         ctx.canvas.height = 0;
+                        // Remove any potential listeners attached by Chart.js
+                        const newCanvas = ctx.canvas.cloneNode(true);
+                        ctx.canvas.parentNode?.replaceChild(newCanvas, ctx.canvas);
                     }
                     chart.destroy();
                 } catch (e) {
                     console.warn('[StatsCleanupWarning]', e);
                 }
             }
-        });
+        }
         chartInstances = [];
     }
 
@@ -324,12 +330,14 @@
         html += `<div class="section-grid">
             <div class="card">
                 <div class="card-title">📈 Doanh thu theo ngày</div>
-                <div class="chart-container"><canvas id="revenueChart"></canvas></div>
+                <div class="chart-container" style="height:320px; overflow:hidden;"><canvas id="revenueChart"></canvas></div>
             </div>
             <div class="card">
                 <div class="card-title">📊 Đơn hàng theo trạng thái</div>
                 <div class="donut-container">
-                    <canvas id="orderDonut" class="donut-canvas"></canvas>
+                    <div class="donut-wrapper">
+                        <canvas id="orderDonut" class="donut-canvas"></canvas>
+                    </div>
                     <div class="donut-legend" id="orderLegend"></div>
                 </div>
             </div>
@@ -398,7 +406,7 @@
         gradient.addColorStop(0, 'rgba(0,242,254,.35)');
         gradient.addColorStop(1, 'rgba(0,242,254,0)');
 
-        const chart = new Chart(ctx, {
+        chartInstances.push(new Chart(ctx, {
             type: 'line',
             data: {
                 labels,
@@ -417,14 +425,14 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                resizeDelay: 150,
                 plugins: { legend: { display: false } },
                 scales: {
                     y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#94a3b8', callback: v => fmtMoney(v) + '₫' } },
                     x: { grid: { display: false }, ticks: { color: '#94a3b8', maxRotation: 45 } }
                 }
             }
-        });
-        chartInstances.push(chart);
+        }));
     }
 
     function renderOrderDonut(dataMap) {
@@ -436,18 +444,29 @@
         const labels = { PENDING: 'Chờ xử lý', PROCESSING: 'Đang xử lý', SHIPPED: 'Đang giao', DELIVERED: 'Hoàn thành', CANCELLED: 'Đã hủy' };
 
         const entries = Object.entries(dataMap).filter(([, v]) => v > 0);
-        const chart = new Chart(canvas.getContext('2d'), {
+        chartInstances.push(new Chart(canvas.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: entries.map(([k]) => labels[k] || k),
                 datasets: [{ data: entries.map(([, v]) => v), backgroundColor: entries.map(([k]) => colors[k] || '#666'), borderWidth: 0 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
-        });
-        chartInstances.push(chart);
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                resizeDelay: 150,
+                plugins: { legend: { display: false } }, 
+                cutout: '72%' 
+            }
+        }));
 
         legend.innerHTML = entries.map(([k, v]) =>
-            `<div class="legend-item"><div class="legend-dot" style="background:${colors[k] || '#666'}"></div><span>${labels[k] || k}: <strong>${v}</strong></span></div>`
+            `<div class="legend-item">
+                <div class="legend-label-group">
+                    <div class="legend-dot" style="background:${colors[k] || '#666'}"></div>
+                    <span>${labels[k] || k}</span>
+                </div>
+                <span class="legend-value">${v}</span>
+            </div>`
         ).join('');
     }
 
