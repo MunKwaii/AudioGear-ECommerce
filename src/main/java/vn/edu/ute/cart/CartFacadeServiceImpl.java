@@ -125,4 +125,59 @@ public class CartFacadeServiceImpl implements CartFacadeService {
     public void removeCartItem(Long cartItemId) {
         DaoFactory.getCartDao().removeCartItem(cartItemId);
     }
+
+    @Override
+    public void mergeCart(Long userId, List<vn.edu.ute.dto.request.CheckoutItemRequest> guestItems) {
+        if (guestItems == null || guestItems.isEmpty()) {
+            return;
+        }
+
+        CartDao cartDao = DaoFactory.getCartDao();
+        Cart cart = getOrCreateCart(userId, cartDao);
+
+        guestItems.stream()
+                .filter(item -> item.getProductId() != null && item.getQuantity() != null && item.getQuantity() > 0)
+                .forEach(guestItem -> {
+                    Product product = DaoFactory.getProductDao().findById(guestItem.getProductId()).orElse(null);
+                    if (product == null) return;
+
+                    CartItem existingItem = cartDao.findCartItemByCartAndProduct(cart.getId(), guestItem.getProductId());
+                    int totalQuantity = guestItem.getQuantity();
+                    if (existingItem != null) {
+                        totalQuantity += existingItem.getQuantity();
+                    }
+
+                    int cappedQuantity = Math.min(totalQuantity, product.getStockQuantity());
+
+                    if (existingItem != null) {
+                        if (cappedQuantity > 0) {
+                            cartDao.updateCartItemQuantity(existingItem.getId(), cappedQuantity);
+                        } else {
+                            cartDao.removeCartItem(existingItem.getId());
+                        }
+                    } else if (cappedQuantity > 0) {
+                        CartItem newItem = new CartItem(cart, product, cappedQuantity);
+                        cartDao.saveCartItem(newItem);
+                    }
+                });
+    }
+
+    private Cart getOrCreateCart(Long userId, CartDao cartDao) {
+        Cart cart = cartDao.findByUserId(userId);
+        if (cart != null) {
+            return cart;
+        }
+
+        jakarta.persistence.EntityManager em = vn.edu.ute.config.DatabaseConfig.getEntityManager();
+        try {
+            User user = em.find(User.class, userId);
+            if (user == null) {
+                throw new IllegalArgumentException("User không tồn tại!");
+            }
+            cart = new Cart(user);
+            return cartDao.saveCart(cart);
+        } finally {
+            vn.edu.ute.config.DatabaseConfig.closeEntityManager();
+        }
+    }
 }

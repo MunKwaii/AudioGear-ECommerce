@@ -12,6 +12,8 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 import vn.edu.ute.config.ThymeleafConfig;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Controller chuyên điều hướng hiển thị trang Đăng Nhập
@@ -48,6 +50,9 @@ public class LoginController extends HttpServlet {
             cookie.setMaxAge(24 * 60 * 60); // 1 ngày
             resp.addCookie(cookie);
 
+            // Merge guest cart if exists
+            mergeGuestCartIfPresent(req, resp, user.getId());
+
             // Chuyển hướng
             if (vn.edu.ute.entity.enums.UserRole.admin.equals(user.getRole())) {
                 resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
@@ -75,5 +80,24 @@ public class LoginController extends HttpServlet {
         }
 
         templateEngine.process("login", context, resp.getWriter());
+    }
+
+    private void mergeGuestCartIfPresent(HttpServletRequest req, HttpServletResponse resp, Long userId) {
+        if (req.getCookies() == null) return;
+
+        Arrays.stream(req.getCookies())
+                .filter(c -> "guest_cart".equals(c.getName()))
+                .findFirst()
+                .ifPresent(cookie -> {
+                    try {
+                        List<vn.edu.ute.dto.request.CheckoutItemRequest> guestItems =
+                                vn.edu.ute.cart.GuestCartService.getInstance().toCheckoutItems(req);
+                        vn.edu.ute.cart.CartFacadeService cartFacade = vn.edu.ute.cart.CartFacadeServiceImpl.getInstance();
+                        cartFacade.mergeCart(userId, guestItems);
+                        vn.edu.ute.cart.GuestCartService.getInstance().clearCart(resp);
+                    } catch (Exception e) {
+                        // Silently fail merge - don't break login
+                    }
+                });
     }
 }

@@ -19,7 +19,9 @@ import vn.edu.ute.dto.request.AuthRequest;
 import vn.edu.ute.entity.User;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Controller xử lý Token trả về từ Google Identity (Giao diện Frontend)
@@ -86,6 +88,9 @@ public class GoogleAuthController extends HttpServlet {
                 tokenCookie.setMaxAge(24 * 60 * 60); // 24 hours
                 resp.addCookie(tokenCookie);
 
+                // Merge guest cart if exists
+                mergeGuestCartIfPresent(req, resp, loggedInUser.getId());
+
                 // Chuyển hướng người dùng về trang chủ
                 resp.sendRedirect(req.getContextPath() + "/");
             } else {
@@ -95,5 +100,24 @@ public class GoogleAuthController extends HttpServlet {
             e.printStackTrace();
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi xác thực: " + e.getMessage());
         }
+    }
+
+    private void mergeGuestCartIfPresent(HttpServletRequest req, HttpServletResponse resp, Long userId) {
+        if (req.getCookies() == null) return;
+
+        Arrays.stream(req.getCookies())
+                .filter(c -> "guest_cart".equals(c.getName()))
+                .findFirst()
+                .ifPresent(cookie -> {
+                    try {
+                        List<vn.edu.ute.dto.request.CheckoutItemRequest> guestItems =
+                                vn.edu.ute.cart.GuestCartService.getInstance().toCheckoutItems(req);
+                        vn.edu.ute.cart.CartFacadeService cartFacade = vn.edu.ute.cart.CartFacadeServiceImpl.getInstance();
+                        cartFacade.mergeCart(userId, guestItems);
+                        vn.edu.ute.cart.GuestCartService.getInstance().clearCart(resp);
+                    } catch (Exception e) {
+                        // Silently fail merge - don't break login
+                    }
+                });
     }
 }
