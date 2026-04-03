@@ -7,14 +7,9 @@ import java.util.Optional;
 
 public interface OrderDao {
     Optional<Order> findById(Long id);
-
-    /**
-     * Load Order kèm OrderItems và Product bằng JOIN FETCH.
-     * Dùng khi cần truy cập items (ví dụ: RestockService).
-     */
     Optional<Order> findByIdWithItems(Long id);
-
     List<Order> findAll();
+    List<Order> findAllWithItems();
     List<Order> findByUserId(Long userId);
     Order save(Order order);
 }

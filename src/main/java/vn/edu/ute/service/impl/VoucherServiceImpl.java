@@ -12,7 +12,10 @@ import vn.edu.ute.service.VoucherService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import vn.edu.ute.dto.VoucherDTO;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class VoucherServiceImpl implements VoucherService {
 
@@ -88,5 +91,53 @@ public class VoucherServiceImpl implements VoucherService {
         BigDecimal discount = calculateDiscount(voucher, orderTotal);
 
         return orderTotal.subtract(discount);
+    }
+
+    @Override
+    public List<VoucherDTO> getAllVouchers() {
+        return voucherDao.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<VoucherDTO> getVoucherById(Long id) {
+        return voucherDao.findById(id).map(this::convertToDTO);
+    }
+
+    @Override
+    public Voucher createVoucher(Voucher voucher) {
+        if (voucherDao.findByCode(voucher.getCode()).isPresent()) {
+            throw new VoucherException("Mã voucher đã tồn tại");
+        }
+        return voucherDao.save(voucher);
+    }
+
+    @Override
+    public Voucher updateVoucher(Voucher voucher) {
+        return voucherDao.save(voucher);
+    }
+
+    @Override
+    public void deleteVoucher(Long id) {
+        voucherDao.delete(id);
+    }
+
+    @Override
+    public List<VoucherDTO> searchVouchers(String keyword, VoucherStatus status, int page, int size) {
+        int offset = (page - 1) * size;
+        return voucherDao.search(keyword, status, offset, size).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public long countSearch(String keyword, VoucherStatus status) {
+        return voucherDao.countSearch(keyword, status);
+    }
+
+    private VoucherDTO convertToDTO(Voucher voucher) {
+        long usageCount = voucherDao.countOrdersUsingVoucher(voucher.getId());
+        return VoucherDTO.fromEntity(voucher, usageCount);
     }
 }
