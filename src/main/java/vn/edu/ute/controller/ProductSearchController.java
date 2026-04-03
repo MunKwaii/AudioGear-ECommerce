@@ -61,6 +61,7 @@ public class ProductSearchController extends HttpServlet {
         context.setVariable("keyword", keyword);
         context.setVariable("categoryId", categoryId);
         context.setVariable("sort", sort);
+        context.setVariable("hideSearch", true);
         // Fetch categories directly to populate the sidebar filter UI
         context.setVariable("categories", ServiceFactory.getCategoryService().getAllCategoriesAsTree());
 

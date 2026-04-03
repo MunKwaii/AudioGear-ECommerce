@@ -33,46 +33,6 @@
             line-height: 1.6;
         }
 
-        /* --- Navbar --- */
-        nav {
-            width: 100%;
-            padding: 20px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(5, 5, 5, 0.95);
-            border-bottom: 1px solid var(--glass-border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            background: linear-gradient(to right, var(--second-glow), var(--primary-glow));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
-
-        .nav-links a {
-            color: var(--text-main);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: var(--primary-glow);
-        }
-
         /* --- Layout --- */
         .container {
             display: flex;
@@ -402,21 +362,7 @@
 
 <body>
 
-    <nav>
-        <a th:href="@{/}" class="logo" style="text-decoration: none;">AUDIOGEAR</a>
-        <div class="nav-links">
-            <a th:href="@{/}">Trang chủ</a>
-            <a th:href="@{/products}" class="active">Sản phẩm</a>
-            <a href="#">Về chúng tôi</a>
-        </div>
-        <div class="nav-icons" style="font-size: 20px; display: flex; gap: 20px;">
-            <a href="#" style="color: #fff; transition: 0.3s; text-decoration: none;"><i class="fas fa-search"></i></a>
-            <a th:href="@{/cart}" style="color: #fff; transition: 0.3s; text-decoration: none;"><i
-                    class="fas fa-shopping-bag"></i></a>
-            <a th:href="@{/login}" style="color: #fff; transition: 0.3s; text-decoration: none;"><i
-                    class="fas fa-user"></i></a>
-        </div>
-    </nav>
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
 
     <div class="container">
 
