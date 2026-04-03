@@ -13,6 +13,17 @@ import java.util.Optional;
  */
 public class UserDAOImpl implements UserDAO {
 
+    private static UserDAOImpl instance;
+
+    public UserDAOImpl() {}
+
+    public static synchronized UserDAOImpl getInstance() {
+        if (instance == null) {
+            instance = new UserDAOImpl();
+        }
+        return instance;
+    }
+
     @Override
     public Optional<User> findByEmail(String email) {
         EntityManager em = DatabaseConfig.getEntityManager();
@@ -49,6 +60,21 @@ public class UserDAOImpl implements UserDAO {
         try {
             User user = em.createQuery("SELECT u FROM User u WHERE u.username = :id OR u.email = :id", User.class)
                     .setParameter("id", identifier)
+                    .getSingleResult();
+            return Optional.of(user);
+        } catch (NoResultException e) {
+            return Optional.empty();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public Optional<User> findByPhoneNumber(String phoneNumber) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            User user = em.createQuery("SELECT u FROM User u WHERE u.phoneNumber = :phoneNumber", User.class)
+                    .setParameter("phoneNumber", phoneNumber)
                     .getSingleResult();
             return Optional.of(user);
         } catch (NoResultException e) {

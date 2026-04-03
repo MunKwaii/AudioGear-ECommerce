@@ -2,6 +2,8 @@ package vn.edu.ute.service.impl;
 
 import jakarta.persistence.EntityManager;
 import vn.edu.ute.config.DatabaseConfig;
+import vn.edu.ute.dao.UserDAO;
+import vn.edu.ute.dao.impl.UserDAOImpl;
 import vn.edu.ute.dto.request.CheckoutItemRequest;
 import vn.edu.ute.dto.request.CheckoutRequest;
 import vn.edu.ute.dto.response.CheckoutResponse;
@@ -28,18 +30,25 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class CheckoutServiceImpl implements CheckoutService {
 
     private final VoucherService voucherService;
+    private final UserDAO userDAO;
 
     public CheckoutServiceImpl() {
         this.voucherService = new VoucherServiceImpl();
+        this.userDAO = UserDAOImpl.getInstance();
     }
 
     @Override
     public CheckoutResponse checkout(Long userId, CheckoutRequest request) {
         validateCheckoutRequest(request);
+
+        if (userId == null) {
+            validateGuestContactInfo(request);
+        }
 
         EntityManager em = DatabaseConfig.getEntityManager();
 
@@ -173,6 +182,31 @@ public class CheckoutServiceImpl implements CheckoutService {
         } finally {
             DatabaseConfig.closeEntityManager();
         }
+    }
+
+    /**
+     * Validate guest contact info - email and phone must not belong to any registered user.
+     * Uses lambda + stream for clean validation.
+     */
+    private void validateGuestContactInfo(CheckoutRequest request) {
+        Map<String, java.util.function.Function<String, Optional<User>>> contactChecks = new LinkedHashMap<>();
+        contactChecks.put("Email", userDAO::findByEmail);
+        contactChecks.put("Số điện thoại", userDAO::findByPhoneNumber);
+
+        Map<String, String> contactValues = new LinkedHashMap<>();
+        contactValues.put("Email", request.getEmail());
+        contactValues.put("Số điện thoại", request.getPhoneNumber());
+
+        contactChecks.entrySet().stream()
+                .filter(entry -> {
+                    String value = contactValues.get(entry.getKey());
+                    return value != null && !value.isBlank() && entry.getValue().apply(value).isPresent();
+                })
+                .findFirst()
+                .ifPresent(entry -> {
+                    throw new RuntimeException(entry.getKey() + " '" + contactValues.get(entry.getKey())
+                            + "' đã được sử dụng bởi một tài khoản đăng ký. Vui lòng đăng nhập để đặt hàng.");
+                });
     }
 
     /**

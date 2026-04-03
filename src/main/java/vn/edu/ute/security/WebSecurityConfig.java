@@ -33,8 +33,10 @@ public class WebSecurityConfig {
             "/api/brands",
             
             // Đặt hàng & Tra cứu public
-            "/api/cart",          // Khách vãng lai cũng có giỏ hàng (session-based)
-            "/api/checkout",      // Hỗ trợ Guest Checkout
+            "/cart",              // Guest cart view
+            "/api/cart",          // Guest cart API (cookie-based)
+            "/checkout",          // Guest checkout view
+            "/api/v1/checkout",   // Guest checkout API
             "/api/orders/track",  // Tra cứu công khai
             
             // Tài nguyên tĩnh

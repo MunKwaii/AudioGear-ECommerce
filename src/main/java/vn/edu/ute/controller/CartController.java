@@ -1,5 +1,6 @@
 package vn.edu.ute.controller;
 
+import vn.edu.ute.cart.GuestCartService;
 import vn.edu.ute.dto.CartDTO;
 import vn.edu.ute.homepage.factory.ServiceFactory;
 import vn.edu.ute.util.JwtUtil;
@@ -23,15 +24,19 @@ public class CartController extends HttpServlet {
 
     private Long getUserIdFromCookie(HttpServletRequest req) {
         if (req.getCookies() == null) return null;
-        for (Cookie c : req.getCookies()) {
-            if ("accessToken".equals(c.getName())) {
-                JwtUtil jwt = new JwtUtil();
-                if (jwt.validateToken(c.getValue())) {
-                    return jwt.getUserIdFromToken(c.getValue());
-                }
-            }
-        }
-        return null;
+        return java.util.Arrays.stream(req.getCookies())
+                .filter(c -> "accessToken".equals(c.getName()))
+                .map(Cookie::getValue)
+                .filter(token -> {
+                    JwtUtil jwt = new JwtUtil();
+                    return jwt.validateToken(token);
+                })
+                .map(token -> {
+                    JwtUtil jwt = new JwtUtil();
+                    return jwt.getUserIdFromToken(token);
+                })
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -39,16 +44,15 @@ public class CartController extends HttpServlet {
         String path = req.getServletPath();
         Long userId = getUserIdFromCookie(req);
 
-        if (userId == null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-
         if ("/cart".equals(path)) {
-            CartDTO cart = ServiceFactory.getCartFacadeService().getCartDetails(userId);
+            CartDTO cart = (userId != null)
+                    ? ServiceFactory.getCartFacadeService().getCartDetails(userId)
+                    : GuestCartService.getInstance().getCart(req);
             renderPage(req, resp, "cart", cart);
         } else if ("/cart/count".equals(path)) {
-            CartDTO cart = ServiceFactory.getCartFacadeService().getCartDetails(userId);
+            CartDTO cart = (userId != null)
+                    ? ServiceFactory.getCartFacadeService().getCartDetails(userId)
+                    : GuestCartService.getInstance().getCart(req);
             int count = (cart != null && cart.getItems() != null) ? cart.getItems().size() : 0;
             resp.setContentType("application/json");
             resp.getWriter().write("{\"count\":" + count + "}");
@@ -62,11 +66,6 @@ public class CartController extends HttpServlet {
         String path = req.getServletPath();
         Long userId = getUserIdFromCookie(req);
 
-        if (userId == null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-
         try {
             if ("/cart/add".equals(path)) {
                 Long productId = Long.parseLong(req.getParameter("productId"));
@@ -74,17 +73,20 @@ public class CartController extends HttpServlet {
                 if (req.getParameter("quantity") != null) {
                     quantity = Integer.parseInt(req.getParameter("quantity"));
                 }
-                ServiceFactory.getCartFacadeService().addToCart(userId, productId, quantity);
-                
-                // Kiểm tra nếu là AJAX request
+
+                if (userId != null) {
+                    ServiceFactory.getCartFacadeService().addToCart(userId, productId, quantity);
+                } else {
+                    GuestCartService.getInstance().addToCart(req, resp, productId, quantity);
+                }
+
                 String requestedWith = req.getHeader("X-Requested-With");
-                if ("XMLHttpRequest".equals(requestedWith) || req.getHeader("Accept").contains("application/json")) {
+                if ("XMLHttpRequest".equals(requestedWith) || (req.getHeader("Accept") != null && req.getHeader("Accept").contains("application/json"))) {
                     resp.setStatus(HttpServletResponse.SC_OK);
                     resp.getWriter().write("{\"success\":true}");
                     return;
                 }
 
-                // Trả về trang trước đó hoặc giỏ hàng
                 String referer = req.getHeader("Referer");
                 if (referer != null && !referer.contains("/cart")) {
                     resp.sendRedirect(referer);
@@ -92,14 +94,25 @@ public class CartController extends HttpServlet {
                 }
                 resp.sendRedirect(req.getContextPath() + "/cart");
                 return;
-                
+
             } else if ("/cart/remove".equals(path)) {
-                Long itemId = Long.parseLong(req.getParameter("itemId"));
-                ServiceFactory.getCartFacadeService().removeCartItem(itemId);
+                if (userId != null) {
+                    Long itemId = Long.parseLong(req.getParameter("itemId"));
+                    ServiceFactory.getCartFacadeService().removeCartItem(itemId);
+                } else {
+                    Long productId = Long.parseLong(req.getParameter("productId"));
+                    GuestCartService.getInstance().removeCartItem(req, resp, productId);
+                }
             } else if ("/cart/update".equals(path)) {
-                Long itemId = Long.parseLong(req.getParameter("itemId"));
-                int quantity = Integer.parseInt(req.getParameter("quantity"));
-                ServiceFactory.getCartFacadeService().updateQuantity(itemId, quantity);
+                if (userId != null) {
+                    Long itemId = Long.parseLong(req.getParameter("itemId"));
+                    int quantity = Integer.parseInt(req.getParameter("quantity"));
+                    ServiceFactory.getCartFacadeService().updateQuantity(itemId, quantity);
+                } else {
+                    Long productId = Long.parseLong(req.getParameter("productId"));
+                    int quantity = Integer.parseInt(req.getParameter("quantity"));
+                    GuestCartService.getInstance().updateQuantity(req, resp, productId, quantity);
+                }
             }
         } catch (vn.edu.ute.exception.InsufficientStockException e) {
             String requestedWith = req.getHeader("X-Requested-With");
@@ -114,7 +127,7 @@ public class CartController extends HttpServlet {
             e.printStackTrace();
             req.getSession().setAttribute("cartError", "Có lỗi xảy ra: " + e.getMessage());
         }
-        
+
         resp.sendRedirect(req.getContextPath() + "/cart");
     }
 
@@ -128,6 +141,7 @@ public class CartController extends HttpServlet {
         WebContext context = new WebContext(webExchange, webExchange.getLocale());
 
         context.setVariable("cart", cart);
+        context.setVariable("isGuest", getUserIdFromCookie(req) == null);
 
         templateEngine.process(templateName, context, resp.getWriter());
     }

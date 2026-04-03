@@ -10,6 +10,7 @@ public interface UserDAO {
     Optional<User> findByEmail(String email);
     Optional<User> findByUsername(String username);
     Optional<User> findByUsernameOrEmail(String identifier);
+    Optional<User> findByPhoneNumber(String phoneNumber);
     Optional<User> findById(Long id);
     User save(User user);
     java.util.List<User> findAll();

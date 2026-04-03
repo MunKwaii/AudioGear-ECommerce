@@ -380,9 +380,10 @@
                         </div>
                     </div>
 
-                    <!-- form for updating minus -->
+                    <!-- form for updating quantity -->
                     <form th:action="@{/cart/update}" method="post" class="action-form">
-                        <input type="hidden" name="itemId" th:value="${item.id}" />
+                        <input type="hidden" name="itemId" th:if="${item.id != null}" th:value="${item.id}" />
+                        <input type="hidden" name="productId" th:if="${item.id == null}" th:value="${item.productId}" />
                         <div class="quantity-form">
                             <!-- Minus overrides quantity using JS trick or we do it inline -->
                             <button type="submit" name="quantity" th:value="${item.quantity - 1}" class="qty-btn"
@@ -403,7 +404,8 @@
 
                     <!-- form for remove -->
                     <form th:action="@{/cart/remove}" method="post" class="action-form">
-                        <input type="hidden" name="itemId" th:value="${item.id}" />
+                        <input type="hidden" name="itemId" th:if="${item.id != null}" th:value="${item.id}" />
+                        <input type="hidden" name="productId" th:if="${item.id == null}" th:value="${item.productId}" />
                         <button type="submit" class="remove-btn" title="Xoá"><i class="fas fa-trash"></i></button>
                     </form>
 

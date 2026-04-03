@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import vn.edu.ute.cart.GuestCartService;
 import vn.edu.ute.dto.request.CheckoutRequest;
 import vn.edu.ute.dto.response.CheckoutResponse;
 import vn.edu.ute.exception.VoucherException;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 /**
  * Controller xử lý checkout.
- * CheckoutAuthFilter chạy trước đã đảm bảo user đăng nhập (currentUserId != null).
+ * Hỗ trợ cả user đã đăng nhập (currentUserId != null) và guest (currentUserId == null).
  */
 @WebServlet("/api/v1/checkout")
 public class CheckoutController extends HttpServlet {
@@ -35,10 +36,14 @@ public class CheckoutController extends HttpServlet {
         try {
             CheckoutRequest request = gson.fromJson(req.getReader(), CheckoutRequest.class);
 
-            // CheckoutAuthFilter đã validate auth → currentUserId luôn tồn tại
             Long userId = (Long) req.getAttribute("currentUserId");
 
             CheckoutResponse response = checkoutService.checkout(userId, request);
+
+            // Clear guest cart cookie after successful checkout
+            if (userId == null) {
+                GuestCartService.getInstance().clearCart(resp);
+            }
 
             resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.getWriter().write(gson.toJson(response));
