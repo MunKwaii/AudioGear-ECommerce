@@ -13,8 +13,15 @@ import vn.edu.ute.cart.GuestCartService;
 import vn.edu.ute.config.ThymeleafConfig;
 import vn.edu.ute.dto.CartDTO;
 import vn.edu.ute.homepage.factory.ServiceFactory;
+import vn.edu.ute.entity.Address;
+import vn.edu.ute.entity.User;
+import vn.edu.ute.service.AddressService;
+import vn.edu.ute.service.UserService;
+import vn.edu.ute.service.impl.AddressServiceImpl;
+import vn.edu.ute.service.impl.UserServiceImpl;
 
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/checkout")
 public class CheckoutViewController extends HttpServlet {
@@ -46,6 +53,15 @@ public class CheckoutViewController extends HttpServlet {
         context.setVariable("cart", cart);
         context.setVariable("pageTitle", "Xác nhận thanh toán");
         context.setVariable("isGuest", userId == null);
+
+        if (userId != null) {
+            UserService userService = new UserServiceImpl();
+            AddressService addressService = new AddressServiceImpl();
+            User user = userService.getUserById(userId);
+            List<Address> addresses = addressService.getAddressesByUserId(userId);
+            context.setVariable("userEmail", user.getEmail());
+            context.setVariable("addresses", addresses);
+        }
 
         templateEngine.process("checkout", context, resp.getWriter());
     }
