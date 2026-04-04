@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9f9f9; }
+        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .header { background: linear-gradient(135deg, #00f2fe, #4facfe); color: #000; padding: 40px 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 1px; }
+        .content { padding: 30px; }
+        .order-info { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
+        .order-info h3 { margin-top: 0; color: #4facfe; font-size: 18px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .info-label { font-weight: 600; color: #666; }
+        .products-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .products-table th { text-align: left; background-color: #f8f9fa; padding: 12px; font-size: 14px; color: #666; border-bottom: 2px solid #eee; }
+        .products-table td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .product-name { font-weight: 600; color: #333; }
+        .total-section { text-align: right; border-top: 2px solid #eee; padding-top: 15px; }
+        .total-row { display: flex; justify-content: flex-end; gap: 40px; margin-bottom: 5px; }
+        .grand-total { font-size: 20px; font-weight: 800; color: #27ae60; }
+        .footer { background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #888; }
+        .btn { display: inline-block; padding: 12px 25px; background-color: #4facfe; color: #fff; text-decoration: none; border-radius: 30px; font-weight: 600; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AudioGear</h1>
+            <p>Xác nhận đơn hàng thành công!</p>
+        </div>
+        
+        <div class="content">
+            <p>Chào <strong><span th:text="${order.recipientName}">Khách hàng</span></strong>,</p>
+            <p>Cảm ơn bạn đã tin tưởng và mua sắm tại AudioGear. Đơn hàng của bạn đã được tiếp nhận và đang trong quá trình xử lý.</p>
+            
+            <div class="order-info">
+                <h3>THÔNG TIN ĐƠN HÀNG</h3>
+                <div class="info-row">
+                    <span class="info-label">Mã đơn hàng:</span>
+                    <span th:text="${order.orderCode}">#ORD-123456</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Ngày đặt hàng:</span>
+                    <span th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">04/04/2026</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Số điện thoại:</span>
+                    <span th:text="${order.phoneNumber}">0123456789</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Địa chỉ giao hàng:</span>
+                    <span th:text="${order.streetAddress + ', ' + order.city}">Địa chỉ khách hàng</span>
+                </div>
+            </div>
+            
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>SL</th>
+                        <th style="text-align: right;">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${order.items}">
+                        <td>
+                            <div class="product-name" th:text="${item.product.name}">Tên sản phẩm</div>
+                            <div style="font-size: 12px; color: #888;" th:text="${#numbers.formatCurrency(item.price)}">Đơn giá</div>
+                        </td>
+                        <td th:text="${item.quantity}">1</td>
+                        <td style="text-align: right;" th:text="${#numbers.formatCurrency(item.price * item.quantity)}">0₫</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="total-section">
+                <div class="total-row">
+                    <span class="info-label">Giảm giá:</span>
+                    <span th:text="'-' + ${#numbers.formatCurrency(discountAmount != null ? discountAmount : 0)}">0₫</span>
+                </div>
+                <div class="total-row">
+                    <span class="info-label">TỔNG CỘNG:</span>
+                    <span class="grand-total" th:text="${#numbers.formatCurrency(order.totalAmount)}">0₫</span>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <a th:href="${orderUrl}" class="btn">Theo dõi đơn hàng</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2026 AudioGear E-commerce. Mọi quyền được bảo lưu.</p>
+            <p>Địa chỉ: 01 Võ Văn Ngân, Linh Chiểu, Thủ Đức, TP.HCM</p>
+            <p>Email liên hệ: support@audiogear.vn | Hotline: 1900 6789</p>
+        </div>
+    </div>
+</body>
+</html>

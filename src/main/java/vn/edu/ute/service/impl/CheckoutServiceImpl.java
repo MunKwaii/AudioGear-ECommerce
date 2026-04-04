@@ -19,6 +19,7 @@ import vn.edu.ute.order.payment.strategy.PaymentResult;
 import vn.edu.ute.order.payment.strategy.PaymentStrategy;
 import vn.edu.ute.order.payment.strategy.PaymentStrategyFactory;
 import vn.edu.ute.service.CheckoutService;
+import vn.edu.ute.service.OrderNotificationService;
 import vn.edu.ute.service.VoucherService;
 
 import java.math.BigDecimal;
@@ -30,16 +31,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class CheckoutServiceImpl implements CheckoutService {
 
     private final VoucherService voucherService;
     private final UserDAO userDAO;
+    private final OrderNotificationService orderNotificationService;
 
     public CheckoutServiceImpl() {
         this.voucherService = new VoucherServiceImpl();
         this.userDAO = UserDAOImpl.getInstance();
+        this.orderNotificationService = new OrderNotificationServiceImpl();
     }
 
     @Override
@@ -159,8 +161,17 @@ public class CheckoutServiceImpl implements CheckoutService {
                 em.persist(orderItem);
                 em.merge(product);
             }
+            order.setItems(orderItems);
 
             DatabaseConfig.commitTransaction();
+
+            // 6. Gửi email thông báo (Sau khi DB commit thành công)
+            try {
+                orderNotificationService.notifyProcessing(order);
+            } catch (Exception e) {
+                // Logo lỗi gửi mail nhưng không làm hỏng tiến trình checkout
+                e.printStackTrace();
+            }
 
             return new CheckoutResponse(
                     order.getId(),

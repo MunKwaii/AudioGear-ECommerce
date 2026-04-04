@@ -6,8 +6,6 @@ import jakarta.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Properties;
-
 /**
  * Concrete Strategy for sending OTP via Email (JavaMail)
  */
@@ -15,33 +13,14 @@ public class EmailOtpSender implements OtpSenderStrategy {
 
     private static final Logger logger = LogManager.getLogger(EmailOtpSender.class);
 
-    // Cấu hình SMTP mặc định (Sử dụng Gmail)
-    private static final String SMTP_HOST = "smtp.gmail.com";
-    private static final String SMTP_PORT = "587";
-    // TODO: PLEASE REPLACE WITH YOUR GMAIL AND APP PASSWORD
-    private static final String SENDER_EMAIL = "trihieuvo4@gmail.com";
-    private static final String SENDER_PASSWORD = "exeh vgvi mpwy wwoo";
-
     @Override
     public boolean sendOtp(String targetEmail, String otp) {
-        // Cấu hình properties cho Mail Session
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", SMTP_HOST);
-        props.put("mail.smtp.port", SMTP_PORT);
-
-        // Tạo Mail Session với Authenticator
-        Session session = Session.getInstance(props, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(SENDER_EMAIL, SENDER_PASSWORD);
-            }
-        });
+        // Sử dụng MailConfig tập trung
+        Session session = vn.edu.ute.config.MailConfig.getSession();
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(SENDER_EMAIL, "AudioGear System"));
+            message.setFrom(new InternetAddress(vn.edu.ute.config.MailConfig.SENDER_EMAIL, vn.edu.ute.config.MailConfig.SYSTEM_NAME));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(targetEmail));
             message.setSubject("Mã xác minh OTP của bạn");
 
@@ -55,6 +34,7 @@ public class EmailOtpSender implements OtpSenderStrategy {
             return true;
 
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Lỗi khi gửi thư OTP đến {}: {}", targetEmail, e.getMessage());
             return false;
         }

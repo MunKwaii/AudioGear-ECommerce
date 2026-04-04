@@ -27,6 +27,31 @@ public class EmailServiceImpl implements EmailService {
     }
 
     /**
+     * Gửi Email định dạng HTML sử dụng JavaMail
+     */
+    @Override
+    public boolean sendHtmlEmail(String to, String subject, String content) {
+        try {
+            jakarta.mail.Session session = vn.edu.ute.config.MailConfig.getSession();
+            jakarta.mail.Message message = new jakarta.mail.internet.MimeMessage(session);
+            
+            message.setFrom(new jakarta.mail.internet.InternetAddress(
+                vn.edu.ute.config.MailConfig.SENDER_EMAIL, 
+                vn.edu.ute.config.MailConfig.SYSTEM_NAME
+            ));
+            message.setRecipients(jakarta.mail.Message.RecipientType.TO, jakarta.mail.internet.InternetAddress.parse(to));
+            message.setSubject(subject);
+            message.setContent(content, "text/html; charset=utf-8");
+
+            jakarta.mail.Transport.send(message);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * Gửi mã OTP
      * @param target (Email, Số điện thoại...)
      * @param otp Mã được sinh ra
@@ -46,3 +71,4 @@ public class EmailServiceImpl implements EmailService {
         return String.valueOf(otp);
     }
 }
+
