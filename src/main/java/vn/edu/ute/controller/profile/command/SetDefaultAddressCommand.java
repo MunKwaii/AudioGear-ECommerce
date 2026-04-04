@@ -10,8 +10,8 @@ public class SetDefaultAddressCommand extends ProfileCommand {
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse resp, Long userId) throws ServletException, IOException {
         String idStr = req.getParameter("id");
-        if (idStr != null) {
-            facade.setDefaultAddress(userId, Long.parseLong(idStr));
+        if (idStr != null && !idStr.trim().isEmpty()) {
+            facade.setDefaultAddress(userId, Long.parseLong(idStr.trim()));
         }
         resp.sendRedirect(req.getContextPath() + "/profile/addresses?success=true");
     }

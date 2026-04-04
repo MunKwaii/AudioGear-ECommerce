@@ -100,8 +100,9 @@ public class UserProfileFacadeImpl implements UserProfileFacade {
     @Override
     public Address extractAddressFromRequest(HttpServletRequest req) {
         Address address = new Address();
-        if (req.getParameter("id") != null) {
-            address.setId(Long.parseLong(req.getParameter("id")));
+        String idStr = req.getParameter("id");
+        if (idStr != null && !idStr.trim().isEmpty()) {
+            address.setId(Long.parseLong(idStr.trim()));
         }
         address.setRecipientName(req.getParameter("recipientName"));
         address.setPhoneNumber(req.getParameter("phoneNumber"));
