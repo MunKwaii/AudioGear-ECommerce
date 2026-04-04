@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: mainLayout('Chính sách bảo hành', ~{::main}, ~{::style}, ~{::script})}">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style th:fragment="extraStyles">
+        .info-page-container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 40px;
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            color: #ecf0f1;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .info-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .info-header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .info-section {
+            margin-bottom: 35px;
+        }
+        
+        .info-section h2 {
+            font-size: 20px;
+            color: #00f2fe;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        
+        .info-section h2::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 20px;
+            background: #00f2fe;
+            border-radius: 2px;
+        }
+        
+        .info-content {
+            line-height: 1.8;
+            color: #bdc3c7;
+            font-size: 16px;
+        }
+        
+        .info-content ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .info-content li {
+            margin-bottom: 10px;
+        }
+        
+        .highlight-box {
+            background: rgba(0, 242, 254, 0.05);
+            border-left: 4px solid #00f2fe;
+            padding: 20px;
+            border-radius: 4px 12px 12px 4px;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .info-page-container {
+                margin: 30px 15px;
+                padding: 25px;
+            }
+            .info-header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="info-page-container">
+            <div class="info-header">
+                <h1>Chính Sách Bảo Hành</h1>
+                <p style="color: #a0a0a0;">Cam kết chất lượng và sự hài lòng tuyệt đối từ AudioGear</p>
+            </div>
+
+            <div class="info-section">
+                <h2>1. Thời hạn bảo hành</h2>
+                <div class="info-content">
+                    <p>Tất cả sản phẩm âm thanh (tai nghe, loa, amply) được phân phối bởi AudioGear đều được hưởng chính sách bảo hành tiêu chuẩn:</p>
+                    <ul>
+                        <li><strong>12 tháng</strong> bảo hành chính hãng đối với các lỗi phần cứng từ nhà sản xuất.</li>
+                        <li><strong>1 đổi 1</strong> trong vòng 30 ngày đầu tiên nếu sản phẩm phát sinh lỗi kỹ thuật.</li>
+                        <li><strong>6 tháng</strong> đối với các phụ kiện đi kèm (dây cáp, adapter).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2>2. Điều kiện bảo hành</h2>
+                <div class="info-content">
+                    <p>Sản phẩm sẽ được bảo hành miễn phí nếu đáp ứng đầy đủ các tiêu chuẩn sau:</p>
+                    <ul>
+                        <li>Sản phẩm còn trong thời hạn bảo hành tính từ ngày mua hàng.</li>
+                        <li>Có hóa đơn mua hàng hoặc thông tin đơn hàng hợp lệ trên hệ thống AudioGear.</li>
+                        <li>Tem bảo hành và số Serial của sản phẩm phải còn nguyên vẹn, không có dấu hiệu tẩy xóa hoặc rách lìa.</li>
+                        <li>Lỗi được xác định là do quy trình sản xuất hoặc linh kiện của nhà sản xuất.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>Lưu ý quan trọng:</strong> Quý khách vui lòng kiểm tra sản phẩm kỹ lưỡng ngay khi nhận hàng. Mọi khiếu nại về ngoại quan (trầy xước, móp méo) cần được phản hồi trong vòng 24h kể từ khi nhận hàng.</p>
+            </div>
+
+            <div class="info-section">
+                <h2>3. Các trường hợp từ chối bảo hành</h2>
+                <div class="info-content">
+                    <p>Chúng tôi rất tiếc phải từ chối bảo hành đối với:</p>
+                    <ul>
+                        <li>Sản phẩm đã hết hạn bảo hành.</li>
+                        <li>Sản phẩm bị hư hỏng do tác động vật lý (rơi rớt, va đập, nứt vỡ).</li>
+                        <li>Sản phẩm bị ngấm chất lỏng hoặc sử dụng trong môi trường độ ẩm quá cao không đúng quy cách.</li>
+                        <li>Sản phẩm có dấu hiệu tự ý tháo dỡ, sửa chữa tại các trung tâm không được ủy quyền.</li>
+                        <li>Hư hỏng do sử dụng sai nguồn điện hoặc phụ kiện không tương thích.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2>4. Quy trình bảo hành</h2>
+                <div class="info-content">
+                    <p>Để thực hiện bảo hành, quý khách vui lòng:</p>
+                    <ol>
+                        <li>Liên hệ hotline hỗ trợ: <strong>1900 xxxx</strong> hoặc email: support@audiogear.vn</li>
+                        <li>Gửi sản phẩm kèm hóa đơn về địa chỉ: 1 Võ Văn Ngân, Thủ Đức, TP. HCM.</li>
+                        <li>Thời gian xử lý: Từ 3 - 7 ngày làm việc kể từ khi nhận được sản phẩm.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:fragment="extraScripts">
+        // Scripts if needed
+    </script>
+</body>
+</html>
