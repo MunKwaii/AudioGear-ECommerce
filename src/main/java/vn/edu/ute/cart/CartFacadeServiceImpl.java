@@ -153,7 +153,8 @@ public class CartFacadeServiceImpl implements CartFacadeService {
                         totalQuantity += existingItem.getQuantity();
                     }
 
-                    int cappedQuantity = Math.min(totalQuantity, product.getStockQuantity());
+                    int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+                    int cappedQuantity = Math.min(totalQuantity, availableStock);
 
                     if (existingItem != null) {
                         if (cappedQuantity > 0) {

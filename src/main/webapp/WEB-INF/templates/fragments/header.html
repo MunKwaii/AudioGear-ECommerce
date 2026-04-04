@@ -318,9 +318,10 @@
                         <line x1="3" y1="6" x2="21" y2="6"></line>
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
-                    <!-- Số lượng giả định -->
-                    <!-- Số lượng thực tế sẽ được cập nhật bởi JS bên dưới -->
-                    <span class="ag-cart-badge" id="header-cart-badge">0</span>
+                    <!-- Số lượng thực tế sẽ được cập nhật bởi JS hoặc rendered bởi Thymeleaf -->
+                    <span class="ag-cart-badge" id="header-cart-badge" 
+                          th:text="${cart != null && cart.items != null ? cart.items.size() : (session.guest_cart_count ?: 0)}"
+                          th:style="${(cart != null && cart.items != null && cart.items.size() > 0) || (session.guest_cart_count != null && session.guest_cart_count > 0) ? 'display: block' : 'display: none'}">0</span>
                 </a>
             </div>
         </div>
@@ -336,23 +337,123 @@
                     .then(data => {
                         const badge = document.getElementById('header-cart-badge');
                         if (badge) {
-                            badge.textContent = data.count;
-                            // Show badge only if there are items
-                            if (data.count > 0) {
-                                badge.style.display = 'block';
-                            } else {
-                                badge.style.display = 'none';
-                            }
+                            const count = parseInt(data.count) || 0;
+                            badge.textContent = count;
+                            // Update display and cache
+                            badge.style.display = count > 0 ? 'block' : 'none';
+                            sessionStorage.setItem('ag_cart_count', count);
                         }
                     })
                     .catch(err => console.error('Error fetching cart count:', err));
             }
 
-            // Run on load
-            document.addEventListener('DOMContentLoaded', updateHeaderCartBadge);
+            // Restore from cache immediately to avoid flicker
+            const cachedCount = sessionStorage.getItem('ag_cart_count');
+            if (cachedCount !== null) {
+                const badge = document.getElementById('header-cart-badge');
+                if (badge) {
+                    badge.textContent = cachedCount;
+                    badge.style.display = parseInt(cachedCount) > 0 ? 'block' : 'none';
+                }
+            }
+
+            // Always fetch fresh count on load
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', updateHeaderCartBadge);
+            } else {
+                updateHeaderCartBadge();
+            }
             
-            // Expose globally so other scripts (like product-detail.js) can call it
+            // Expose globally
             window.updateHeaderCartBadge = updateHeaderCartBadge;
+
+            // Global Toast Function
+            window.showToast = function(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `ag-toast ${type}`;
+                toast.textContent = message;
+                
+                // Styles match the premium theme
+                Object.assign(toast.style, {
+                    position: 'fixed',
+                    bottom: '30px',
+                    right: '30px',
+                    padding: '12px 24px',
+                    backgroundColor: type === 'success' ? 'rgba(39, 174, 96, 0.9)' : 'rgba(231, 76, 60, 0.9)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#fff',
+                    borderRadius: '30px',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                    zIndex: '9999',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    transform: 'translateY(100px)',
+                    opacity: '0'
+                });
+
+                document.body.appendChild(toast);
+                
+                // Animation in
+                setTimeout(() => {
+                    toast.style.transform = 'translateY(0)';
+                    toast.style.opacity = '1';
+                }, 10);
+
+                // Animation out
+                setTimeout(() => {
+                    toast.style.transform = 'translateY(100px)';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            };
+
+            // Global Add to Cart Click Handler
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.add-to-cart-btn');
+                if (!btn) return;
+                
+                const productId = btn.dataset.productId;
+                if (!productId) return; // Legacy form handling or missing ID
+
+                // Prevent default if it's in a form
+                e.preventDefault();
+
+                const quantity = 1; // Default for quick add buttons
+                
+                btn.disabled = true;
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                fetch(`${contextPath}cart/add`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `productId=${productId}&quantity=${quantity}`
+                })
+                .then(res => {
+                    if (res.ok) {
+                        window.showToast('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+                        window.updateHeaderCartBadge();
+                    } else {
+                        return res.json().then(data => {
+                            throw new Error(data.message || 'Lỗi khi thêm vào giỏ hàng');
+                        }).catch(() => {
+                            throw new Error('Lỗi khi thêm vào giỏ hàng');
+                        });
+                    }
+                })
+                .catch(err => {
+                    window.showToast(err.message, 'error');
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                });
+            });
         })();
     </script>
 </body>

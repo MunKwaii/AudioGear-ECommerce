@@ -23,8 +23,13 @@ public class OrderNotificationServiceImpl implements OrderNotificationService {
         try {
             Context context = new Context();
             context.setVariable("order", order);
-            context.setVariable("discountAmount", java.math.BigDecimal.ZERO); // Mặc định 0 nếu không có voucher
-            context.setVariable("orderUrl", "https://audiogear.vn/account/orders/" + order.getOrderCode());
+            
+            java.math.BigDecimal discount = java.math.BigDecimal.ZERO;
+            if (order.getVoucher() != null) {
+                discount = order.getVoucher().getDiscountValue();
+            }
+            context.setVariable("discountAmount", discount);
+            context.setVariable("orderUrl", "http://localhost:8080/AudioGear_ECommerce_war_exploded/profile/orders"); // Cập nhật URL local
 
             String htmlContent = ThymeleafConfig.getTemplateEngine().process("mail/order-confirmation", context);
             
