@@ -165,6 +165,7 @@
             color: var(--text);
             font-family: inherit;
             box-sizing: border-box;
+            color-scheme: dark;
         }
 
         .pagination {
@@ -251,14 +252,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Mã Voucher *</label>
-                        <input type="text" id="voucherCode" required placeholder="Ví dụ: HELLO2024">
-                    </div>
-                    <div class="form-group">
-                        <label>Trạng thái</label>
-                        <select id="voucherStatus">
-                            <option th:each="status : ${voucherStatuses}" 
-                                    th:value="${status}" th:text="${status}"></option>
-                        </select>
+                        <input type="text" id="voucherCode" required placeholder="Ví dụ: SUMMER2024">
                     </div>
                     <div class="form-group">
                         <label>Loại giảm giá</label>
@@ -269,10 +263,10 @@
                     </div>
                     <div class="form-group">
                         <label>Giá trị giảm *</label>
-                        <input type="number" id="discountValue" required step="0.01">
+                        <input type="number" id="discountValue" required step="0.01" placeholder="0">
                     </div>
                     <div class="form-group">
-                        <label>Đơn tối thiểu</label>
+                        <label>Đơn tối thiểu (đ)</label>
                         <input type="number" id="minOrderValue" step="0.01" value="0">
                     </div>
                     <div class="form-group">
@@ -280,10 +274,11 @@
                         <input type="number" id="maxUsage" value="100">
                     </div>
                     <div class="form-group">
-                        <label>Ngày hết hạn</label>
-                        <input type="datetime-local" id="expiryDate">
+                        <label>📅 Ngày hết hạn (Chọn lịch)</label>
+                        <input type="datetime-local" id="expiryDate" style="cursor: pointer;">
                     </div>
                 </div>
+                <input type="hidden" id="voucherStatus" value="ACTIVE">
                 <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
                     <button type="button" class="btn" style="background:#333; color:#fff" onclick="closeModal()">Hủy</button>
                     <button type="submit" class="btn btn-primary">Lưu Voucher</button>
@@ -384,6 +379,7 @@
         document.getElementById('modalTitle').textContent = 'Thêm Voucher mới';
         document.getElementById('voucherForm').reset();
         document.getElementById('voucherId').value = '';
+        document.getElementById('voucherStatus').value = 'ACTIVE';
         document.getElementById('voucherModal').classList.add('show');
     }
 

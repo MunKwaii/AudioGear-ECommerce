@@ -107,6 +107,9 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public Voucher createVoucher(Voucher voucher) {
+        if (voucher.getExpiryDate() != null && voucher.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new VoucherException("Ngày hết hạn không được ở trong quá khứ");
+        }
         if (voucherDao.findByCode(voucher.getCode()).isPresent()) {
             throw new VoucherException("Mã voucher đã tồn tại");
         }
@@ -115,6 +118,9 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public Voucher updateVoucher(Voucher voucher) {
+        if (voucher.getExpiryDate() != null && voucher.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new VoucherException("Ngày hết hạn không được ở trong quá khứ");
+        }
         return voucherDao.save(voucher);
     }
 
