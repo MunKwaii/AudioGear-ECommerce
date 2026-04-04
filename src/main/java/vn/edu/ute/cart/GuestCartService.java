@@ -65,6 +65,9 @@ public class GuestCartService {
         Product product = DaoFactory.getProductDao().findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product không tồn tại!"));
 
+        // Null-safety: sản phẩm thêm thủ công có thể thiếu stockQuantity
+        int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+
         Optional<GuestCartItem> existingItem = items.stream()
                 .filter(item -> item.productId.equals(productId))
                 .findFirst();
@@ -74,8 +77,8 @@ public class GuestCartService {
             totalQuantityRequested += existingItem.get().quantity;
         }
 
-        if (totalQuantityRequested > product.getStockQuantity()) {
-            throw new InsufficientStockException(product.getName(), product.getStockQuantity());
+        if (totalQuantityRequested > availableStock) {
+            throw new InsufficientStockException(product.getName(), availableStock);
         }
 
         if (existingItem.isPresent()) {
@@ -99,8 +102,11 @@ public class GuestCartService {
                     .ifPresentOrElse(
                             item -> {
                                 Product product = DaoFactory.getProductDao().findById(productId).orElse(null);
-                                if (product != null && newQuantity > product.getStockQuantity()) {
-                                    throw new InsufficientStockException(product.getName(), product.getStockQuantity());
+                                if (product != null) {
+                                    int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+                                    if (newQuantity > availableStock) {
+                                        throw new InsufficientStockException(product.getName(), availableStock);
+                                    }
                                 }
                                 item.quantity = newQuantity;
                             },

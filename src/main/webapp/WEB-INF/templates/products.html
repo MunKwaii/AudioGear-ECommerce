@@ -316,6 +316,13 @@
             color: #000;
         }
 
+        .add-to-cart-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
         /* --- Pagination --- */
         .pagination {
             display: flex;
@@ -469,7 +476,7 @@
                         <form th:action="@{/cart/add}" method="post" style="margin: 0;">
                             <input type="hidden" name="productId" th:value="${prod.id}" />
                             <input type="hidden" name="quantity" value="1" />
-                            <button type="submit" class="add-to-cart-btn" title="Thêm vào giỏ">
+                            <button type="submit" class="add-to-cart-btn" th:disabled="${prod.stockQuantity <= 0}" th:title="${prod.stockQuantity <= 0 ? 'Hết hàng' : 'Thêm vào giỏ'}">
                                 <i class="fas fa-cart-plus"></i>
                             </button>
                         </form>

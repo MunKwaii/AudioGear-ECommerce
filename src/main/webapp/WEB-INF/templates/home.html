@@ -368,6 +368,13 @@
             color: #000;
         }
 
+        .add-to-cart-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
         /* --- Footer --- */
         footer {
             padding: 60px 50px;
@@ -441,7 +448,9 @@
                 <div class="product-footer">
                     <!-- Format price in VN -->
                     <span class="product-price" th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
-                    <button class="add-to-cart-btn"><i class="fas fa-plus"></i></button>
+                    <button class="add-to-cart-btn" th:disabled="${prod.stockQuantity <= 0}" th:title="${prod.stockQuantity <= 0 ? 'Hết hàng' : 'Thêm vào giỏ'}">
+                        <i class="fas fa-plus"></i>
+                    </button>
                 </div>
             </div>
             
@@ -478,7 +487,7 @@
                     <form th:action="@{/cart/add}" method="post" style="margin: 0;">
                         <input type="hidden" name="productId" th:value="${prod.id}" />
                         <input type="hidden" name="quantity" value="1" />
-                        <button type="submit" class="add-to-cart-btn" title="Thêm vào giỏ">
+                        <button type="submit" class="add-to-cart-btn" th:disabled="${prod.stockQuantity <= 0}" th:title="${prod.stockQuantity <= 0 ? 'Hết hàng' : 'Thêm vào giỏ'}">
                             <i class="fas fa-cart-plus"></i>
                         </button>
                     </form>

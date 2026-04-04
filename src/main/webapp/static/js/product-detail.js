@@ -25,7 +25,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup Add to Cart
     document.getElementById('add-to-cart-btn').addEventListener('click', () => {
         const quantity = parseInt(document.getElementById('qty-input').value);
-        addToCart(productId, quantity);
+        addToCart(productId, quantity, false);
+    });
+
+    // Setup Buy Now
+    document.getElementById('buy-now-btn').addEventListener('click', () => {
+        const quantity = parseInt(document.getElementById('qty-input').value);
+        addToCart(productId, quantity, true);
     });
 });
 
@@ -85,15 +91,27 @@ function renderProduct(product) {
         qtyInput.setAttribute('max', product.stockQuantity);
     }
 
-    // Status
+    // Status & Buttons
     const stockStatus = document.getElementById('stock-status');
+    const outOfStockMsg = document.getElementById('out-of-stock-message');
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    const buyNowBtn = document.getElementById('buy-now-btn');
+    // qtyInput is already declared above at line 83
+
     if (product.stockQuantity > 0) {
         stockStatus.className = 'ag-status in-stock';
         stockStatus.innerHTML = `<i class="fas fa-check-circle"></i> Còn hàng (${product.stockQuantity})`;
+        outOfStockMsg.classList.add('ag-hidden');
+        addToCartBtn.disabled = false;
+        buyNowBtn.disabled = false;
+        if (qtyInput) qtyInput.disabled = false;
     } else {
         stockStatus.className = 'ag-status out-of-stock';
         stockStatus.innerHTML = `<i class="fas fa-times-circle"></i> Hết hàng`;
-        document.getElementById('add-to-cart-btn').disabled = true;
+        outOfStockMsg.classList.remove('ag-hidden');
+        addToCartBtn.disabled = true;
+        buyNowBtn.disabled = true;
+        if (qtyInput) qtyInput.disabled = true;
     }
 
     // Images
@@ -184,8 +202,9 @@ function renderRelatedProducts(products) {
 
 /**
  * Add product to cart via Facade Service (Proxy via CartController)
+ * @param {boolean} redirect - If true, redirect to cart page after success
  */
-async function addToCart(id, qty) {
+async function addToCart(id, qty, redirect) {
     try {
         const response = await fetch(`${contextPath}cart/add`, {
             method: 'POST',
@@ -194,9 +213,13 @@ async function addToCart(id, qty) {
         });
 
         if (response.ok) {
-            showToast('Đã thêm sản phẩm vào giỏ hàng!', 'success');
-            // Cập nhật số lượng trên header nếu có
-            updateCartBadge();
+            if (redirect) {
+                window.location.href = `${contextPath}cart`;
+            } else {
+                showToast('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+                // Cập nhật số lượng trên header nếu có
+                updateCartBadge();
+            }
         } else {
             let errorMsg = 'Có lỗi xảy ra khi thêm vào giỏ hàng.';
             try {
@@ -725,11 +748,18 @@ function showToast(message, type) {
 }
 
 function updateCartBadge() {
-    // Fetch cart count and update header badge
-    fetch(`${contextPath}cart/count`)
-        .then(res => res.json())
-        .then(data => {
-            const badge = document.querySelector('.ag-cart-badge');
-            if (badge) badge.textContent = data.count;
-        });
+    if (typeof window.updateHeaderCartBadge === 'function') {
+        window.updateHeaderCartBadge();
+    } else {
+        // Fallback for cases where header might not be loaded yet or used differently
+        fetch(`${contextPath}cart/count`)
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.querySelector('.ag-cart-badge');
+                if (badge) {
+                    badge.textContent = data.count;
+                    badge.style.display = data.count > 0 ? 'block' : 'none';
+                }
+            });
+    }
 }

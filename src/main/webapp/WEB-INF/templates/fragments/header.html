@@ -138,6 +138,7 @@
                 font-weight: bold;
                 padding: 2px 6px;
                 border-radius: 10px;
+                display: none; /* Hide by default, show only if count > 0 */
             }
 
             /* LOGIN BUTTON */
@@ -318,10 +319,41 @@
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
                     <!-- Số lượng giả định -->
-                    <span class="ag-cart-badge">2</span>
+                    <!-- Số lượng thực tế sẽ được cập nhật bởi JS bên dưới -->
+                    <span class="ag-cart-badge" id="header-cart-badge">0</span>
                 </a>
             </div>
         </div>
     </header>
+
+    <!-- Script to update cart count -->
+    <script th:inline="javascript">
+        (function() {
+            const contextPath = /*[[@{/}]]*/ '/';
+            function updateHeaderCartBadge() {
+                fetch(`${contextPath}cart/count`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const badge = document.getElementById('header-cart-badge');
+                        if (badge) {
+                            badge.textContent = data.count;
+                            // Show badge only if there are items
+                            if (data.count > 0) {
+                                badge.style.display = 'block';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    })
+                    .catch(err => console.error('Error fetching cart count:', err));
+            }
+
+            // Run on load
+            document.addEventListener('DOMContentLoaded', updateHeaderCartBadge);
+            
+            // Expose globally so other scripts (like product-detail.js) can call it
+            window.updateHeaderCartBadge = updateHeaderCartBadge;
+        })();
+    </script>
 </body>
 </html>

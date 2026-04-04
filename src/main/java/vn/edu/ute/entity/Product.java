@@ -35,18 +35,18 @@ public class Product {
     @Column(name = "specifications", columnDefinition = "jsonb")
     private String specifications; // JSON string
     
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, columnDefinition = "boolean default true")
     private Boolean status = true;
 
     @NotNull(message = "Số lượng tồn kho không được để trống")
     @Min(value = 0, message = "Số lượng tồn kho không được nhỏ hơn 0")
-    @Column(name = "stock_quantity", nullable = false)
+    @Column(name = "stock_quantity", nullable = false, columnDefinition = "integer default 0")
     private Integer stockQuantity = 0;
     
-    @Column(name = "created_at")
+    @Column(name = "created_at", columnDefinition = "timestamp default current_timestamp")
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "timestamp default current_timestamp")
     private LocalDateTime updatedAt;
     
     // Relationships

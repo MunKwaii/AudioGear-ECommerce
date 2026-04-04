@@ -125,6 +125,14 @@ public class CartController extends HttpServlet {
             req.getSession().setAttribute("cartError", e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
+            String requestedWith = req.getHeader("X-Requested-With");
+            if ("XMLHttpRequest".equals(requestedWith) || (req.getHeader("Accept") != null && req.getHeader("Accept").contains("application/json"))) {
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.setContentType("application/json;charset=UTF-8");
+                String errorMsg = e.getMessage() != null ? e.getMessage().replace("\"", "'") : "Lỗi không xác định";
+                resp.getWriter().write("{\"success\":false, \"message\":\"" + errorMsg + "\"}");
+                return;
+            }
             req.getSession().setAttribute("cartError", "Có lỗi xảy ra: " + e.getMessage());
         }
 

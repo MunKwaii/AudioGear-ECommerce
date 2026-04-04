@@ -83,14 +83,17 @@ public class CartFacadeServiceImpl implements CartFacadeService {
                           
         if (product == null) throw new IllegalArgumentException("Product không tồn tại!");
 
+        // Null-safety: sản phẩm thêm thủ công có thể thiếu stockQuantity
+        int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+
         CartItem existingItem = cartDao.findCartItemByCartAndProduct(cart.getId(), productId);
         int totalQuantityRequested = quantity;
         if (existingItem != null) {
             totalQuantityRequested += existingItem.getQuantity();
         }
 
-        if (totalQuantityRequested > product.getStockQuantity()) {
-            throw new InsufficientStockException(product.getName(), product.getStockQuantity());
+        if (totalQuantityRequested > availableStock) {
+            throw new InsufficientStockException(product.getName(), availableStock);
         }
 
         if (existingItem != null) {
@@ -111,8 +114,11 @@ public class CartFacadeServiceImpl implements CartFacadeService {
             jakarta.persistence.EntityManager em = vn.edu.ute.config.DatabaseConfig.getEntityManager();
             try {
                 CartItem item = em.find(CartItem.class, cartItemId);
-                if (item != null && newQuantity > item.getProduct().getStockQuantity()) {
-                    throw new InsufficientStockException(item.getProduct().getName(), item.getProduct().getStockQuantity());
+                if (item != null) {
+                    int availableStock = item.getProduct().getStockQuantity() != null ? item.getProduct().getStockQuantity() : 0;
+                    if (newQuantity > availableStock) {
+                        throw new InsufficientStockException(item.getProduct().getName(), availableStock);
+                    }
                 }
             } finally {
                 vn.edu.ute.config.DatabaseConfig.closeEntityManager();
