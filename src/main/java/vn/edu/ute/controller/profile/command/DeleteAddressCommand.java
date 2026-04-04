@@ -10,8 +10,8 @@ public class DeleteAddressCommand extends ProfileCommand {
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse resp, Long userId) throws ServletException, IOException {
         String idStr = req.getParameter("id");
-        if (idStr != null) {
-            facade.deleteAddress(Long.parseLong(idStr));
+        if (idStr != null && !idStr.trim().isEmpty()) {
+            facade.deleteAddress(Long.parseLong(idStr.trim()));
         }
         resp.sendRedirect(req.getContextPath() + "/profile/addresses?success=true");
     }

@@ -173,6 +173,12 @@ public class AdminUserApiController extends BaseApiController {
         Long id = Long.parseLong(pathInfo.substring(1, pathInfo.lastIndexOf("/")));
         JsonObject body = parseRequestBody(req);
         UserStatus status = parseStatus(getRequiredString(body, "status"));
+        
+        Long currentUserId = (Long) req.getAttribute("currentUserId");
+        if (currentUserId != null && currentUserId.equals(id) && status == UserStatus.locked) {
+            sendError(resp, "Không thể khóa tài khoản của chính bạn", HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
 
         User updated = userService.updateUserStatus(id, status);
         sendSuccess(resp, "Cập nhật trạng thái thành công", toUserResponse(updated));
@@ -197,6 +203,12 @@ public class AdminUserApiController extends BaseApiController {
         String phoneNumber = getOptionalString(body, "phoneNumber");
         UserRole role = parseRole(getOptionalString(body, "role"));
         UserStatus status = parseStatus(getOptionalString(body, "status"));
+
+        Long currentUserId = (Long) req.getAttribute("currentUserId");
+        if (currentUserId != null && currentUserId.equals(id) && status == UserStatus.locked) {
+            sendError(resp, "Không thể khóa tài khoản của chính bạn", HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
 
         User updated = userService.updateUser(id, email, username, fullName, password, phoneNumber, role, status);
         sendSuccess(resp, "Cập nhật người dùng thành công", toUserResponse(updated));

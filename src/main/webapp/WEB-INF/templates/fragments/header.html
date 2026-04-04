@@ -26,7 +26,7 @@
                 backdrop-filter: blur(12px);
                 -webkit-backdrop-filter: blur(12px);
                 border-bottom: 1px solid var(--ag-border);
-                font-family: 'Inter', '-apple-system', 'Segoe UI', sans-serif;
+                font-family: 'Outfit', '-apple-system', 'Segoe UI', sans-serif;
                 color: var(--ag-text);
                 transition: all 0.3s ease;
             }
@@ -35,10 +35,10 @@
                 max-width: 1200px;
                 margin: 0 auto;
                 padding: 16px 24px;
-                display: flex;
+                display: grid;
+                grid-template-columns: 1fr auto 1fr;
                 align-items: center;
-                justify-content: space-between;
-                gap: 30px;
+                gap: 20px;
             }
 
             /* LOGO */
@@ -102,6 +102,7 @@
                 display: flex;
                 align-items: center;
                 gap: 24px;
+                justify-self: end;
             }
             .ag-nav-item {
                 text-decoration: none;
