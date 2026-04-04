@@ -11,5 +11,6 @@ public interface OrderDao {
     List<Order> findAll();
     List<Order> findAllWithItems();
     List<Order> findByUserId(Long userId);
+    Optional<Order> findByOrderCode(String orderCode);
     Order save(Order order);
 }

@@ -90,6 +90,19 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
+    public Optional<Order> findByOrderCode(String orderCode) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            List<Order> results = em.createQuery("SELECT o FROM Order o WHERE o.orderCode = :orderCode", Order.class)
+                    .setParameter("orderCode", orderCode)
+                    .getResultList();
+            return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
     public Order save(Order order) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {

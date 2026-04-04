@@ -17,7 +17,8 @@ public final class PaymentStrategyFactory {
             "MOMO", MomoStrategy::new,
             "BANK", BankTransferStrategy::new,
             "BANK_TRANSFER", BankTransferStrategy::new,
-            "STORE_PICKUP", StorePickupStrategy::new
+            "STORE_PICKUP", StorePickupStrategy::new,
+            "SEPAY_QR", SePayStrategy::new
     );
 
     private PaymentStrategyFactory() {

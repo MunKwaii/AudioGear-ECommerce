@@ -204,5 +204,4 @@ public class Order {
     public PaymentStrategy getPaymentStrategy() { return paymentStrategy; }
 
     public void setPaymentStrategy(PaymentStrategy paymentStrategy) {this.paymentStrategy = paymentStrategy;}
-
 }

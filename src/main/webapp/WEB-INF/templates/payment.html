@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} + ' - AudioGear'">Thanh toán QR - AudioGear</title>
+    <!-- Use the same Google Fonts as Home -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --surface-color: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary-glow: #00f2fe;
+            --secondary-glow: #4facfe;
+            --text-main: #f0f0f0;
+            --text-muted: #8892b0;
+            --danger: #ff4757;
+            --success: #2ed573;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(0, 242, 254, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(79, 172, 254, 0.05) 0%, transparent 50%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .payment-container {
+            max-width: 600px;
+            margin: 80px auto;
+            text-align: center;
+            background: var(--surface-color);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .payment-container h2 {
+            font-size: 2rem;
+            color: var(--primary-glow);
+            margin-bottom: 10px;
+        }
+
+        .payment-container p.subtitle {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        #qr-container {
+            margin: 20px auto;
+            position: relative;
+            display: inline-block;
+            background: #fff;
+            padding: 15px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+        }
+
+        #qr-code {
+            max-width: 250px;
+            height: auto;
+            display: block;
+        }
+
+        #payment-info {
+            margin-top: 30px;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        #payment-info p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #payment-info p:last-child {
+            margin-bottom: 0;
+        }
+
+        #payment-info strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .alert-warning {
+            margin-top: 30px;
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 193, 7, 0.2);
+        }
+
+        #countdown {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--danger);
+            margin-left: 10px;
+        }
+        
+        .bank-logos {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            opacity: 0.6;
+        }
+
+        .bank-logos i {
+            font-size: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header Fragment -->
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <div class="payment-container">
+        <h2>Quét mã QR để thanh toán</h2>
+        <p class="subtitle">Sử dụng ứng dụng Mobile Banking của bạn để hoàn tất đơn hàng</p>
+
+        <div id="qr-container">
+            <img id="qr-code" src="" alt="Đang tạo mã QR...">
+        </div>
+
+        <div id="payment-info">
+            <p>Mã đơn hàng: <strong id="content" th:text="${order.orderCode}"></strong></p>
+            <p>Số tiền thanh toán: <strong id="amount" class="text-primary" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')}"></strong> đ</p>
+        </div>
+
+        <div class="alert-warning">
+            Mã QR sẽ tự động đóng sau: <span id="countdown">03:00</span>
+        </div>
+        
+        <div class="bank-logos">
+            <i class="fas fa-qrcode"></i>
+            <i class="fas fa-university"></i>
+            <i class="fas fa-mobile-alt"></i>
+        </div>
+    </div>
+
+    <!-- Footer Fragment -->
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const orderAmount = /*[[${order.totalAmount}]]*/ 0;
+        const orderCode = /*[[${order.orderCode}]]*/ '';
+        const bankAccount = /*[[${bankAccount}]]*/ '';
+        const bankCode = /*[[${bankCode}]]*/ '';
+        const contextPath = /*[[@{/}]]*/ '/';
+        /*]]>*/
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!orderCode) {
+                Swal.fire('Lỗi', 'Không tìm thấy thông tin đơn hàng', 'error')
+                    .then(() => window.location.href = contextPath);
+                return;
+            }
+
+            // Gọi API tạo hình ảnh QR từ SePay
+            const qrUrl = `https://qr.sepay.vn/img?acc=${bankAccount}&bank=${bankCode}&amount=${orderAmount}&des=${orderCode}`;
+            document.getElementById('qr-code').src = qrUrl;
+
+            // Logic đếm ngược và polling
+            let timeLeft = 180; // 3 phút
+            const countdownEl = document.getElementById('countdown');
+
+            const countdownInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                const seconds = (timeLeft % 60).toString().padStart(2, '0');
+                countdownEl.textContent = `${minutes}:${seconds}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    clearInterval(paymentInterval);
+                    
+                    Swal.fire({
+                        title: 'Mã QR đã hết hạn!',
+                        text: 'Vui lòng thực hiện lại yêu cầu thanh toán hoặc liên hệ hỗ trợ.',
+                        icon: 'warning',
+                        confirmButtonText: 'Về trang chủ',
+                        allowOutsideClick: false,
+                        background: '#1a1a1a',
+                        color: '#fff',
+                        confirmButtonColor: '#00f2fe'
+                    }).then(() => {
+                        window.location.href = contextPath;
+                    });
+                }
+            }, 1000);
+
+            // Polling kiểm tra trạng thái thanh toán từ SePay API Controller
+            const paymentInterval = setInterval(async () => {
+                if (timeLeft <= 0) return;
+                try {
+                    const response = await fetch(`${contextPath}api/v1/payment/check-status?code=${orderCode}`);
+                    if (!response.ok) return;
+
+                    const result = await response.json();
+
+                    if (result.paid === true) {
+                        clearInterval(countdownInterval);
+                        clearInterval(paymentInterval);
+                        
+                        Swal.fire({
+                            title: 'Thanh toán thành công!',
+                            text: 'Cảm ơn bạn đã mua sắm tại AudioGear.',
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                            background: '#1a1a1a',
+                            color: '#fff',
+                            confirmButtonColor: '#2ed573'
+                        }).then(() => {
+                            window.location.href = `${contextPath}?orderCode=${orderCode}&status=success`;
+                        });
+                    }
+                } catch (error) {
+                    console.error("Polling error:", error);
+                }
+            }, 5000); // 5s/lần
+        });
+    </script>
+</body>
+</html>

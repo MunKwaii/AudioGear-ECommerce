@@ -60,9 +60,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 showToast('Đặt hàng thành công!', 'success');
-                // Redirect to success page or home after a short delay
+                // Redirect to success page or payment page after a short delay
                 setTimeout(() => {
-                    window.location.href = `${contextPath}?orderCode=${result.orderCode || ''}&status=success`;
+                    if (data.paymentMethod === 'SEPAY_QR') {
+                        window.location.href = `${contextPath}payment?orderCode=${result.orderCode || ''}`;
+                    } else {
+                        window.location.href = `${contextPath}?orderCode=${result.orderCode || ''}&status=success`;
+                    }
                 }, 2000);
             } else {
                 showToast(result.message || 'Thanh toán không thành công.', 'error');
