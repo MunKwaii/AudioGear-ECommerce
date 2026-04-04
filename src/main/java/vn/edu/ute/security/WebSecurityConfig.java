@@ -37,6 +37,8 @@ public class WebSecurityConfig {
             "/api/cart",          // Guest cart API (cookie-based)
             "/checkout",          // Guest checkout view
             "/api/v1/checkout",   // Guest checkout API
+            "/payment",           // Guest payment QR page
+            "/api/v1/payment/check-status", // Guest payment status polling
             "/api/orders/track",  // Tra cứu công khai
             
             // Tài nguyên tĩnh

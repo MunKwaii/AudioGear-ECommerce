@@ -59,11 +59,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (response.ok) {
-                showToast('Đặt hàng thành công!', 'success');
+                const method = result.paymentMethod || data.paymentMethod;
+                if (method && method.toUpperCase() === 'SEPAY_QR') {
+                    showToast('Đặt hàng thành công! Đang chuyển đến trang thanh toán...', 'success');
+                } else {
+                    showToast('Đặt hàng thành công!', 'success');
+                }
                 // Redirect to success page or payment page after a short delay
                 setTimeout(() => {
                     console.log("Check result redirect:", result);
-                    const method = result.paymentMethod || data.paymentMethod;
                     console.log("Final detected method:", method);
                     
                     if (method && method.toUpperCase() === 'SEPAY_QR') {
