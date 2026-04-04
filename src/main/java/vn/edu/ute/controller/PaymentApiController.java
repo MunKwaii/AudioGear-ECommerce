@@ -112,8 +112,7 @@ public class PaymentApiController extends HttpServlet {
                             .findFirst();
 
                     if (matchedTransaction.isPresent()) {
-                        order.setStatus(OrderStatus.PROCESSING);
-                        orderDao.save(order);
+                        orderDao.updateStatus(orderCode, OrderStatus.PROCESSING);
 
                         resp.getWriter().write(gson.toJson(Map.of("paid", true)));
                         return;

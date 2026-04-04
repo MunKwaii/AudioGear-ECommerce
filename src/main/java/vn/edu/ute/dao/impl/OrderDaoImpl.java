@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import vn.edu.ute.config.DatabaseConfig;
 import vn.edu.ute.dao.OrderDao;
 import vn.edu.ute.entity.Order;
+import vn.edu.ute.entity.enums.OrderStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -117,6 +118,24 @@ public class OrderDaoImpl implements OrderDao {
         } catch (Exception e) {
             DatabaseConfig.rollbackTransaction();
             throw new RuntimeException("Lỗi khi lưu Order: " + e.getMessage(), e);
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public void updateStatus(String orderCode, OrderStatus status) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            DatabaseConfig.beginTransaction();
+            em.createQuery("UPDATE Order o SET o.status = :status, o.updatedAt = CURRENT_TIMESTAMP WHERE o.orderCode = :orderCode")
+                    .setParameter("status", status)
+                    .setParameter("orderCode", orderCode)
+                    .executeUpdate();
+            DatabaseConfig.commitTransaction();
+        } catch (Exception e) {
+            DatabaseConfig.rollbackTransaction();
+            throw new RuntimeException("Lỗi khi cập nhật trạng thái Order: " + e.getMessage(), e);
         } finally {
             DatabaseConfig.closeEntityManager();
         }

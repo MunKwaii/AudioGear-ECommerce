@@ -21,10 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle address option selection styling
     const addressOptions = document.querySelectorAll('.address-option');
     addressOptions.forEach(opt => {
-        opt.addEventListener('click', () => {
+        opt.addEventListener('click', function(e) {
+            // Prevent double trigger if clicking the input itself
+            if (e.target.tagName !== 'INPUT') {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            }
             addressOptions.forEach(p => p.classList.remove('selected'));
-            opt.classList.add('selected');
-            opt.querySelector('input[type="radio"]').checked = true;
+            this.classList.add('selected');
         });
     });
 
