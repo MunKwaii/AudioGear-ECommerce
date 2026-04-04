@@ -28,6 +28,7 @@ import java.util.stream.StreamSupport;
 @WebServlet("/api/v1/payment/check-status")
 public class PaymentApiController extends HttpServlet {
 
+    private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(PaymentApiController.class);
     private final OrderDao orderDao = new OrderDaoImpl();
     private final Gson gson = new Gson();
     private final HttpClient httpClient = HttpClient.newBuilder()
@@ -40,6 +41,7 @@ public class PaymentApiController extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         String orderCode = req.getParameter("code");
+        logger.info("Polling payment status for orderCode: {}", orderCode);
 
         if (orderCode == null || orderCode.trim().isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -68,8 +70,9 @@ public class PaymentApiController extends HttpServlet {
             }
 
             String apiToken = "HL1TIEXVOABXCTRDJFHOYNRJZULNZKC4IJTZQDSZM5B7NVQGSSPOY0W26MKEPWMU"; // SePay token
-            String sepayUrl = "https://my.sepay.vn/userapi/transactions/list?since_id=20";
+            String sepayUrl = "https://my.sepay.vn/userapi/transactions/list?limit=20";
 
+            logger.info("Fetching latest 20 transactions from SePay: {}", sepayUrl);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(sepayUrl))
                     .header("Authorization", "Bearer " + apiToken)
@@ -78,19 +81,33 @@ public class PaymentApiController extends HttpServlet {
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            logger.info("SePay API returned status: {}", response.statusCode());
 
             if (response.statusCode() == 200 && response.body() != null) {
                 JsonObject jsonResponse = gson.fromJson(response.body(), JsonObject.class);
                 JsonArray transactions = jsonResponse.getAsJsonArray("transactions");
 
                 if (transactions != null) {
-                    // Sử dụng lambda và Stream API để tìm giao dịch khớp với orderCode
+                    // Sử dụng lambda và Stream API để tìm giao dịch khớp với orderCode (không phân biệt hoa thường)
+                    final String searchCode = orderCode.toLowerCase();
+                    final String searchCodeNoHyphen = searchCode.replace("-", "");
+                    
+                    logger.info("Searching for code: {} or {}", searchCode, searchCodeNoHyphen);
+                    
                     Optional<JsonObject> matchedTransaction = StreamSupport.stream(transactions.spliterator(), false)
                             .map(JsonElement::getAsJsonObject)
                             .filter(tx -> {
                                 JsonElement contentEl = tx.get("transaction_content");
-                                return contentEl != null && !contentEl.isJsonNull() 
-                                       && contentEl.getAsString().contains(orderCode);
+                                if (contentEl == null || contentEl.isJsonNull()) return false;
+                                String content = contentEl.getAsString().toLowerCase();
+                                
+                                // Kiểm tra chứa mã gốc hoặc mã đã bỏ dấu gạch ngang (vì ngân hàng hay xóa dấu -)
+                                boolean match = content.contains(searchCode) || content.contains(searchCodeNoHyphen);
+                                
+                                if (match) {
+                                    logger.info("Match found for {}: content='{}'", orderCode, contentEl.getAsString());
+                                }
+                                return match;
                             })
                             .findFirst();
 

@@ -30,6 +30,8 @@ public class PaymentStrategyConverter implements AttributeConverter<PaymentStrat
                 return new BankTransferStrategy();
             case "STORE_PICKUP":
                 return new StorePickupStrategy();
+            case "SEPAY_QR":
+                return new SePayStrategy();
             default:
                 // Tránh việc văng lỗi trắng trang Admin nếu trong DB có dữ liệu cũ chưa map
                 System.err.println("Unknown payment strategy code in DB: " + dbData + ". Falling back to COD.");
