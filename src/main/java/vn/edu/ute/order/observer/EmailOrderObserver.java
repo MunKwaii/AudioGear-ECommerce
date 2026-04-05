@@ -134,7 +134,7 @@ public class EmailOrderObserver implements OrderObserver {
 
     /** Khối hiển thị thông tin đơn hàng dùng chung cho các template */
     private String orderInfoBlock(Order order) {
-        String amount = String.format("%,.0f ₫", order.getTotalAmount().doubleValue());
+        String amount = String.format("%,.0f VND", order.getTotalAmount().doubleValue());
         return "<div style='background:#f8fafc;border:1px solid #e2e8f0;padding:16px;margin:16px 0;border-radius:8px'>" +
                    "<table style='width:100%;border-collapse:collapse'>" +
                        "<tr><td style='padding:4px 0;color:#64748b'>Mã đơn hàng:</td><td style='font-weight:600'>" + order.getOrderCode() + "</td></tr>" +

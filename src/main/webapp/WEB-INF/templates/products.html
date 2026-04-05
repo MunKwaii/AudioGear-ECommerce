@@ -477,7 +477,7 @@
                     </a>
                     <div class="product-footer">
                         <span class="product-price"
-                            th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                            th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</span>
                         <form th:action="@{/cart/add}" method="post" style="margin: 0;">
                             <input type="hidden" name="productId" th:value="${prod.id}" />
                             <input type="hidden" name="quantity" value="1" />

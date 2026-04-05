@@ -334,7 +334,7 @@
                                  class="item-img" th:src="@{/static/images/product-placeholder.png}" alt="product">
                             <div class="item-info">
                                 <div class="item-name" th:text="${item.product.name}">Tên sản phẩm âm thanh</div>
-                                <div class="item-price" th:text="${'SL: ' + item.quantity + ' x ' + #numbers.formatInteger(item.price, 3, 'POINT') + '₫'}">SL: 1 x 1.000.000₫</div>
+                                <div class="item-price" th:text="${'SL: ' + item.quantity + ' x ' + #numbers.formatInteger(item.price, 3, 'POINT') + ' VND'}">SL: 1 x 1.000.000 VND</div>
                             </div>
                         </div>
                     </div>
@@ -359,7 +359,7 @@
                         
                         <div class="total-row">
                             <span class="total-label">Tổng cộng:</span>
-                            <span class="total-price" th:text="${#numbers.formatInteger(order.totalAmount, 3, 'POINT') + '₫'}">1.250.000₫</span>
+                            <span class="total-price" th:text="${#numbers.formatInteger(order.totalAmount, 3, 'POINT') + ' VND'}">1.250.000 VND</span>
                         </div>
                     </div>
                 </div>

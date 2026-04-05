@@ -329,7 +329,7 @@
                 <td style="font-family: monospace; font-weight: 600;" th:text="${order.orderCode}">ORD-001</td>
                 <td th:text="${order.recipientName}">Nguyễn Văn A</td>
                 <td th:text="${order.email}" style="color: var(--text-muted);">user@mail.com</td>
-                <td th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 0, 'POINT')} + ' ₫'" style="font-weight: 600;"></td>
+                <td th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 0, 'POINT')} + ' VND'" style="font-weight: 600;"></td>
                 <td>
                     <span class="badge" th:classappend="'badge-' + ${order.status.name()}" th:text="${order.status.name()}">PENDING</span>
                 </td>
@@ -424,7 +424,7 @@
         tbody.innerHTML = orders.map((o, i) => {
             const badge = `<span class="badge badge-${o.status}">${o.status}</span>`;
             const actions = getActionButtons(o);
-            const amount  = Number(o.totalAmount || 0).toLocaleString('vi-VN') + ' ₫';
+            const amount  = Number(o.totalAmount || 0).toLocaleString('vi-VN') + ' VND';
             const date    = o.createdAt ? o.createdAt.replace('T', ' ').substring(0, 16) : '-';
             return `
             <tr class="order-row" data-status="${o.status}" data-id="${o.orderId || o.id}">

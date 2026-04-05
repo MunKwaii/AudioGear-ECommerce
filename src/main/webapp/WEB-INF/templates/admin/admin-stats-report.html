@@ -280,8 +280,8 @@
             <div class="stat-card">
                 <div class="stat-icon bg-accent">💰</div>
                 <div class="stat-label">Doanh thu</div>
-                <div class="stat-value">${fmtMoney(r.total)} ₫</div>
-                <div class="stat-sub">TB: ${fmtMoney(r.avgOrderValue)} ₫ | Max: ${fmtMoney(r.highestOrder)} ₫ | Min: ${fmtMoney(r.lowestOrder)} ₫</div>
+                <div class="stat-value">${fmtMoney(r.total)} VND</div>
+                <div class="stat-sub">TB: ${fmtMoney(r.avgOrderValue)} VND | Max: ${fmtMoney(r.highestOrder)} VND | Min: ${fmtMoney(r.lowestOrder)} VND</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon bg-green">📦</div>
@@ -293,7 +293,7 @@
                 <div class="stat-icon bg-blue">🧾</div>
                 <div class="stat-label">Sản phẩm</div>
                 <div class="stat-value">${p.total}</div>
-                <div class="stat-sub">Đang bán: ${p.active} · Ngừng bán: ${p.inactive} · Giá TB: ${fmtMoney(p.avgPrice)} ₫</div>
+                <div class="stat-sub">Đang bán: ${p.active} · Ngừng bán: ${p.inactive} · Giá TB: ${fmtMoney(p.avgPrice)} VND</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon bg-purple">👤</div>
@@ -428,7 +428,7 @@
                 resizeDelay: 150,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#94a3b8', callback: v => fmtMoney(v) + '₫' } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#94a3b8', callback: v => fmtMoney(v) + ' VND' } },
                     x: { grid: { display: false }, ticks: { color: '#94a3b8', maxRotation: 45 } }
                 }
             }
@@ -501,7 +501,7 @@
                         onerror="this.style.visibility='hidden';this.parentElement.style.background='rgba(255,255,255,0.05)'">
                    </div>`
                 : '';
-            const val = mode === 'qty' ? `${item.quantitySold} SP` : `${fmtMoney(item.totalRevenue)} ₫`;
+            const val = mode === 'qty' ? `${item.quantitySold} SP` : `${fmtMoney(item.totalRevenue)} VND`;
             return `<tr>
                 <td><span class="rank-badge ${rankClass}">${i + 1}</span></td>
                 <td><div style="display:flex;align-items:center;gap:10px">${thumb}<span>${item.name}</span></div></td>

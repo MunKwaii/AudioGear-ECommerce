@@ -9,10 +9,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import vn.edu.ute.dao.OrderDao;
-import vn.edu.ute.dao.impl.OrderDaoImpl;
 import vn.edu.ute.entity.Order;
 import vn.edu.ute.entity.enums.OrderStatus;
+import vn.edu.ute.service.OrderService;
+import vn.edu.ute.service.impl.OrderServiceImpl;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,7 +29,7 @@ import java.util.stream.StreamSupport;
 public class PaymentApiController extends HttpServlet {
 
     private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(PaymentApiController.class);
-    private final OrderDao orderDao = new OrderDaoImpl();
+    private final OrderService orderService = new OrderServiceImpl();
     private final Gson gson = new Gson();
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -50,14 +50,14 @@ public class PaymentApiController extends HttpServlet {
         }
 
         try {
-            Optional<Order> orderOpt = orderDao.findByOrderCode(orderCode);
-            if (orderOpt.isEmpty()) {
+            Order order;
+            try {
+                order = orderService.getOrderByOrderCode(orderCode);
+            } catch (Exception e) {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 resp.getWriter().write(gson.toJson(Map.of("paid", false, "error", "Order not found")));
                 return;
             }
-
-            Order order = orderOpt.get();
 
             // Kiem tra trang thai cua don hang
             if (order.getStatus() != OrderStatus.PENDING) {
@@ -112,7 +112,8 @@ public class PaymentApiController extends HttpServlet {
                             .findFirst();
 
                     if (matchedTransaction.isPresent()) {
-                        orderDao.updateStatus(orderCode, OrderStatus.PROCESSING);
+                        // Sử dụng OrderService để process đơn hàng (cập nhật trạng thái + gửi email)
+                        orderService.processOrder(order.getId());
 
                         resp.getWriter().write(gson.toJson(Map.of("paid", true)));
                         return;

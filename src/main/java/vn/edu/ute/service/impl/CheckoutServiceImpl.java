@@ -166,11 +166,15 @@ public class CheckoutServiceImpl implements CheckoutService {
             DatabaseConfig.commitTransaction();
 
             // 6. Gửi email thông báo (Sau khi DB commit thành công)
-            try {
-                orderNotificationService.notifyProcessing(order);
-            } catch (Exception e) {
-                // Logo lỗi gửi mail nhưng không làm hỏng tiến trình checkout
-                e.printStackTrace();
+            // Chỉ gửi email ngay nếu không phải là thanh toán QR (VD: COD)
+            // Nếu là SEPAY_QR, email sẽ được gửi sau khi nhận được callback thanh toán thành công
+            if (!"SEPAY_QR".equalsIgnoreCase(request.getPaymentMethod())) {
+                try {
+                    orderNotificationService.notifyProcessing(order);
+                } catch (Exception e) {
+                    // Log lỗi gửi mail nhưng không làm hỏng tiến trình checkout
+                    e.printStackTrace();
+                }
             }
 
             return new CheckoutResponse(

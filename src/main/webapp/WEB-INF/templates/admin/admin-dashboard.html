@@ -208,7 +208,7 @@
             <div class="stat-icon bg-purple"><i class="fas fa-wallet"></i></div>
             <div class="stat-content">
                 <div class="stat-label">Doanh thu tổng</div>
-                <div class="stat-value" id="stats-revenue">0 ₫</div>
+                <div class="stat-value" id="stats-revenue">0 VND</div>
             </div>
         </div>
         <div class="stat-card">
@@ -318,7 +318,7 @@
     }
 
     function updateUI(data) {
-        document.getElementById('stats-revenue').textContent = Number(data.totalRevenue).toLocaleString('vi-VN') + ' ₫';
+        document.getElementById('stats-revenue').textContent = Number(data.totalRevenue).toLocaleString('vi-VN') + ' VND';
         document.getElementById('stats-orders').textContent = data.totalOrders;
         document.getElementById('stats-products').textContent = data.totalProducts;
         document.getElementById('stats-low-stock').textContent = data.lowStockCount;
@@ -333,7 +333,7 @@
                     <td style="font-weight: 700;">${order.orderCode}</td>
                     <td>${order.recipientName}</td>
                     <td style="color: var(--text-muted);">${order.createdAt}</td>
-                    <td style="font-weight: 700; color: var(--primary);">${Number(order.totalAmount).toLocaleString('vi-VN')} ₫</td>
+                    <td style="font-weight: 700; color: var(--primary);">${Number(order.totalAmount).toLocaleString('vi-VN')} VND</td>
                     <td><span class="status-pill ${order.status}">${order.status}</span></td>
                 `;
                 tableBody.appendChild(row);
@@ -354,7 +354,7 @@
             data: {
                 labels: trendData.map(d => d.date),
                 datasets: [{
-                    label: 'Doanh thu (₫)',
+                    label: 'Doanh thu (VND)',
                     data: trendData.map(d => d.amount),
                     borderColor: '#00f2fe',
                     borderWidth: 4,

@@ -480,7 +480,7 @@
                             <div class="item-name" th:text="${item.productName}">Product Name</div>
                             <div class="item-meta">
                                 <span th:text="${'x' + item.quantity}">x1</span>
-                                <span th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT') + '₫'}">1,000,000₫</span>
+                                <span th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT') + ' VND'}">1.000.000 VND</span>
                             </div>
                         </div>
                     </div>
@@ -489,19 +489,19 @@
                 <div class="totals">
                     <div class="total-row">
                         <span>Tạm tính</span>
-                        <span th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + '₫'}">1,000,000₫</span>
+                        <span th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + ' VND'}">1.000.000 VND</span>
                     </div>
                     <div class="total-row">
                         <span>Voucher giảm giá</span>
-                        <span id="voucher-discount">-0₫</span>
+                        <span id="voucher-discount">-0 VND</span>
                     </div>
                     <div class="total-row">
                         <span>Phí vận chuyển</span>
-                        <span>0₫</span>
+                        <span>0 VND</span>
                     </div>
                     <div class="grand-total">
                         <span>Tổng thanh toán</span>
-                        <span class="amount" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + '₫'}">1,000,000₫</span>
+                        <span class="amount" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + ' VND'}">1.000.000 VND</span>
                     </div>
                 </div>
 
