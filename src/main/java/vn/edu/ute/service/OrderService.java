@@ -11,4 +11,6 @@ public interface OrderService {
     Order deliverOrder(Long orderId);
     Order cancelOrder(Long orderId, String reason);
     List<Order> getOrdersByUserId(Long userId);
+    Order getOrderByOrderCode(String orderCode);
+    List<Order> getOrdersByOrderCodes(List<String> orderCodes);
 }

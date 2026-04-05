@@ -117,4 +117,31 @@ public class OrderServiceImpl implements OrderService, OrderSubject {
     public List<Order> getOrdersByUserId(Long userId) {
         return orderDao.findByUserId(userId);
     }
+
+    @Override
+    public Order getOrderByOrderCode(String orderCode) {
+        return orderDao.findByOrderCodeWithItems(orderCode)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng: " + orderCode));
+    }
+
+    @Override
+    public List<Order> getOrdersByOrderCodes(List<String> orderCodes) {
+        if (orderCodes == null || orderCodes.isEmpty()) {
+            return List.of();
+        }
+        
+        // Sử dụng Stream API để làm sạch dữ liệu đầu vào (lọc bỏ null/trống và trim)
+        List<String> cleanCodes = orderCodes.stream()
+                .filter(java.util.Objects::nonNull)
+                .map(String::trim)
+                .filter(code -> !code.isEmpty())
+                .distinct()
+                .collect(java.util.stream.Collectors.toList());
+
+        if (cleanCodes.isEmpty()) {
+            return List.of();
+        }
+
+        return orderDao.findByOrderCodes(cleanCodes);
+    }
 }

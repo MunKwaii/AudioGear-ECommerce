@@ -104,6 +104,45 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
+    public Optional<Order> findByOrderCodeWithItems(String orderCode) {
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            List<Order> results = em.createQuery(
+                    "SELECT DISTINCT o FROM Order o " +
+                    "LEFT JOIN FETCH o.items i " +
+                    "LEFT JOIN FETCH i.product " +
+                    "WHERE o.orderCode = :orderCode",
+                    Order.class)
+                    .setParameter("orderCode", orderCode)
+                    .getResultList();
+            return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
+    public List<Order> findByOrderCodes(List<String> orderCodes) {
+        if (orderCodes == null || orderCodes.isEmpty()) {
+            return List.of();
+        }
+        EntityManager em = DatabaseConfig.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT o FROM Order o " +
+                    "LEFT JOIN FETCH o.items i " +
+                    "LEFT JOIN FETCH i.product " +
+                    "WHERE o.orderCode IN :orderCodes " +
+                    "ORDER BY o.createdAt DESC",
+                    Order.class)
+                    .setParameter("orderCodes", orderCodes)
+                    .getResultList();
+        } finally {
+            DatabaseConfig.closeEntityManager();
+        }
+    }
+
+    @Override
     public Order save(Order order) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {

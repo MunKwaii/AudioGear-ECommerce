@@ -13,6 +13,8 @@ public interface OrderDao {
     List<Order> findAllWithItems();
     List<Order> findByUserId(Long userId);
     Optional<Order> findByOrderCode(String orderCode);
+    Optional<Order> findByOrderCodeWithItems(String orderCode);
+    List<Order> findByOrderCodes(List<String> orderCodes);
     Order save(Order order);
     void updateStatus(String orderCode, OrderStatus status);
 }

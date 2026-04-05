@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra cứu đơn hàng | AudioGear</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --ag-primary: #00f2fe;
+            --ag-secondary: #4facfe;
+            --ag-dark: #050505;
+            --ag-glass: rgba(255, 255, 255, 0.05);
+            --ag-glass-border: rgba(255, 255, 255, 0.1);
+            --ag-text: #ecf0f1;
+            --ag-text-muted: #bdc3c7;
+        }
+
+        body {
+            background-color: var(--ag-dark);
+            color: var(--ag-text);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(79, 172, 254, 0.05) 0%, transparent 40%);
+        }
+
+        .tracking-container {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 20px;
+        }
+
+        .tracking-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tracking-header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--ag-secondary), var(--ag-primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tracking-header p {
+            color: var(--ag-text-muted);
+            font-size: 16px;
+        }
+
+        /* Search Box */
+        .search-card {
+            background: var(--ag-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--ag-glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
+            transition: transform 0.3s ease;
+        }
+
+        .search-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .search-input-wrapper {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--ag-glass-border);
+            border-radius: 12px;
+            padding: 15px 20px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            border-color: var(--ag-primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .search-btn {
+            background: linear-gradient(45deg, var(--ag-secondary), var(--ag-primary));
+            border: none;
+            border-radius: 12px;
+            padding: 0 30px;
+            color: var(--ag-dark);
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+        }
+
+        .search-hint {
+            font-size: 13px;
+            color: var(--ag-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Results Section */
+        .results-section {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .order-card {
+            background: var(--ag-glass);
+            border: 1px solid var(--ag-glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: all 0.3s;
+        }
+
+        .order-card:hover {
+            border-color: var(--ag-primary);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .order-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--ag-glass-border);
+        }
+
+        .order-code-badge {
+            font-family: monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ag-primary);
+            background: rgba(0, 242, 254, 0.1);
+            padding: 4px 12px;
+            border-radius: 6px;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-pending { background: rgba(243, 156, 18, 0.2); color: #f39c12; }
+        .status-confirmed { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+        .status-shipping { background: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+        .status-delivered { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .status-cancelled { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+
+        .order-content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 30px;
+        }
+
+        .order-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .item-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .item-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #222;
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .item-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .item-price {
+            font-size: 13px;
+            color: var(--ag-text-muted);
+        }
+
+        .order-info {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .info-label { color: var(--ag-text-muted); }
+        .info-value { font-weight: 500; }
+
+        .total-row {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--ag-glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-label { font-size: 16px; font-weight: 700; }
+        .total-price { font-size: 20px; font-weight: 800; color: var(--ag-primary); }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            background: var(--ag-glass);
+            border-radius: 20px;
+            border: 1px dashed var(--ag-glass-border);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: var(--ag-text-muted);
+            margin-bottom: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .order-content { grid-template-columns: 1fr; }
+            .search-group { flex-direction: column; }
+            .search-btn { padding: 15px; width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header fragment -->
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <div class="tracking-container">
+        <div class="tracking-header">
+            <h1>Tra cứu đơn hàng</h1>
+            <p>Nhập mã đơn hàng của bạn để theo dõi hành trình âm thanh</p>
+        </div>
+
+        <!-- Search Form -->
+        <div class="search-card">
+            <form th:action="@{/order/track}" method="POST">
+                <div class="search-group">
+                    <div class="search-input-wrapper">
+                        <input type="text" name="orderCodes" class="search-input" 
+                               placeholder="VD: ORD-12345678, ORD-87654321" 
+                               th:value="${searchedCodes}">
+                    </div>
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                        Tra cứu ngay
+                    </button>
+                </div>
+                <div class="search-hint">
+                    <i class="fas fa-info-circle"></i>
+                    Bạn có thể nhập nhiều mã đơn hàng bằng cách ngăn cách bởi dấu phẩy
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" th:if="${orders != null}">
+            <h2 style="margin-bottom: 24px; font-weight: 700;">Kết quả tra cứu</h2>
+            
+            <div th:if="${#lists.isEmpty(orders)}" class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <h3>Hệ thống không tìm thấy đơn hàng nào</h3>
+                <p>Vui lòng kiểm tra lại mã đơn hàng của bạn hoặc liên hệ bộ phận CSKH nếu cần hỗ trợ.</p>
+            </div>
+
+            <div th:each="order : ${orders}" class="order-card">
+                <div class="order-meta">
+                    <div>
+                        <span class="order-code-badge" th:text="${order.orderCode}">ORD-12345678</span>
+                        <span style="margin-left: 10px; color: var(--ag-text-muted); font-size: 14px;" 
+                              th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</span>
+                    </div>
+                    <span th:class="'status-badge status-' + ${order.status.name().toLowerCase()}" 
+                          th:text="${order.status.toString()}">Đang xử lý</span>
+                </div>
+
+                <div class="order-content">
+                    <div class="order-items">
+                        <div th:each="item : ${order.items}" class="item-row">
+                            <img th:src="${item.product.thumbnailUrl != null ? item.product.thumbnailUrl : '/static/images/product-placeholder.png'}" 
+                                 class="item-img" alt="product">
+                            <div class="item-info">
+                                <div class="item-name" th:text="${item.product.name}">Tên sản phẩm âm thanh</div>
+                                <div class="item-price" th:text="${'SL: ' + item.quantity + ' x ' + #numbers.formatInteger(item.price, 3, 'POINT') + '₫'}">SL: 1 x 1.000.000₫</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-info">
+                        <div class="info-row">
+                            <span class="info-label">Người nhận:</span>
+                            <span class="info-value" th:text="${order.recipientName}">Nguyễn Văn A</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Số điện thoại:</span>
+                            <span class="info-value" th:text="${order.phoneNumber}">0987654321</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Địa chỉ:</span>
+                            <span class="info-value" th:text="${order.streetAddress + ', ' + order.city}">Địa chỉ giao hàng</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Thanh toán:</span>
+                            <span class="info-value" th:text="${order.paymentStrategy.strategyCode}">COD</span>
+                        </div>
+                        
+                        <div class="total-row">
+                            <span class="total-label">Tổng cộng:</span>
+                            <span class="total-price" th:text="${#numbers.formatInteger(order.totalAmount, 3, 'POINT') + '₫'}">1.250.000₫</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer fragment -->
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+</body>
+</html>
