@@ -205,7 +205,21 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long id) {
-        productDao.deleteById(id);
+        try {
+            productDao.deleteById(id);
+        } catch (RuntimeException e) {
+            // Nếu không thể xóa (do ràng buộc khóa ngoại - ví dụ đã có đơn hàng),
+            // thực hiện soft-delete bằng cách chuyển status sang false.
+            Optional<Product> productOpt = productDao.findById(id);
+            if (productOpt.isPresent()) {
+                Product product = productOpt.get();
+                product.setStatus(false);
+                productDao.save(product);
+            } else {
+                // Nếu sản phẩm thực sự không tồn tại, ném lại exception.
+                throw e;
+            }
+        }
     }
 
     @Override
