@@ -41,6 +41,12 @@
                 gap: 20px;
             }
 
+            /* No search layout - Use Flex for Logo-Left Icons-Right */
+            .ag-header-container.ag-no-search {
+                display: flex;
+                justify-content: space-between;
+            }
+
             /* LOGO */
             .ag-logo {
                 font-size: 24px;
@@ -251,7 +257,7 @@
             }
         </style>
 
-        <div class="ag-header-container">
+        <div class="ag-header-container" th:classappend="${hideSearch} ? 'ag-no-search' : ''">
             <!-- 1. Logo -->
             <a th:href="@{/}" class="ag-logo">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -286,7 +292,7 @@
                 </a>
 
                 <!-- Hiển thị khi chưa đăng nhập -->
-                <a th:if="${currentUserId == null}" th:href="@{/login}" class="ag-btn-login">Đăng Nhập</a>
+                <a th:if="${currentUserId == null && (hideSearch == null || !hideSearch)}" th:href="@{/login}" class="ag-btn-login">Đăng Nhập</a>
                 
                 <!-- Hiển thị nếu đã đăng nhập -->
                 <div th:if="${currentUserId != null}" class="ag-profile-menu">
@@ -328,10 +334,10 @@
                         <line x1="3" y1="6" x2="21" y2="6"></line>
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
-                    <!-- Số lượng thực tế sẽ được cập nhật bởi JS hoặc rendered bởi Thymeleaf -->
+                    <!-- Số lượng thực tế sẽ được cập nhật bởi CartCountFilter và giữ đồng bộ bằng JS -->
                     <span class="ag-cart-badge" id="header-cart-badge" 
-                          th:text="${cart != null && cart.items != null ? cart.items.size() : (session.guest_cart_count != null ? session.guest_cart_count : 0)}"
-                          th:style="${(cart != null && cart.items != null && cart.items.size() > 0) || (session.guest_cart_count != null && session.guest_cart_count > 0) ? 'display: block' : 'display: none'}">0</span>
+                          th:text="${cartCount != null ? cartCount : 0}"
+                          th:style="${cartCount != null && cartCount > 0 ? 'display: block' : 'display: none'}">0</span>
                 </a>
             </div>
         </div>
