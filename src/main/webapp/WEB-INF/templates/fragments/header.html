@@ -41,6 +41,12 @@
                 gap: 20px;
             }
 
+            /* No search layout - Use Flex for Logo-Left Icons-Right */
+            .ag-header-container.ag-no-search {
+                display: flex;
+                justify-content: space-between;
+            }
+
             /* LOGO */
             .ag-logo {
                 font-size: 24px;
@@ -251,7 +257,7 @@
             }
         </style>
 
-        <div class="ag-header-container">
+        <div class="ag-header-container" th:classappend="${hideSearch} ? 'ag-no-search' : ''">
             <!-- 1. Logo -->
             <a th:href="@{/}" class="ag-logo">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -276,7 +282,7 @@
             <!-- 3. Actions -->
             <div class="ag-header-nav">
                 <!-- Hiển thị khi chưa đăng nhập -->
-                <a th:if="${currentUserId == null}" th:href="@{/login}" class="ag-btn-login">Đăng Nhập</a>
+                <a th:if="${currentUserId == null && (hideSearch == null || !hideSearch)}" th:href="@{/login}" class="ag-btn-login">Đăng Nhập</a>
                 
                 <!-- Hiển thị nếu đã đăng nhập -->
                 <div th:if="${currentUserId != null}" class="ag-profile-menu">
