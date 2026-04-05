@@ -328,8 +328,10 @@
                 <div class="order-content">
                     <div class="order-items">
                         <div th:each="item : ${order.items}" class="item-row">
-                            <img th:src="${item.product.thumbnailUrl != null ? item.product.thumbnailUrl : '/static/images/product-placeholder.png'}" 
-                                 class="item-img" alt="product">
+                            <img th:if="${item.product.thumbnailUrl != null && !item.product.thumbnailUrl.trim().isEmpty()}" 
+                                 class="item-img" th:src="@{${item.product.thumbnailUrl}}" alt="product">
+                            <img th:unless="${item.product.thumbnailUrl != null && !item.product.thumbnailUrl.trim().isEmpty()}" 
+                                 class="item-img" th:src="@{/static/images/product-placeholder.png}" alt="product">
                             <div class="item-info">
                                 <div class="item-name" th:text="${item.product.name}">Tên sản phẩm âm thanh</div>
                                 <div class="item-price" th:text="${'SL: ' + item.quantity + ' x ' + #numbers.formatInteger(item.price, 3, 'POINT') + '₫'}">SL: 1 x 1.000.000₫</div>

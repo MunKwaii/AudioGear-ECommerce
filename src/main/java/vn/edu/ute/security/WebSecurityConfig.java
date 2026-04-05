@@ -39,7 +39,8 @@ public class WebSecurityConfig {
             "/api/v1/checkout",   // Guest checkout API
             "/payment",           // Guest payment QR page
             "/api/v1/payment/check-status", // Guest payment status polling
-            "/api/orders/track",  // Tra cứu công khai
+            "/api/orders/track",  // Tra cứu công khai (API)
+            "/order/track",       // Tra cứu công khai (View)
             
             // Tài nguyên tĩnh
             "/css/",
