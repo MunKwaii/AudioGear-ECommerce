@@ -353,19 +353,23 @@
             height: 40px;
             border-radius: 50%;
             border: 1px solid var(--glass-border);
-            background: transparent;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 10;
         }
 
         .product-card:hover .add-to-cart-btn {
             background: var(--primary-glow);
             border-color: var(--primary-glow);
             color: #000;
+            transform: scale(1.15);
         }
 
         .add-to-cart-btn:disabled {
@@ -446,11 +450,14 @@
                     <h3 class="product-title" th:text="${prod.name}">Product Name Placeholder</h3>
                 </a>
                 <div class="product-footer">
-                    <!-- Format price in VN -->
-                    <span class="product-price" th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
-                    <button class="add-to-cart-btn" th:attr="data-product-id=${prod.id}" th:disabled="${prod.stockQuantity <= 0}" th:title="${prod.stockQuantity <= 0 ? 'Hết hàng' : 'Thêm vào giỏ'}">
-                        <i class="fas fa-plus"></i>
-                    </button>
+                    <div class="product-price" th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT') + 'đ'}">1,990,000đ</div>
+                    <form th:action="@{/cart/add}" method="post" style="margin: 0;">
+                        <input type="hidden" name="productId" th:value="${prod.id}" />
+                        <input type="hidden" name="quantity" value="1" />
+                        <button type="button" class="add-to-cart-btn" th:attr="data-product-id=${prod.id}" th:disabled="${prod.stockQuantity <= 0}" th:title="${prod.stockQuantity <= 0 ? 'Hết hàng' : 'Thêm vào giỏ'}">
+                            <i class="fas fa-cart-plus"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
             
@@ -487,7 +494,7 @@
                     <form th:action="@{/cart/add}" method="post" style="margin: 0;">
                         <input type="hidden" name="productId" th:value="${prod.id}" />
                         <input type="hidden" name="quantity" value="1" />
-                        <button type="submit" class="add-to-cart-btn" th:attr="data-product-id=${prod.id}" th:disabled="${prod.stockQuantity <= 0}" th:title="${prod.stockQuantity <= 0 ? 'Hết hàng' : 'Thêm vào giỏ'}">
+                        <button type="button" class="add-to-cart-btn" th:attr="data-product-id=${prod.id}" th:disabled="${prod.stockQuantity <= 0}" th:title="${prod.stockQuantity <= 0 ? 'Hết hàng' : 'Thêm vào giỏ'}">
                             <i class="fas fa-cart-plus"></i>
                         </button>
                     </form>

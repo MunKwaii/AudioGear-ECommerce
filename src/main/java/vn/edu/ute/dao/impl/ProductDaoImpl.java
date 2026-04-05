@@ -84,9 +84,12 @@ public class ProductDaoImpl implements ProductDao {
     public List<Product> getFeaturedProducts(int limit) {
         EntityManager em = DatabaseConfig.getEntityManager();
         try {
-            // Lấy các sản phẩm đang active (status = true), sắp xếp theo giá giảm dần làm
-            // ví dụ
-            String jpql = "SELECT p FROM Product p JOIN FETCH p.category JOIN FETCH p.brand WHERE p.status = true ORDER BY p.price DESC";
+            // Lấy các sản phẩm đang active (status = true), sắp xếp theo tổng doanh số (số lượng đã bán)
+            // Sử dụng subquery trong Order By để tránh xung đột giữa JOIN FETCH và GROUP BY
+            String jpql = "SELECT p FROM Product p " +
+                         "JOIN FETCH p.category JOIN FETCH p.brand " +
+                         "WHERE p.status = true " +
+                         "ORDER BY (SELECT COALESCE(SUM(oi.quantity), 0) FROM OrderItem oi WHERE oi.product = p) DESC, p.createdAt DESC";
             TypedQuery<Product> query = em.createQuery(jpql, Product.class);
             query.setMaxResults(limit);
             return query.getResultList();

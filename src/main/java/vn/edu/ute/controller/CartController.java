@@ -80,20 +80,7 @@ public class CartController extends HttpServlet {
                     GuestCartService.getInstance().addToCart(req, resp, productId, quantity);
                 }
 
-                String requestedWith = req.getHeader("X-Requested-With");
-                if ("XMLHttpRequest".equals(requestedWith) || (req.getHeader("Accept") != null && req.getHeader("Accept").contains("application/json"))) {
-                    resp.setStatus(HttpServletResponse.SC_OK);
-                    resp.getWriter().write("{\"success\":true}");
-                    return;
-                }
-
-                String referer = req.getHeader("Referer");
-                if (referer != null && !referer.contains("/cart")) {
-                    resp.sendRedirect(referer);
-                    return;
-                }
-                resp.sendRedirect(req.getContextPath() + "/cart");
-                return;
+                // Removed individual AJAX check here - handled below centrally
 
             } else if ("/cart/remove".equals(path)) {
                 if (userId != null) {
@@ -114,6 +101,25 @@ public class CartController extends HttpServlet {
                     GuestCartService.getInstance().updateQuantity(req, resp, productId, quantity);
                 }
             }
+
+            // Centralized AJAX response check for all success branches
+            String requestedWith = req.getHeader("X-Requested-With");
+            if ("XMLHttpRequest".equals(requestedWith) || (req.getHeader("Accept") != null && req.getHeader("Accept").contains("application/json"))) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.setContentType("application/json;charset=UTF-8");
+                resp.getWriter().write("{\"success\":true}");
+                return;
+            }
+
+            // Existing redirect fallback
+            String referer = req.getHeader("Referer");
+            if (referer != null && !referer.contains("/cart") && "/cart/add".equals(path)) {
+                resp.sendRedirect(referer);
+                return;
+            }
+            resp.sendRedirect(req.getContextPath() + "/cart");
+            return;
+
         } catch (vn.edu.ute.exception.InsufficientStockException e) {
             String requestedWith = req.getHeader("X-Requested-With");
             if ("XMLHttpRequest".equals(requestedWith) || (req.getHeader("Accept") != null && req.getHeader("Accept").contains("application/json"))) {

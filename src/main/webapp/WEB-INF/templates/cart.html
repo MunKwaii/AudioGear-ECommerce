@@ -440,6 +440,63 @@
 
     <!-- Footer Fragment -->
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script th:inline="javascript">
+        (function() {
+            const contextPath = /*[[@{/}]]*/ '/';
+            
+            document.addEventListener('submit', function(e) {
+                const form = e.target.closest('.action-form');
+                if (!form) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const formData = new FormData(form);
+                // For quantity buttons, we need to get the value of the clicked button
+                if (e.submitter && e.submitter.name === 'quantity') {
+                    formData.set('quantity', e.submitter.value);
+                }
+
+                const action = form.getAttribute('action');
+                const params = new URLSearchParams(formData);
+
+                fetch(action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: params.toString()
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const isRemove = action.includes('remove');
+                        const msg = isRemove ? 'Đã xóa sản phẩm khỏi giỏ hàng' : 'Đã cập nhật số lượng';
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(msg, 'success');
+                        }
+                        
+                        // Wait a bit for the toast to be seen before reload
+                        setTimeout(() => window.location.reload(), 800);
+                    } else {
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(data.message || 'Lỗi khi cập nhật giỏ hàng', 'error');
+                        } else {
+                            alert(data.message || 'Lỗi khi cập nhật giỏ hàng');
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Cart AJAX error:', err);
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Lỗi kết nối máy chủ', 'error');
+                    }
+                });
+            });
+        })();
+    </script>
 </body>
 
 </html>
