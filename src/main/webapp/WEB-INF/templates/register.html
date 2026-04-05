@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: mainLayout('AudioGear - Đăng Ký', ~{::pageContent}, ~{::pageStyles}, ~{::pageScripts})}">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: mainLayout(title='AudioGear - Đăng Ký', content=~{::pageContent}, extraStyles=~{::pageStyles}, extraScripts=~{::pageScripts}, hideSearch=true)}">
 
 <!-- 1. STYLE DÀNH RIÊNG CHỈ CÓ TẠI TRANG NÀY -->
 <th:block th:fragment="pageStyles">

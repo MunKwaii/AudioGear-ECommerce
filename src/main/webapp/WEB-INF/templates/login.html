@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-    th:replace="~{layout/base :: mainLayout('AudioGear - Đăng Nhập', ~{::pageContent}, ~{::pageStyles}, ~{::pageScripts})}">
+    th:replace="~{layout/base :: mainLayout(title='AudioGear - Đăng Nhập', content=~{::pageContent}, extraStyles=~{::pageStyles}, extraScripts=~{::pageScripts}, hideSearch=true)}">
 
 <!-- 1. STYLE DÀNH RIÊNG CHO TRANG LOGIN -->
 <th:block th:fragment="pageStyles">
@@ -163,14 +163,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #fff;
+            background: transparent; /* Changed to transparent to remove inner border conflict */
             border-radius: 50px;
             overflow: hidden;
-            padding: 6px;
+            padding: 0; /* Removed padding for better button integration */
             height: 52px;
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: none; /* Removed border */
         }
 
         .google-btn-wrapper:hover {
@@ -239,8 +239,8 @@
                 data-auto_prompt="false">
             </div>
 
-            <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with"
-                data-size="large" data-logo_alignment="left">
+            <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="signin_with"
+                data-size="large" data-logo_alignment="left" data-width="350">
             </div>
         </div>
     </div>

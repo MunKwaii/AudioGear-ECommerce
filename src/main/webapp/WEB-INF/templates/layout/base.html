@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:fragment="mainLayout(title, content, extraStyles, extraScripts)">
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="mainLayout(title, content, extraStyles, extraScripts, hideSearch)">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,7 +43,7 @@
 </head>
 <body>
     <!-- 1. Header Nhúng chung toàn Web -->
-    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <header th:replace="~{fragments/header :: headerFragment(hideSearch=${hideSearch})}"></header>
 
     <!-- 2. Main Content động - Xác định Layout của Từng Trang -->
     <th:block th:replace="${content}"></th:block>
