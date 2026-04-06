@@ -42,7 +42,27 @@ public class UserProfileFacadeImpl implements UserProfileFacade {
         this.orderService = new OrderServiceImpl();
 
         // Cấu hình Storage Strategy (Mặc định dùng Disk)
-        String rootPath = "/home/okarin/Documents/Arch_Programming/AudioGear-ECommerce";
+        // Lấy đường dẫn gốc của dự án một cách linh hoạt
+        String rootPath = System.getProperty("user.dir");
+        
+        // Kiểm tra nếu rootPath hiện tại không phải là thư mục gốc của project (có chứa thư mục src)
+        // thì thử tìm dựa trên servletContext.getRealPath("/")
+        java.io.File srcFolder = new java.io.File(rootPath, "src");
+        if (!srcFolder.exists()) {
+            String realPath = servletContext.getRealPath("/");
+            if (realPath != null) {
+                java.io.File deployDir = new java.io.File(realPath);
+                // Thường project root là cha của thư mục target (deployDir.getParentFile().getParentFile())
+                java.io.File potentialRoot = deployDir.getParentFile(); // target/
+                if (potentialRoot != null) {
+                    potentialRoot = potentialRoot.getParentFile(); // projectRoot/
+                    if (potentialRoot != null && new java.io.File(potentialRoot, "src").exists()) {
+                        rootPath = potentialRoot.getAbsolutePath();
+                    }
+                }
+            }
+        }
+        
         this.storageStrategy = new DiskStorageStrategy(rootPath, servletContext);
     }
 
