@@ -47,7 +47,7 @@ Luồng chính:
 - Tìm kiếm, lọc và sắp xếp sản phẩm nâng cao (CategorySortStrategy, SortByDate/Name/Price).
 
 ### 4.3. Giỏ hàng & Thanh toán
-- Giỏ hàng linh hoạt (Lưu trên session/Redis cho Guest và DB cho User).
+- Giỏ hàng linh hoạt (Lưu trên cookie cho Guest và DB cho User).
 - Tích hợp Voucher giảm giá (Giảm % hoặc số tiền cố định).
 - Hỗ trợ thanh toán đa dạng: COD, Chuyển khoản ngân hàng, Momo, SePay.
 
