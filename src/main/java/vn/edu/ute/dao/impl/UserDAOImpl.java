@@ -34,8 +34,8 @@ public class UserDAOImpl implements UserDAO {
             return Optional.of(user);
         } catch (NoResultException e) {
             return Optional.empty();
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tìm User theo email: " + e.getMessage(), e);
         }
     }
 
@@ -49,8 +49,8 @@ public class UserDAOImpl implements UserDAO {
             return Optional.of(user);
         } catch (NoResultException e) {
             return Optional.empty();
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tìm User theo username: " + e.getMessage(), e);
         }
     }
     
@@ -64,8 +64,8 @@ public class UserDAOImpl implements UserDAO {
             return Optional.of(user);
         } catch (NoResultException e) {
             return Optional.empty();
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tìm User theo username hoặc email: " + e.getMessage(), e);
         }
     }
 
@@ -79,8 +79,8 @@ public class UserDAOImpl implements UserDAO {
             return Optional.of(user);
         } catch (NoResultException e) {
             return Optional.empty();
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tìm User theo số điện thoại: " + e.getMessage(), e);
         }
     }
 
@@ -90,8 +90,8 @@ public class UserDAOImpl implements UserDAO {
         try {
             User user = em.find(User.class, id);
             return Optional.ofNullable(user);
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tìm User theo ID: " + e.getMessage(), e);
         }
     }
 
@@ -110,8 +110,6 @@ public class UserDAOImpl implements UserDAO {
         } catch (Exception e) {
             DatabaseConfig.rollbackTransaction();
             throw new RuntimeException("Lỗi khi lưu User: " + e.getMessage(), e);
-        } finally {
-            DatabaseConfig.closeEntityManager();
         }
     }
 
@@ -121,8 +119,8 @@ public class UserDAOImpl implements UserDAO {
         try {
             return em.createQuery("SELECT u FROM User u ORDER BY u.createdAt DESC", User.class)
                     .getResultList();
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi lấy danh sách User: " + e.getMessage(), e);
         }
     }
 
@@ -160,8 +158,8 @@ public class UserDAOImpl implements UserDAO {
             query.setFirstResult(offset);
             query.setMaxResults(limit);
             return query.getResultList();
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tìm kiếm User: " + e.getMessage(), e);
         }
     }
 
@@ -191,8 +189,8 @@ public class UserDAOImpl implements UserDAO {
                 query.setParameter("status", status);
             }
             return query.getSingleResult();
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi đếm kết quả tìm kiếm User: " + e.getMessage(), e);
         }
     }
 }

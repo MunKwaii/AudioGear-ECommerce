@@ -21,8 +21,8 @@ public class VoucherDaoImpl implements VoucherDao {
                     .getResultList();
 
             return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tìm Voucher theo code: " + e.getMessage(), e);
         }
     }
 
@@ -37,8 +37,8 @@ public class VoucherDaoImpl implements VoucherDao {
                     .getSingleResult();
 
             return count == null ? 0 : count;
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi đếm đơn hàng sử dụng Voucher: " + e.getMessage(), e);
         }
     }
 
@@ -48,8 +48,8 @@ public class VoucherDaoImpl implements VoucherDao {
         try {
             return em.createQuery("SELECT v FROM Voucher v ORDER BY v.createdAt DESC", Voucher.class)
                     .getResultList();
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi lấy danh sách Voucher: " + e.getMessage(), e);
         }
     }
 
@@ -59,8 +59,8 @@ public class VoucherDaoImpl implements VoucherDao {
         try {
             Voucher voucher = em.find(Voucher.class, id);
             return Optional.ofNullable(voucher);
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tìm Voucher theo ID: " + e.getMessage(), e);
         }
     }
 
@@ -79,8 +79,6 @@ public class VoucherDaoImpl implements VoucherDao {
         } catch (Exception e) {
             DatabaseConfig.rollbackTransaction();
             throw new RuntimeException("Lỗi khi lưu Voucher: " + e.getMessage(), e);
-        } finally {
-            DatabaseConfig.closeEntityManager();
         }
     }
 
@@ -97,8 +95,6 @@ public class VoucherDaoImpl implements VoucherDao {
         } catch (Exception e) {
             DatabaseConfig.rollbackTransaction();
             throw new RuntimeException("Lỗi khi xóa Voucher: " + e.getMessage(), e);
-        } finally {
-            DatabaseConfig.closeEntityManager();
         }
     }
 
@@ -125,8 +121,8 @@ public class VoucherDaoImpl implements VoucherDao {
             query.setFirstResult(offset);
             query.setMaxResults(limit);
             return query.getResultList();
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tìm kiếm Voucher: " + e.getMessage(), e);
         }
     }
 
@@ -150,8 +146,8 @@ public class VoucherDaoImpl implements VoucherDao {
                 query.setParameter("status", status);
             }
             return query.getSingleResult();
-        } finally {
-            DatabaseConfig.closeEntityManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi đếm kết quả tìm kiếm Voucher: " + e.getMessage(), e);
         }
     }
 }
