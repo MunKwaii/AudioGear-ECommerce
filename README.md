@@ -49,7 +49,7 @@ Luồng chính:
 ### 4.3. Giỏ hàng & Thanh toán
 - Giỏ hàng linh hoạt (Lưu trên cookie cho Guest và DB cho User).
 - Tích hợp Voucher giảm giá (Giảm % hoặc số tiền cố định).
-- Hỗ trợ thanh toán đa dạng: COD (Đã hoàn thiện), SePay (Đã hoàn thiện) Chuyển khoản ngân hàng(Demo/Mock), Momo (Demo/Mock).
+- Hỗ trợ thanh toán đa dạng: COD (Đã hoàn thiện), SePay (Đã hoàn thiện), Chuyển khoản ngân hàng (Demo/Mock), Momo (Demo/Mock).
 
 ### 4.4. Quản lý Đơn hàng
 - Theo dõi đơn hàng (Order Tracking).
