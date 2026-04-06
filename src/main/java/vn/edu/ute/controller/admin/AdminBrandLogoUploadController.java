@@ -8,12 +8,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
+import vn.edu.ute.util.storage.PathResolver;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -72,48 +72,7 @@ public class AdminBrandLogoUploadController extends HttpServlet {
     }
 
     private List<File> resolveRoots(String staticPath) {
-        List<File> roots = new ArrayList<>();
-
-        String deployPath = getServletContext().getRealPath(staticPath);
-        if (deployPath != null) {
-            File deployRoot = new File(deployPath);
-            roots.add(deployRoot);
-
-            File current = deployRoot;
-            while (current != null) {
-                if (current.getName().equals("target")) {
-                    File projectRoot = current.getParentFile();
-                    if (projectRoot != null) {
-                        File srcRoot = new File(projectRoot,
-                                "src/main/webapp" + staticPath.replace("/", File.separator));
-                        if (!roots.contains(srcRoot)) {
-                            roots.add(0, srcRoot);
-                        }
-                    }
-                    break;
-                }
-                current = current.getParentFile();
-            }
-        }
-
-        if (roots.size() < 2) {
-            String userDir = System.getProperty("user.dir");
-            File projectRoot = new File(userDir);
-            while (projectRoot != null
-                    && !new File(projectRoot, "pom.xml").exists()
-                    && !new File(projectRoot, "src").exists()) {
-                projectRoot = projectRoot.getParentFile();
-            }
-            if (projectRoot != null) {
-                File srcRoot = new File(projectRoot,
-                        "src/main/webapp" + staticPath.replace("/", File.separator));
-                if (!roots.contains(srcRoot)) {
-                    roots.add(0, srcRoot);
-                }
-            }
-        }
-
-        return roots;
+        return PathResolver.resolveRoots(getServletContext(), staticPath);
     }
 
     private boolean isImageFile(String name) {

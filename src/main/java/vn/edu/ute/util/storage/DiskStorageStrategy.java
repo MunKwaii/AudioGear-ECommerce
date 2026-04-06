@@ -30,7 +30,7 @@ public class DiskStorageStrategy implements StorageStrategy {
         String deployPath = servletContext.getRealPath(baseSubPath);
         
         // 2. Đường dẫn Source (Vĩnh viễn)
-        String srcPath = rootProjectPath + File.separator + "src/main/webapp" + baseSubPath;
+        String srcPath = rootProjectPath + File.separator + "src" + File.separator + "main" + File.separator + "webapp" + baseSubPath.replace("/", File.separator);
 
         // Đảm bảo các thư mục tồn tại
         File srcDir = new File(srcPath);

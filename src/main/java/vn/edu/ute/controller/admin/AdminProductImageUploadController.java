@@ -10,6 +10,7 @@ import jakarta.servlet.http.Part;
 import vn.edu.ute.dto.response.ApiResponse;
 import vn.edu.ute.util.JsonUtil;
 
+import vn.edu.ute.util.storage.PathResolver;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,48 +31,7 @@ public class AdminProductImageUploadController extends HttpServlet {
 
         List<String> stored = new ArrayList<>();
         String staticPath = "/static/images/products";
-        List<File> roots = new ArrayList<>();
-
-        // 1. Get deployment path (target)
-        String deployPath = getServletContext().getRealPath(staticPath);
-        if (deployPath != null) {
-            File deployRoot = new File(deployPath);
-            roots.add(deployRoot);
-
-            // 2. Try to find 'src' by looking for 'target' folder and going up
-            File current = deployRoot;
-            while (current != null) {
-                if (current.getName().equals("target")) {
-                    File projectRoot = current.getParentFile();
-                    if (projectRoot != null) {
-                        File srcRoot = new File(projectRoot, "src/main/webapp" + staticPath.replace("/", File.separator));
-                        if (!roots.contains(srcRoot)) {
-                            // Use index 0 to prioritize saving to src
-                            roots.add(0, srcRoot);
-                        }
-                    }
-                    break;
-                }
-                current = current.getParentFile();
-            }
-        }
-
-        // 3. Fallback: Check user.dir if src was not found via target
-        if (roots.size() < 2) {
-            String userDir = System.getProperty("user.dir");
-            File projectRoot = new File(userDir);
-            // Search upwards for pom.xml or src
-            while (projectRoot != null && !new File(projectRoot, "pom.xml").exists() && !new File(projectRoot, "src").exists()) {
-                projectRoot = projectRoot.getParentFile();
-            }
-
-            if (projectRoot != null) {
-                File srcRoot = new File(projectRoot, "src/main/webapp" + staticPath.replace("/", File.separator));
-                if (!roots.contains(srcRoot)) {
-                    roots.add(0, srcRoot);
-                }
-            }
-        }
+        List<File> roots = PathResolver.resolveRoots(getServletContext(), staticPath);
 
         if (roots.isEmpty()) {
             ApiResponse response = new ApiResponse(false, "Không xác định được thư mục lưu ảnh", null);
