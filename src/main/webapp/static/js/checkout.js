@@ -254,4 +254,87 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => toast.remove(), 300);
         }, 4000);
     }
+
+    // Voucher Apply Logic
+    const btnApplyVoucher = document.getElementById('btn-apply-voucher');
+    const voucherCodeInput = document.getElementById('voucherCode');
+    const voucherMessage = document.getElementById('voucher-message');
+    const voucherDiscountEl = document.getElementById('voucher-discount');
+    const grandTotalEl = document.getElementById('grand-total-amount');
+    const subtotalEl = document.getElementById('subtotal-amount');
+
+    console.log("Voucher elements check:", { 
+        btnApplyVoucher: !!btnApplyVoucher, 
+        voucherCodeInput: !!voucherCodeInput,
+        subtotalEl: !!subtotalEl 
+    });
+
+    if (btnApplyVoucher) {
+        btnApplyVoucher.addEventListener('click', async () => {
+            console.log("Apply voucher clicked");
+            const code = voucherCodeInput.value.trim();
+            if (!code) {
+                showVoucherMessage('Vui lòng nhập mã giảm giá.', 'error');
+                return;
+            }
+
+            if (!subtotalEl) {
+                console.error("Critical: subtotal-amount element not found in DOM");
+                showVoucherMessage('Lỗi giao diện: Không tìm thấy giá trị đơn hàng.', 'error');
+                return;
+            }
+
+            // Parse subtotal from text (e.g., "1,000,000 VND" -> 1000000)
+            const subtotalText = subtotalEl.textContent.replace(/[^0-9]/g, '');
+            const subtotal = parseInt(subtotalText) || 0;
+            
+            console.log("Applying voucher:", code, "for subtotal:", subtotal);
+
+            btnApplyVoucher.disabled = true;
+            btnApplyVoucher.textContent = 'Đang áp dụng...';
+
+            try {
+                const response = await fetch(`${contextPath}api/v1/vouchers/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code, subtotal })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    const data = result.data;
+                    showVoucherMessage(result.message, 'success');
+                    
+                    // Update totals
+                    voucherDiscountEl.textContent = `-${formatCurrency(data.discountAmount)} VND`;
+                    grandTotalEl.textContent = `${formatCurrency(data.newTotal)} VND`;
+                } else {
+                    showVoucherMessage(result.message || 'Mã giảm giá không hợp lệ.', 'error');
+                    // Reset totals if failed
+                    voucherDiscountEl.textContent = '-0 VND';
+                    grandTotalEl.textContent = subtotalEl.textContent;
+                }
+            } catch (error) {
+                console.error('Error applying voucher:', error);
+                showVoucherMessage('Lỗi kết nối máy chủ.', 'error');
+            } finally {
+                btnApplyVoucher.disabled = false;
+                btnApplyVoucher.textContent = 'Áp dụng';
+            }
+        });
+    }
+
+    function showVoucherMessage(msg, type) {
+        voucherMessage.textContent = msg;
+        voucherMessage.style.display = 'block';
+        voucherMessage.style.color = type === 'success' ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function formatCurrency(amount) {
+        // Formats according to the style in HTML (e.g., 1,000,000)
+        return new Intl.NumberFormat('en-US').format(amount);
+    }
 });

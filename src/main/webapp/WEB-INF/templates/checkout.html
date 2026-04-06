@@ -285,6 +285,35 @@
             box-shadow: 0 15px 30px rgba(0, 242, 254, 0.4);
         }
 
+        .btn-apply {
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow));
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            font-weight: 600;
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-apply:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .btn-apply:disabled {
+            filter: grayscale(1);
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .voucher-input-group {
+            display: flex;
+            gap: 12px;
+        }
+
         .btn-confirm:disabled {
             filter: grayscale(1);
             cursor: not-allowed;
@@ -462,9 +491,11 @@
 
             <div class="glass-panel">
                 <h2 class="section-title"><i class="fas fa-ticket-alt"></i> Mã giảm giá</h2>
-                <div class="form-group" style="margin-bottom: 0;">
+                <div class="voucher-input-group">
                     <input type="text" id="voucherCode" placeholder="Nhập mã ưu đãi (nếu có)">
+                    <button type="button" id="btn-apply-voucher" class="btn-apply">Áp dụng</button>
                 </div>
+                <div id="voucher-message" style="margin-top: 10px; font-size: 0.85rem; display: none;"></div>
             </div>
         </div>
 
@@ -489,7 +520,7 @@
                 <div class="totals">
                     <div class="total-row">
                         <span>Tạm tính</span>
-                        <span th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + ' VND'}">1.000.000 VND</span>
+                        <span id="subtotal-amount" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + ' VND'}">1.000.000 VND</span>
                     </div>
                     <div class="total-row">
                         <span>Voucher giảm giá</span>
@@ -501,7 +532,7 @@
                     </div>
                     <div class="grand-total">
                         <span>Tổng thanh toán</span>
-                        <span class="amount" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + ' VND'}">1.000.000 VND</span>
+                        <span id="grand-total-amount" class="amount" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT') + ' VND'}">1.000.000 VND</span>
                     </div>
                 </div>
 
