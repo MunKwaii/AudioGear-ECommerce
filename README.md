@@ -49,7 +49,7 @@ Luồng chính:
 ### 4.3. Giỏ hàng & Thanh toán
 - Giỏ hàng linh hoạt (Lưu trên cookie cho Guest và DB cho User).
 - Tích hợp Voucher giảm giá (Giảm % hoặc số tiền cố định).
-- Hỗ trợ thanh toán đa dạng: COD, Chuyển khoản ngân hàng, Momo, SePay.
+- Hỗ trợ thanh toán đa dạng: COD (Đã hoàn thiện), SePay (Đã hoàn thiện) Chuyển khoản ngân hàng(Demo/Mock), Momo (Demo/Mock).
 
 ### 4.4. Quản lý Đơn hàng
 - Theo dõi đơn hàng (Order Tracking).
@@ -82,11 +82,16 @@ Luồng chính:
 3. Import các file script `.sql` (nếu có) hoặc để Hibernate tự động `update`/`validate` schema.
 
 ### Bước 2: Cấu hình kết nối
-Mở file `src/main/resources/META-INF/persistence.xml` (hoặc cấu hình DB tương ứng trong code `DatabaseConfig.java`):
-Cập nhật lại các thông số:
-- JDBC URL: `jdbc:postgresql://localhost:5432/audiogear_ecommerce`
-- Username và Password của PostgreSQL.
-- Đảm bảo Redis đang chạy ở port mặc định `6379`.
+Để thay đổi thông số kết nối, bạn hãy chỉnh sửa trực tiếp trong file mã nguồn Java:
+`src/main/java/vn/edu/ute/config/DatabaseConfig.java` (hoặc cấu hình qua biến môi trường):
+
+Cập nhật lại các thông số (mặc định đang trỏ tới Render PostgreSQL):
+- `dbHost`: `localhost`
+- `dbPort`: `5432`
+- `dbName`: `audiogear_ecommerce`
+- `dbUser` và `dbPassword` của PostgreSQL cục bộ.
+
+Đảm bảo Redis đang chạy ở port mặc định `6379` (Cấu hình tại `RedisConfig.java`).
 
 ## 7. Hướng dẫn chạy project
 **Cách 1: Chạy bằng IntelliJ IDEA (Khuyến nghị)**
@@ -139,10 +144,12 @@ Các sơ đồ UML được lưu trong thư mục `uml/`, bao gồm:
 - Thể hiện kỹ năng hướng đối tượng nâng cao bằng việc áp dụng hàng loạt Design Patterns cốt lõi: State, Strategy, Observer, Command, Builder, Factory.
 - Sử dụng công nghệ hiện đại: Redis để tăng tốc độ và quản lý dữ liệu tạm, JWT để bảo mật API/Session, API thanh toán.
 - Tích hợp đăng nhập bên thứ 3 (Google OAuth) và gửi email tự động (JavaMail OTP).
+- Thanh toán tự động qua SePay (Chuyển khoản QR) đã hoàn thiện.
 - Xử lý mượt mà giỏ hàng cho cả đối tượng chưa đăng nhập và đã đăng nhập.
 
 ## 13. Hướng phát triển thêm
-- Tích hợp thêm AI gợi ý sản phẩm (Recommendation System).
+- Tích hợp thêm AI gợi ý sản phẩm.
+- Hoàn thiện Chuyển khoản ngân hàng và Momo.
 - Mở rộng thanh toán qua các cổng quốc tế (PayPal, Stripe).
 - Phát triển thêm app mobile.
 - Tích hợp ElasticSearch để tối ưu hóa khả năng tìm kiếm sản phẩm.
