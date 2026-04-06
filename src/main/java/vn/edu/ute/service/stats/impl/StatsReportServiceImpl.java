@@ -18,6 +18,7 @@ import vn.edu.ute.entity.enums.UserRole;
 import vn.edu.ute.entity.enums.UserStatus;
 import vn.edu.ute.service.stats.StatsReportService;
 import vn.edu.ute.service.stats.TimeRangeStrategy;
+import vn.edu.ute.service.stats.TimeRangeStrategyFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,7 +41,7 @@ public class StatsReportServiceImpl implements StatsReportService {
 
     @Override
     public StatsReportDTO generateReport(String timeRangeCode) {
-        TimeRangeStrategy range = TimeRangeStrategy.fromCode(timeRangeCode);
+        TimeRangeStrategy range = TimeRangeStrategyFactory.fromCode(timeRangeCode);
         LocalDateTime from = range.getFrom();
         LocalDateTime to = range.getTo();
 
