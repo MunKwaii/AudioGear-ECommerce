@@ -14,6 +14,8 @@ import vn.edu.ute.entity.Category;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.service.ProductService;
 import vn.edu.ute.service.impl.ProductServiceImpl;
+import vn.edu.ute.util.FlashMessage;
+
 import vn.edu.ute.util.JsonUtil;
 
 import java.io.IOException;
@@ -68,7 +70,8 @@ public class AdminProductEditController extends HttpServlet {
         String formAction = req.getContextPath() + "/admin/products/edit?id=" + id;
         try {
             Product product = productService.updateProduct(id, form);
-            renderPage(req, resp, mapToForm(product), "Cập nhật sản phẩm thành công: " + product.getName(), null, formAction);
+            req.getSession().setAttribute("flashMessage", FlashMessage.success("Cập nhật sản phẩm thành công: " + product.getName()));
+            resp.sendRedirect(req.getContextPath() + "/admin/products");
         } catch (IllegalArgumentException ex) {
             renderPage(req, resp, form, null, ex.getMessage(), formAction);
         } catch (Exception ex) {

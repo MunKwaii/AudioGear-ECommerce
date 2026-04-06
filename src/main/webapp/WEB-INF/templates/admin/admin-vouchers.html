@@ -286,8 +286,6 @@
             </form>
         </div>
     </div>
-
-    <div class="toast-container" id="toastContainer"></div>
     <div id="apiUrlHelper" th:data-url="@{/api/admin/vouchers}" style="display:none;"></div>
 </main>
 
@@ -459,15 +457,6 @@
 
     function closeModal() {
         document.getElementById('voucherModal').classList.remove('show');
-    }
-
-    function showToast(msg, type) {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = msg;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
     }
 
     document.getElementById('searchInput').oninput = () => {

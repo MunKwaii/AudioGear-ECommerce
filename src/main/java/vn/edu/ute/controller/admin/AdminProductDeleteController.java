@@ -11,6 +11,7 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.service.ProductService;
 import vn.edu.ute.service.impl.ProductServiceImpl;
+import vn.edu.ute.util.FlashMessage;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -50,7 +51,12 @@ public class AdminProductDeleteController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Long id = parseLong(req.getParameter("id"));
         if (id != null) {
-            productService.deleteProduct(id);
+            try {
+                productService.deleteProduct(id);
+                req.getSession().setAttribute("flashMessage", FlashMessage.success("Đã xóa sản phẩm thành công!"));
+            } catch (Exception e) {
+                req.getSession().setAttribute("flashMessage", FlashMessage.error("Không thể xóa sản phẩm: " + e.getMessage()));
+            }
         }
         resp.sendRedirect(req.getContextPath() + "/admin/products");
     }

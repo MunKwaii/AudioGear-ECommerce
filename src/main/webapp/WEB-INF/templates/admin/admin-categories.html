@@ -355,9 +355,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Toast container -->
-    <div class="toast-container" id="toastContainer"></div>
 </main>
 
 <script th:inline="javascript">
@@ -405,16 +402,6 @@
         const h = { 'Content-Type': 'application/json' };
         if (token) h['Authorization'] = 'Bearer ' + token;
         return h;
-    }
-
-    // --- Toast ---
-    function showToast(message, type) {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = 'toast toast-' + type;
-        toast.textContent = message;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3500);
     }
 
     // --- Tree Rendering ---

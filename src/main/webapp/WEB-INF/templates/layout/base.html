@@ -51,6 +51,50 @@
     <!-- 3. Footer Nhúng chung toàn Web -->
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
+    <!-- Global Toast System & Flash Messages -->
+    <script th:inline="javascript">
+        window.showToast = function(message, type = 'success') {
+            const existing = document.querySelectorAll('.ag-toast');
+            existing.forEach(t => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); });
+
+            const toast = document.createElement('div');
+            toast.className = `ag-toast ${type}`;
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            const bgColor = type === 'success' ? 'rgba(46, 204, 113, 0.95)' : 'rgba(231, 76, 60, 0.95)';
+            Object.assign(toast.style, {
+                position: 'fixed', bottom: '30px', right: '30px', padding: '16px 28px',
+                backgroundColor: bgColor, backdropFilter: 'blur(12px)', color: '#fff',
+                borderRadius: '16px', boxShadow: '0 15px 35px rgba(0,0,0,0.4)',
+                zIndex: '20000', fontSize: '15px', fontWeight: '600',
+                border: '1px solid rgba(255,255,255,0.2)', transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                transform: 'translateX(100px)', opacity: '0'
+            });
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.transform = 'translateX(0)'; toast.style.opacity = '1'; }, 10);
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100px)'; toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 400);
+            }, 5000);
+        };
+
+        (function() {
+            /*[# th:if="${flashMessage != null}"]*/
+            showToast(/*[[${flashMessage.message}]]*/ 'Success', /*[[${flashMessage.type}]]*/ 'success');
+            /*[/]*/
+            /*[# th:if="${successMessage != null}"]*/
+            showToast(/*[[${successMessage}]]*/ 'Success', 'success');
+            /*[/]*/
+            /*[# th:if="${errorMessage != null}"]*/
+            showToast(/*[[${errorMessage}]]*/ 'Error', 'error');
+            /*[/]*/
+        })();
+    </script>
+
     <!-- TRẠM CẮM CÁC DÒNG SCRIPT (ví dụ gọi API, check Token, Login Google) -->
     <th:block th:if="${extraScripts}">
         <th:block th:replace="${extraScripts}"></th:block>
@@ -253,6 +297,52 @@
         </main>
     </div>
 </div>
+
+<!-- Global Toast System & Flash Messages for Admin -->
+<script th:inline="javascript">
+    if (typeof window.showToast !== 'function') {
+        window.showToast = function(message, type = 'success') {
+            const existing = document.querySelectorAll('.ag-toast');
+            existing.forEach(t => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); });
+
+            const toast = document.createElement('div');
+            toast.className = `ag-toast ${type}`;
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            const bgColor = type === 'success' ? 'rgba(46, 204, 113, 0.95)' : 'rgba(231, 76, 60, 0.95)';
+            Object.assign(toast.style, {
+                position: 'fixed', bottom: '30px', right: '30px', padding: '16px 28px',
+                backgroundColor: bgColor, backdropFilter: 'blur(12px)', color: '#fff',
+                borderRadius: '16px', boxShadow: '0 15px 35px rgba(0,0,0,0.4)',
+                zIndex: '20000', fontSize: '15px', fontWeight: '600',
+                border: '1px solid rgba(255,255,255,0.2)', transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                transform: 'translateX(100px)', opacity: '0'
+            });
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.transform = 'translateX(0)'; toast.style.opacity = '1'; }, 10);
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100px)'; toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 400);
+            }, 5000);
+        };
+    }
+
+    (function() {
+        /*[# th:if="${flashMessage != null}"]*/
+        showToast(/*[[${flashMessage.message}]]*/ 'Success', /*[[${flashMessage.type}]]*/ 'success');
+        /*[/]*/
+        /*[# th:if="${successMessage != null}"]*/
+        showToast(/*[[${successMessage}]]*/ 'Success', 'success');
+        /*[/]*/
+        /*[# th:if="${errorMessage != null}"]*/
+        showToast(/*[[${errorMessage}]]*/ 'Error', 'error');
+        /*[/]*/
+    })();
+</script>
 
 <script>
     (function clock(){

@@ -488,9 +488,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Toast container -->
-    <div class="toast-container" id="toastContainer"></div>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" onload="window.CropperLoaded = true;"></script>
@@ -525,15 +522,6 @@
         const h = { 'Content-Type': 'application/json' };
         if (token) h['Authorization'] = 'Bearer ' + token;
         return h;
-    }
-
-    function showToast(message, type) {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = 'toast toast-' + type;
-        toast.textContent = message;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3500);
     }
 
     async function parseJsonSafe(resp) {

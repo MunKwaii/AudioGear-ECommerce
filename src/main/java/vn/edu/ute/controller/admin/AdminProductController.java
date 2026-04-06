@@ -14,6 +14,7 @@ import vn.edu.ute.entity.Category;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.service.ProductService;
 import vn.edu.ute.service.impl.ProductServiceImpl;
+import vn.edu.ute.util.FlashMessage;
 
 import java.io.IOException;
 import java.util.List;
@@ -49,7 +50,8 @@ public class AdminProductController extends HttpServlet {
 
         try {
             Product product = productService.createProduct(form);
-            renderPage(req, resp, new CreateProductRequest(), "Tạo sản phẩm thành công: " + product.getName(), null, formAction);
+            req.getSession().setAttribute("flashMessage", FlashMessage.success("Tạo sản phẩm thành công: " + product.getName()));
+            resp.sendRedirect(req.getContextPath() + "/admin/products");
         } catch (IllegalArgumentException ex) {
             renderPage(req, resp, form, null, ex.getMessage(), formAction);
         } catch (Exception ex) {
