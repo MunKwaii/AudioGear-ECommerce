@@ -139,7 +139,7 @@ Cập nhật lại các thông số cho khớp với Docker (mặc định):
 1. Mở project trong IntelliJ IDEA.
 2. Chờ Maven tải toàn bộ dependencies.
 3. Add configuration -> Chọn **Tomcat Server** (Local).
-4. Cấu hình Deployment trỏ tới Artifact `AudioGear-ECommerce:war exploded`.
+4. Cấu hình Deployment trỏ tới Artifact `AudioGear_ECommerce_war_exploded`.
 5. Ấn Run/Debug để khởi động server (truy cập `http://localhost:8080`).
 
 **Cách 2: Build file WAR**
