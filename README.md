@@ -75,21 +75,47 @@ Luồng chính:
 - `database`: các script PostgreSQL.
 - `pom.xml`: Cấu hình dependencies và build dự án.
 
-## 6. Hướng dẫn tạo cơ sở dữ liệu
-### Bước 1: Tạo database
-1. Cài đặt PostgreSQL và Redis server.
-2. Tạo một database mới trên PostgreSQL (ví dụ: `audiogear_ecommerce`).
-3. Import các file script `.sql` (nếu có) hoặc để Hibernate tự động `update`/`validate` schema.
+## 6. Hướng dẫn thiết lập Cơ sở dữ liệu
+> [!NOTE]
+> Mặc định, dự án đã được cấu hình sẵn để kết nối tới Cơ sở dữ liệu PostgreSQL trực tuyến được host trên **Render**. Nếu bạn có kết nối internet, bạn có thể bỏ qua các bước cài đặt dưới đây và bắt đầu chạy ngay.
 
-### Bước 2: Cấu hình kết nối
+Dưới đây là hướng dẫn nếu bạn muốn thiết lập Database cục bộ bằng Docker:
+
+### Bước 1: Xóa triệt để Database (Khi cần reset/xóa cũ)
+**Xóa container:**
+```bash
+docker rm -f audiogear-postgres
+```
+
+**Xóa phân vùng dữ liệu cũ (Volume):**
+```bash
+docker volume rm postgres_local_data
+```
+
+### Bước 2: Chạy Postgres trên Docker
+Chạy lệnh sau để tạo và chạy container Postgres:
+```bash
+docker run -d \
+  --name audiogear-postgres \
+  -p 5432:5432 \
+  -v postgres_local_data:/var/lib/postgresql/data \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=12345 \
+  -e POSTGRES_DB=audiogear_db \
+  --restart always \
+  postgres:15-alpine
+```
+
+### Bước 3: Cấu hình kết nối
 Để thay đổi thông số kết nối, bạn hãy chỉnh sửa trực tiếp trong file mã nguồn Java:
 `src/main/java/vn/edu/ute/config/DatabaseConfig.java` (hoặc cấu hình qua biến môi trường):
 
-Cập nhật lại các thông số (mặc định đang trỏ tới Render PostgreSQL):
+Cập nhật lại các thông số cho khớp với Docker (mặc định):
 - `dbHost`: `localhost`
 - `dbPort`: `5432`
-- `dbName`: `audiogear_ecommerce`
-- `dbUser` và `dbPassword` của PostgreSQL cục bộ.
+- `dbName`: `audiogear_db`
+- `dbUser`: `postgres`
+- `dbPassword`: `12345`
 
 Đảm bảo Redis đang chạy ở port mặc định `6379` (Cấu hình tại `RedisConfig.java`).
 
