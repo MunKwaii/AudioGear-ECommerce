@@ -1,0 +1,42 @@
+@startuml
+title Sơ đồ Hoạt động Xử lý đơn hàng (Admin) - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Quản trị viên|
+start
+:Truy cập trang Quản lý đơn hàng;
+:Chọn hành động thay đổi trạng thái đơn hàng;
+note right
+    Các hành động: Duyệt (Process),
+    Giao hàng (Ship), Hoàn tất (Deliver),
+    hoặc Hủy (Cancel)
+end note
+
+|Hệ thống|
+:Gửi yêu cầu đến API (AdminOrderController);
+:Tải thông tin đơn hàng từ Database;
+
+:Khởi tạo máy trạng thái (OrderContext);
+:Kiểm tra tính hợp lệ của việc chuyển đổi trạng thái;
+
+if (Chuyển đổi hợp lệ?) then (Không)
+    :Báo lỗi "Xung đột trạng thái" (HTTP 409);
+    stop
+else (Có)
+    :Cập nhật trạng thái mới vào thực thể Order;
+    :Lưu thông tin thay đổi vào Database;
+
+    :Kích hoạt thông báo cho các Observers;
+    :Gửi Email tự động cho khách hàng (EmailOrderObserver);
+
+    :Trả về kết quả thành công cho UI;
+endif
+
+|Quản trị viên|
+:Nhận thông báo cập nhật thành công;
+:Giao diện tự động làm mới trạng thái đơn hàng;
+
+stop
+@enduml

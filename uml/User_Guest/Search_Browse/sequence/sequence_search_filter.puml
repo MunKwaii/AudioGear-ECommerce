@@ -1,0 +1,64 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Tìm kiếm và Lọc sản phẩm (Product Search & Filter)
+
+actor "Người dùng" as User
+boundary "UI (Trang Sản phẩm)" as UI
+control ProductSearchController as Controller
+control ProductFacadeService as Facade
+control CategoryService as CatService
+entity ProductDAO as DAO
+database "Database (DB)" as DB
+
+User -> UI : Nhập bộ lọc (từ khóa, danh mục,\nsắp xếp...) và nhấn "Tìm kiếm"
+activate UI
+
+UI -> Controller : HTTP GET /products\n(Gửi params: q, catId, sort, page)
+activate Controller
+
+' 1. Khởi tạo tham số
+Controller -> Controller : Trích xuất và parse kiểu dữ liệu\ncho params (keyword, categoryId,...)
+
+' 2. Xử lý Logic Tìm kiếm & Phân trang qua Facade
+Controller -> Facade : searchAndPaginate(keyword, categoryId, sort, page, 12)
+activate Facade
+
+Facade -> DAO : findAllByCriteria(keyword, categoryId,...)
+activate DAO
+
+note right of DAO
+  Thực thi truy vấn động (ví dụ CriteriaBuilder)
+  để lọc các Keyword kết hợp Category
+  áp dụng thêm OrderBy và Pagination (OFFSET/LIMIT)
+end note
+
+DAO -> DB : SELECT * FROM products p ... WHERE ...
+activate DB
+DB --> DAO : ResultSet
+deactivate DB
+
+DAO --> Facade : Trả về danh sách Product đã lọc
+deactivate DAO
+
+Facade --> Controller : Trả về dữ liệu đóng gói PageDTO<ProductDTO>
+deactivate Facade
+
+' 3. Nạp danh mục động làm bộ lọc UI
+Controller -> CatService : getAllCategoriesAsTree()
+activate CatService
+CatService --> Controller : Trả về cây danh mục hiện có
+deactivate CatService
+
+' 4. Đưa dữ liệu vào Context (Render giao diện)
+Controller -> Controller : Truyền biến vào WebContext\nsetVariable("productPage", productPage)\nsetVariable("categories", categories)...
+
+Controller -> UI : Process view template "products.html" (Thymeleaf)
+deactivate Controller
+
+UI --> User : Hiển thị bảng danh sách sản phẩm\ncùng thanh điều hướng phân trang page=...
+deactivate UI
+
+@enduml

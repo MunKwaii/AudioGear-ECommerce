@@ -1,0 +1,89 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Xử lý đơn hàng đơn hàng (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Giao diện quản trị)" as UI
+control AdminOrderController as Controller
+control OrderServiceImpl as Service
+participant "OrderContext (State)" as State
+participant EmailOrderObserver as Observer
+entity OrderDaoImpl as DAO
+database "Database" as DB
+
+Admin -> UI : Chọn hành động chuyển trạng thái\n(process, ship, deliver, cancel)
+activate UI
+
+UI -> Controller : HTTP POST /api/admin/orders/{action}?id={orderId}
+activate Controller
+
+' 1. Gọi Service để xử lý tương ứng
+alt action = process / ship / deliver / cancel
+    Controller -> Service : processOrder() / shipOrder() / ...
+    activate Service
+
+    ' 2. Truy xuất dữ liệu Order
+    Service -> DAO : findById(orderId)
+    activate DAO
+    DAO -> DB : SELECT * FROM orders WHERE id = ?
+    activate DB
+    DB --> DAO : ResultSet
+    deactivate DB
+    DAO --> Service : Order entity (Ném ngoại lệ trừ khi tìm thấy)
+    deactivate DAO
+
+    ' 3. Xử lý State Machine
+    Service -> State : Khởi tạo OrderContext(order)
+    activate State
+    State --> Service : Trả về context
+    deactivate State
+
+    Service -> State : processOrder() / shipOrder() / ...
+    activate State
+    State -> State : Xác thực và chuyển đổi state
+    note right: Ném IllegalStateException\n(mã 409) nếu sai logic (Nhảy trạng thái)
+    State --> Service : Thành công
+    deactivate State
+
+    ' 4. Lưu vào Database
+    Service -> DAO : save(order)
+    activate DAO
+    DAO -> DB : UPDATE orders SET status = ?
+    activate DB
+    DB --> DAO : Success
+    deactivate DB
+    DAO --> Service : Trả về Order đã cập nhật (savedOrder)
+    deactivate DAO
+
+    ' 5. Notify Observers (Gửi Email)
+    Service -> Service : notifyObservers(...)
+    activate Service
+    Service -> Observer : onOrderEvent(order, event, reason)
+    activate Observer
+    note right: Observer gửi Email\nbất đồng bộ cho khách hàng
+    Observer --> Service : void
+    deactivate Observer
+    Service --> Service
+    deactivate Service
+
+    ' 6. Response
+    Service --> Controller : Trả về updatedOrder
+    deactivate Service
+
+    Controller -> Controller : Đóng gói dữ liệu trả JSON (OrderResponseDto)
+    Controller --> UI : HTTP 200 OK
+else Ngoại lệ xảy ra (VD: Sai luồng State, Đơn không tồn tại)
+    note over Controller, Service: Catch IllegalArgumentException, IllegalStateException
+    Controller -> Controller : Sinh JSON báo lỗi (OrderResponseDto)
+    Controller --> UI : HTTP Error (400 / 404 / 409 / 500)
+end
+
+deactivate Controller
+
+UI --> Admin : Hiển thị thông báo (Thành công hoặc Lỗi)
+deactivate UI
+
+@enduml

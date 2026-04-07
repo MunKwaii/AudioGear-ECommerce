@@ -1,0 +1,71 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Tra cứu thông tin đơn hàng công khai (Search/Track Order)
+
+actor "Khách/Thành viên" as User
+boundary "UI (Trang Tra cứu)" as UI
+control OrderTrackingController as Controller
+participant "OrderCommandFactory" as Factory
+control TrackOrderCommand as Command
+control OrderFacadeImpl as Facade
+entity OrderDaoImpl as DAO
+database "Database (DB)" as DB
+
+User -> UI : Nhập mã đơn hàng (orderCodes)\nvà nhấn "Tra cứu"
+activate UI
+
+UI -> Controller : HTTP POST /order/track\n(Gửi dữ liệu form: orderCodes=...)
+activate Controller
+
+' 1. Khởi tạo Command Pattern
+Controller -> Factory : getCommand("POST", "/order/track")
+activate Factory
+Factory --> Controller : Trả về instance TrackOrderCommand
+deactivate Factory
+
+Controller -> Command : execute(req, resp)
+activate Command
+
+' 2. Xử lý logic và chuẩn hóa Input
+Command -> Command : Tách và làm sạch danh sách orderCodes\n(split, trim, bỏ trống, lấy unique)
+
+' 3. Tương tác với Database qua Facade
+Command -> Facade : getOrdersByOrderCodes(orderCodes)
+activate Facade
+
+Facade -> DAO : findByOrderCodes(cleanCodes)
+activate DAO
+
+note right of DAO
+  Dùng truy vấn kết hợp:
+  JOIN FETCH để kéo Order cùng
+  OrderItems và Product để tránh lỗi
+  Lazy Loading khi in ra View.
+end note
+
+DAO -> DB : SELECT o FROM Order o WHERE o.orderCode IN (?)
+activate DB
+DB --> DAO : ResultSet
+deactivate DB
+
+DAO --> Facade : Trả về List<Order> hoàn chỉnh
+deactivate DAO
+
+Facade --> Command : Trả về danh sách Order
+deactivate Facade
+
+' 4. Render kết quả qua Thymeleaf
+Command -> Command : setVariable("orders", orders)\nvà "searchedCodes" vào WebContext
+Command -> UI : Process view template "order-tracking"
+deactivate Command
+
+Controller --> UI : Đóng gói và trả về trang HTML
+deactivate Controller
+
+UI --> User : Hiển thị bảng trạng thái, chi tiết\ncác mặt hàng của quá trình vận chuyển
+deactivate UI
+
+@enduml

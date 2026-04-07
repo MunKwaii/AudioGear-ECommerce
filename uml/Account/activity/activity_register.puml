@@ -1,0 +1,50 @@
+@startuml
+title Sơ đồ Hoạt động Đăng ký tài khoản - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Người dùng|
+start
+:Truy cập trang Đăng ký;
+:Nhập thông tin (Username, Email, Mật khẩu...);
+:Nhấn nút "Đăng ký";
+
+|Hệ thống|
+:Tiếp nhận yêu cầu (AuthController);
+:Kiểm tra Anti-spam (RedisService);
+if (Được phép đăng ký?) then (Không)
+    :Yêu cầu đợi 1 phút;
+    stop
+else (Có)
+    :Lưu User với trạng thái PENDING vào Database;
+    if (Trùng Email hoặc Username?) then (Có)
+        :Thông báo lỗi tài khoản đã tồn tại;
+        stop
+    else (Không)
+        :Tạo mã OTP ngẫu nhiên;
+        :Lưu mã OTP vào Redis;
+        :Gửi mã OTP xác nhận qua Email;
+    endif
+endif
+
+|Người dùng|
+:Nhập mã OTP từ Email;
+:Nhấn nút "Xác nhận kích hoạt";
+
+|Hệ thống|
+:Xác thực mã OTP thông qua Redis;
+if (Mã OTP hợp lệ?) then (Không)
+    :Báo lỗi mã OTP sai hoặc hết hạn;
+    stop
+else (Có)
+    :Cập nhật trạng thái User thành ACTIVE trong DB;
+    :Xóa mã OTP và dọn dẹp Redis;
+    :Thông báo đăng ký thành công;
+endif
+
+|Người dùng|
+:Chuyển hướng về trang Đăng nhập;
+
+stop
+@enduml

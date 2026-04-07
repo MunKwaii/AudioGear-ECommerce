@@ -1,0 +1,65 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Thêm mới Voucher (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Voucher)" as UI
+control AdminVoucherApiController as Controller
+control VoucherService as Service
+entity VoucherDao as DAO
+database "Database" as DB
+
+Admin -> UI : Nhập mã, loại giảm giá, giá trị,\nngày hết hạn và nhấn "Lưu"
+activate UI
+
+UI -> Controller : HTTP POST /api/admin/vouchers\n(JSON: code, discountType, price, expiryDate, ...)
+activate Controller
+
+' 1. Logic Packaging
+Controller -> Controller : parseRequestBody(req)\n(Dùng Gson để chuyển JSON sang thực thể Voucher)
+
+' 2. Call Service
+Controller -> Service : createVoucher(voucher)
+activate Service
+
+' 3. Business Logic & Validation
+Service -> Service : Kiểm tra ngày hết hạn (expiryDate)
+
+Service -> DAO : findByCode(code)
+activate DAO
+DAO -> DB : SELECT FROM vouchers WHERE code = ?
+activate DB
+DB --> DAO : Trả về thực thể (nếu có)
+deactivate DB
+DAO --> Service : Trả về Optional<Voucher>
+deactivate DAO
+
+alt Mã Voucher đã tồn tại
+    Service --> Controller : Ném VoucherException("Mã voucher đã tồn tại")
+    Controller --> UI : HTTP 400 Bad Request (JSON: success: false)
+else Dữ liệu hợp lệ
+    ' 4. Persistence
+    Service -> DAO : save(voucher)
+    activate DAO
+    DAO -> DB : INSERT INTO vouchers (JPA Persist)
+    activate DB
+    DB --> DAO : Success
+    deactivate DB
+    DAO --> Service : Trả về Voucher đã lưu
+    deactivate DAO
+
+    Service --> Controller : Trả về thực thể Voucher
+    deactivate Service
+
+    ' 5. Response
+    Controller --> UI : HTTP 200 OK (JSON: success: true, message: "Tạo thành công")
+end
+deactivate Controller
+
+UI --> Admin : Hiển thị thông báo thành công và cập nhật bảng
+deactivate UI
+
+@enduml

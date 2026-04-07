@@ -1,0 +1,60 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Chỉnh sửa sản phẩm (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Giao diện quản trị)" as UI
+control AdminProductEditController as Controller
+control ProductService as Service
+entity ProductDao as DAO
+database "Database" as DB
+
+Admin -> UI : Thay đổi thông tin sản phẩm\nvà nhấn "Cập nhật"
+activate UI
+
+UI -> Controller : HTTP POST /admin/products/edit?id=...
+activate Controller
+
+' 1. Packaging DTO
+Controller -> Controller : Đóng gói dữ liệu chỉnh sửa vào\nCreateProductRequest (DTO)
+
+' 2. Call Service
+Controller -> Service : updateProduct(id, requestDTO)
+activate Service
+
+' 3. Retrieval & Mapping
+Service -> DAO : findById(id)
+activate DAO
+DAO -> DB : SELECT FROM products WHERE id = ?
+activate DB
+DB --> DAO : Trả về thực thể Product hiện tại
+deactivate DB
+DAO --> Service : Thực thể Product
+deactivate DAO
+
+Service -> Service : Ánh xạ dữ liệu từ DTO sang thực thể\n(Tên, Giá, Kho, Hình ảnh,...)
+
+' 4. Persistence
+Service -> DAO : save(product)
+activate DAO
+DAO -> DB : UPDATE products (JPA Merge)
+activate DB
+DB --> DAO : Success
+deactivate DB
+DAO --> Service : Trả về Product đã cập nhật
+deactivate DAO
+
+' 5. Response
+Service --> Controller : Trả về đối tượng Product
+deactivate Service
+
+Controller --> UI : Render trang thành công hoặc Redirect (Thymeleaf)
+deactivate Controller
+
+UI --> Admin : Hiển thị thông báo cập nhật thành công
+deactivate UI
+
+@enduml

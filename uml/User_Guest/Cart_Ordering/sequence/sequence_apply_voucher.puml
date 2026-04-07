@@ -1,0 +1,66 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Áp dụng mã giảm giá (Voucher)
+
+actor "Người dùng" as User
+boundary "UI (Giao diện giỏ hàng/thanh toán)" as UI
+control VoucherApiController as Controller
+control VoucherServiceImpl as Service
+entity VoucherDaoImpl as DAO
+database "Database" as DB
+
+User -> UI : Nhập mã giảm giá và nhấn "Áp dụng"
+activate UI
+
+UI -> Controller : HTTP POST /api/v1/vouchers/apply\n(Gửi JSON: mã voucher, tổng tạm tính)
+activate Controller
+
+' 1. Khởi tạo & Parse Request
+Controller -> Controller : Đóng gói dữ liệu thành VoucherApplyRequest (DTO)\nvà kiểm tra cơ bản (mã, subtotal)
+
+' 2. Xác thực điều kiện Voucher qua Service
+Controller -> Service : validateVoucher(code, subtotal, userId)
+activate Service
+
+' 3. DAO truy vấn Database
+Service -> DAO : findByCode(code)
+activate DAO
+DAO -> DB : SELECT * FROM vouchers WHERE code = ?
+activate DB
+DB --> DAO : ResultSet
+deactivate DB
+DAO --> Service : Trả về thực thể Voucher (hoặc null)
+deactivate DAO
+
+' 4. Xử lý logic nghiệp vụ
+Service -> Service : Kiểm tra dữ liệu (Hạn dùng, Trạng thái, \nSố lượt, Giá trị tối thiểu,...)
+
+alt Trường hợp Voucher hợp lệ
+    Service --> Controller : Trả về VoucherValidationResult (hợp lệ chứa thực thể Voucher)
+
+    ' 5. Tính toán mức giảm giá
+    Controller -> Service : calculateDiscount(voucher, subtotal)
+    activate Service
+    Service --> Controller : Trả về số tiền được giảm (discountAmount)
+    deactivate Service
+
+    ' 6. Chuẩn bị dữ liệu và Response
+    Controller -> Controller : Tính newTotal = subtotal - discountAmount\nĐóng gói vào VoucherApplyResponse
+    Controller --> UI : HTTP 200 OK + JSON Response
+else Trường hợp Voucher không tồn tại hoặc không hợp lệ
+    Service --> Controller : Trả về VoucherValidationResult (chứa cờ false và thông báo lỗi)
+    deactivate Service
+
+    ' 6. Trả phản hồi lỗi
+    Controller --> UI : HTTP 400 Bad Request + Kèm thông báo (message)
+end
+
+deactivate Controller
+
+UI --> User : Hiển thị thông báo thành công,\ncập nhật lại số tiền mặt UI (hoặc báo lỗi)
+deactivate UI
+
+@enduml

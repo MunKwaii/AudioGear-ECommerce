@@ -1,0 +1,68 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Admin Thêm mới danh mục
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Danh mục)" as UI
+control "AdminCategoryApiController" as Controller
+control "CategoryServiceImpl" as Service
+entity "CategoryDaoImpl" as DAO
+database "Database (DB)" as DB
+
+Admin -> UI : Nhập tên, mô tả,\nchọn danh mục cha và nhấn "Lưu"
+activate UI
+
+UI -> Controller : HTTP POST /api/admin/categories\n(JSON: name, description, parentId)
+activate Controller
+
+' 1. Parse và Validate sơ bộ
+Controller -> Controller : parseRequestBody(req)
+
+Controller -> Service : createCategory(name, description, parentId)
+activate Service
+
+' 2. Xử lý nghiệp vụ
+Service -> Service : Validate tên (không trống)
+
+alt parentId != null
+    Service -> DAO : findById(parentId)
+    activate DAO
+    DAO -> DB : SELECT FROM categories WHERE id = ?
+    activate DB
+    DB --> DAO : ResultSet
+    deactivate DB
+    DAO --> Service : Trả về thực thể Parent
+    deactivate DAO
+end
+
+Service -> Service : Khởi tạo thực thể Category mới
+
+Service -> DAO : save(category)
+activate DAO
+DAO -> DB : Bắt đầu Transaction\nem.persist(category)
+activate DB
+DB --> DAO : Success
+deactivate DB
+DAO --> Service : Thực thể Category đã lưu
+deactivate DAO
+
+' 3. Bổ sung thông tin cho DTO
+Service -> DAO : countProductsByCategory(newId)
+activate DAO
+DAO --> Service : Trả về 0 (Mới tạo)
+deactivate DAO
+
+Service --> Controller : Trả về CategoryDTO hoàn chỉnh
+deactivate Service
+
+' 4. Phản hồi
+Controller --> UI : HTTP 201 Created (JSON: success, message, data)
+deactivate Controller
+
+UI --> Admin : Hiển thị thông báo thành công và cập nhật cây danh mục
+deactivate UI
+
+@enduml

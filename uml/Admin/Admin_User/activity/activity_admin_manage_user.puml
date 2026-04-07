@@ -1,0 +1,77 @@
+@startuml
+title Sơ đồ Hoạt động Quản lý Người dùng (Admin) - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Quản trị viên|
+start
+:Truy cập trang "Quản lý Người dùng";
+
+|Hệ thống|
+:Tải danh sách người dùng (Tìm kiếm, Lọc theo Vai trò/Trạng thái);
+:Hiển thị giao diện quản lý (admin-users.html);
+
+|Quản trị viên|
+:Chọn một hành động (Xem, Thêm, Sửa, hoặc Khóa/Mở khóa);
+
+split
+    :Hành động: **Xem danh sách/Thống kê**;
+    |Hệ thống|
+    :Truy vấn tổng quan số lượng người dùng theo trạng thái;
+    :Hiển thị biểu đồ/bảng số liệu;
+
+split again
+    |Quản trị viên|
+    :Hành động: **Thêm người dùng mới**;
+    :Nhập thông tin (Email, Tên, Mật khẩu, Vai trò...);
+    :Nhấn nút "Lưu";
+    |Hệ thống|
+    :Kiểm tra tính duy nhất của Email và Username;
+    if (Thông tin hợp lệ?) then (Có)
+        :Mã hóa mật khẩu;
+        :Lưu người dùng mới vào Database;
+        :Trả về thông báo thành công;
+    else (Không)
+        :Báo lỗi (Email đã tồn tại, mật khẩu quá ngắn...);
+    endif
+
+split again
+    |Quản trị viên|
+    :Hành động: **Sửa thông tin người dùng**;
+    :Thay đổi thông tin cần cập nhật;
+    :Nhấn nút "Cập nhật";
+    |Hệ thống|
+    :Xác thực ID người dùng;
+    :Kiểm tra điều kiện (Không tự khóa chính mình);
+    if (Hợp lệ?) then (Có)
+        :Cập nhật các trường thông tin thay đổi vào DB;
+        :Trả về phản hồi JSON thành công;
+    else (Không)
+        :Báo lỗi logic hoặc dữ liệu không hợp lệ;
+    endif
+
+split again
+    |Quản trị viên|
+    :Hành động: **Khóa / Mở khóa tài khoản**;
+    :Nhấn biểu tượng Khóa/Mở khóa trên dòng người dùng;
+    |Hệ thống|
+    if (Đang là chính mình?) then (Có)
+        :Báo lỗi "Không thể tự khóa chính mình";
+    else (Không)
+        if (Trạng thái hiện tại là LOCKED?) then (Có)
+            :Chuyển trạng thái sang ACTIVE;
+        else (Không)
+            :Chuyển trạng thái sang LOCKED;
+        endif
+        :Cập nhật vào Database;
+        :Thông báo thay đổi trạng thái thành công;
+    endif
+end split
+
+|Quản trị viên|
+:Nhận thông báo kết quả;
+:Giao diện tự động cập nhật danh sách người dùng;
+
+stop
+@enduml

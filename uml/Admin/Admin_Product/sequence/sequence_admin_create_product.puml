@@ -1,0 +1,56 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Thêm mới sản phẩm (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Giao diện quản trị)" as UI
+control AdminProductController as Controller
+control ProductService as Service
+participant ProductBuilder as Builder
+entity ProductDao as DAO
+database "Database" as DB
+
+Admin -> UI : Nhập thông tin sản phẩm và link ảnh
+activate UI
+
+UI -> Controller : HTTP POST /admin/products/new
+activate Controller
+
+' 1. Packaging DTO
+Controller -> Controller : Đóng gói dữ liệu văn bản và\nđường dẫn ảnh vào CreateProductRequest (DTO)
+
+' 2. Call Service
+Controller -> Service : createProduct(requestDTO)
+activate Service
+
+' 3. Builder Pattern usage
+Service -> Builder : Khởi tạo ProductBuilder với dữ liệu DTO
+activate Builder
+Builder -> Builder : build() - Ánh xạ và xây dựng thực thể Product
+Builder --> Service : Trả về thực thể Product hoàn chỉnh
+deactivate Builder
+
+' 4. DAO & DB interaction
+Service -> DAO : save(product)
+activate DAO
+DAO -> DB : INSERT INTO products (JPA Persist)
+activate DB
+DB --> DAO : Success (New ID)
+deactivate DB
+DAO --> Service : Trả về Product (đã có ID)
+deactivate DAO
+
+' 5. Response
+Service --> Controller : Trả về đối tượng Product vừa tạo
+deactivate Service
+
+Controller --> UI : Render trang thành công (Thymeleaf)
+deactivate Controller
+
+UI --> Admin : Hiển thị thông báo thành công
+deactivate UI
+
+@enduml

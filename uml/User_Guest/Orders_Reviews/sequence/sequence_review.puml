@@ -1,0 +1,82 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Đánh giá sản phẩm (Product Review)
+
+actor "Khách hàng" as Customer
+boundary "UI (Giao diện chi tiết sản phẩm)" as UI
+control ReviewController
+control ReviewService
+entity ReviewDao
+participant "ReviewCreatedEventPublisher" as Publisher
+participant "ProductReviewStatsObserver" as Observer
+database "Database" as DB
+
+Customer -> UI : Gửi biểu mẫu đánh giá\n(Số sao, Nội dung)
+activate UI
+
+UI -> ReviewController : HTTP POST /api/v1/reviews\n(JSON: CreateReviewRequest)
+activate ReviewController
+
+ReviewController -> ReviewController : Phân giải danh tính khách hàng\n(Từ JwtAuthenticationFilter)
+
+ReviewController -> ReviewService : createReview(userId, requestDTO)
+activate ReviewService
+
+' 1. Logic nghiệp vụ & Lưu trữ
+ReviewService -> ReviewService : Khởi tạo thực thể Review\n(Gán User, Product, Rating, Comment)
+
+ReviewService -> ReviewDao : save(review)
+activate ReviewDao
+ReviewDao -> DB : INSERT INTO reviews
+activate DB
+DB --> ReviewDao : Success
+deactivate DB
+ReviewDao --> ReviewService : Saved Review
+deactivate ReviewDao
+
+' 2. Observer Pattern - Event Publishing
+ReviewService -> Publisher : publishReviewCreated(review)
+activate Publisher
+
+Publisher -> Observer : onReviewCreated(review)
+activate Observer
+
+Observer -> ReviewDao : calculateAverageRatingByProductId(productId)
+activate ReviewDao
+ReviewDao -> DB : SELECT AVG(rating) FROM reviews
+activate DB
+DB --> ReviewDao : Average Rating Value
+deactivate DB
+ReviewDao --> Observer : Trả về số sao trung bình
+deactivate ReviewDao
+
+Observer -> ReviewDao : countByProductId(productId)
+activate ReviewDao
+ReviewDao -> DB : SELECT COUNT(*) FROM reviews
+activate DB
+DB --> ReviewDao : Review Count
+deactivate DB
+ReviewDao --> Observer : Trả về tổng lượt đánh giá
+deactivate ReviewDao
+
+Observer -> Observer : Cập nhật lại mức sao trung bình\ncho sản phẩm (Log/Cache Update)
+Observer --> Publisher : Hoàn tất cập nhật
+deactivate Observer
+
+Publisher --> ReviewService : Thông báo hoàn tất sự kiện
+deactivate Publisher
+
+' 3. Response
+ReviewService --> ReviewController : Trả về ReviewResponse (DTO)
+deactivate ReviewService
+
+ReviewController --> UI : HTTP 201 Created (JSON Response)
+deactivate ReviewController
+
+UI --> Customer : Hiển thị đánh giá mới vừa tạo
+deactivate UI
+
+@enduml

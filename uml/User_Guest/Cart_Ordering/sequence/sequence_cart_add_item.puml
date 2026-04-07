@@ -1,0 +1,77 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Thêm sản phẩm vào giỏ hàng (Add to Cart)
+
+actor "Người dùng" as User
+boundary "UI (Giao diện sản phẩm)" as UI
+control CartController as Controller
+control CartFacadeService as UserCartService
+control GuestCartService as GuestCartService
+database "Database (DB)" as DB
+
+User -> UI : Nhấn "Thêm vào giỏ hàng"
+activate UI
+
+UI -> Controller : HTTP POST /cart/add\n(Gửi tham số: productId, quantity)
+activate Controller
+
+' 1. Khởi tạo và Token Checking
+Controller -> Controller : Lấy userId từ JWT Cookie (getUserIdFromCookie)
+Controller -> Controller : Lấy productId và quantity\n(quantity mặc định = 1)
+
+' 2. Phân nhánh lưu trữ giỏ hàng (DB vs Cookie)
+alt Người dùng ĐÃ đăng nhập (userId != null)
+    Controller -> UserCartService : addToCart(userId, productId, quantity)
+    activate UserCartService
+
+    ' Tương tác Database của User
+    UserCartService -> DB : Tìm theo User, Product, kiểm tra tồn kho\nCập nhật hoặc tạo mới CartItem
+    activate DB
+    DB --> UserCartService : Xử lý thành công
+    deactivate DB
+
+    UserCartService --> Controller : void
+    deactivate UserCartService
+
+else Người dùng CHƯA đăng nhập (Guest)
+    Controller -> GuestCartService : addToCart(req, resp, productId, quantity)
+    activate GuestCartService
+
+    ' Tương tác Cookie của Guest
+    GuestCartService -> DB : Lấy thông tin Product để kiểm tra tồn kho
+    activate DB
+    DB --> GuestCartService : Product entity
+    deactivate DB
+
+    GuestCartService -> GuestCartService : Parse giỏ hàng từ Cookie\nThêm/Cập nhật item\nSet lại Cookie mới vào Response (resp)
+
+    GuestCartService --> Controller : void
+    deactivate GuestCartService
+end
+
+' 3. Phản hồi kết quả về UI
+alt Thêm thành công
+    alt Yêu cầu qua AJAX / Fetch API (chứa Header JSON)
+        Controller --> UI : HTTP 200 OK + JSON {"success": true}
+    else Yêu cầu Form bình thường
+        Controller --> UI : HTTP 302 Redirect (Trở về trang cũ / Giỏ hàng)
+    end
+else Ngoại lệ xảy ra (VD: InsufficientStockException - Hết hàng)
+    Controller -> Controller : Catch Exception
+    alt Yêu cầu qua AJAX / Fetch API
+        Controller --> UI : HTTP 400/500 + JSON {"success": false, "message": "..."}
+    else Yêu cầu Form bình thường
+        Controller -> Controller : Set lỗi vào Session Attribute ("cartError")
+        Controller --> UI : HTTP 302 Redirect
+    end
+end
+
+deactivate Controller
+
+UI --> User : Hiển thị số lượng giỏ hàng trượt,\nchuyển trang, hoặc báo lỗi hết hàng
+deactivate UI
+
+@enduml

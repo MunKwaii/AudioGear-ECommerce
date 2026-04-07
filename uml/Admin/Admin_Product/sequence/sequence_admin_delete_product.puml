@@ -1,0 +1,62 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Xóa sản phẩm (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Giao diện quản trị)" as UI
+control AdminProductDeleteController as Controller
+control ProductService as Service
+entity ProductDao as DAO
+database "Database" as DB
+
+Admin -> UI : Xác nhận xóa sản phẩm
+activate UI
+
+UI -> Controller : HTTP POST /admin/products/delete?id=...
+activate Controller
+
+' 1. Call Service
+Controller -> Service : deleteProduct(id)
+activate Service
+
+' 2. Logic Xóa (Hard delete hoặc Soft delete)
+Service -> DAO : deleteById(id)
+activate DAO
+DAO -> DB : DELETE FROM products WHERE id = ?
+activate DB
+
+alt Thành công (Hard Delete)
+    DB --> DAO : Success
+    DAO --> Service : Hoàn tất xóa vật lý
+else Thất bại (Do ràng buộc khóa ngoại)
+    DB --> DAO : Foreign Key Constraint Error
+    deactivate DB
+    DAO --> Service : Ném ngoại lệ RuntimeException
+    deactivate DAO
+
+    ' 3. Soft Delete fallback
+    Service -> Service : Bắt ngoại lệ và chuyển sang\nchế độ Soft Delete (status = false)
+    Service -> DAO : save(product)
+    activate DAO
+    DAO -> DB : UPDATE products SET status = false
+    activate DB
+    DB --> DAO : Success
+    deactivate DB
+    DAO --> Service : Trả về Product (Inactive)
+    deactivate DAO
+end
+
+' 4. Response
+Service --> Controller : Hoàn tất quy trình xóa
+deactivate Service
+
+Controller --> UI : Redirect về danh sách kèm thông báo (Thymeleaf)
+deactivate Controller
+
+UI --> Admin : Hiển thị thông báo xóa thành công
+deactivate UI
+
+@enduml

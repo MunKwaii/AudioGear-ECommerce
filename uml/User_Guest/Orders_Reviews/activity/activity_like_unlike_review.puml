@@ -1,0 +1,37 @@
+@startuml
+title Sơ đồ Hoạt động Like/Unlike đánh giá - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Người dùng|
+start
+:Đọc đánh giá sản phẩm (tại trang Chi tiết sản phẩm);
+:Nhấn nút "Like" (Hữu ích) trên một đánh giá;
+
+|Hệ thống|
+:Tiếp nhận yêu cầu (ReviewController);
+:Kiểm tra User đang đăng nhập (Session/Token);
+if (Chưa đăng nhập?) then (Có)
+    :Yêu cầu đăng nhập;
+    stop
+else (Không)
+    :Truy vấn tương tác Like (ReviewLikeDAO);
+    if (Đã Like trước đó chưa?) then (Chưa Like)
+        :Thêm bản ghi Like mới;
+        :Tăng số lượng Like của Review +1;
+    else (Đã Like)
+        :Xóa bản ghi Like cũ (Unlike);
+        :Giảm số lượng Like của Review -1;
+    endif
+    :Lưu thay đổi vào Database;
+    :Tính toán lại UI State;
+    :Trả về phản hồi (Thành công, Số Like mới, Trạng thái Like/Unlike);
+endif
+
+|Người dùng|
+:Nhận phản hồi từ Server (thường qua AJAX);
+:Cập nhật nút Like (đổi màu, tăng giảm số đếm) trên giao diện;
+
+stop
+@enduml

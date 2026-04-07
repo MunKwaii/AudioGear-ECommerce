@@ -1,0 +1,88 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Xem Dashboard Tổng quan (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Giao diện Dashboard)" as UI
+control AdminDashboardController as PageController
+control AdminStatsApiController as StatsAPI
+control OrderService as OrderService
+control ProductService as ProductService
+entity OrderDao as OrderDAO
+entity ProductDao as ProductDAO
+database "Database" as DB
+
+== Bước 1: Tải giao diện cơ bản (SSR) ==
+
+Admin -> UI : Truy cập URL /admin/dashboard
+activate UI
+
+UI -> PageController : HTTP GET /admin/dashboard
+activate PageController
+
+PageController -> OrderService : getAllOrders()
+activate OrderService
+OrderService -> OrderDAO : findAll()
+activate OrderDAO
+OrderDAO -> DB : SELECT * FROM orders
+activate DB
+DB --> OrderDAO : ResultSet
+deactivate DB
+OrderDAO --> OrderService : List<Order>
+deactivate OrderDAO
+OrderService --> PageController : List<Order>
+deactivate OrderService
+
+PageController --> UI : Render trang admin-dashboard (Thymeleaf)
+deactivate PageController
+
+UI --> Admin : Hiển thị khung giao diện Dashboard
+deactivate UI
+
+== Bước 2: Tải dữ liệu thống kê chi tiết (AJAX/Fetch) ==
+
+UI -> StatsAPI : HTTP GET /api/admin/stats
+activate UI
+activate StatsAPI
+
+' 1. Thống kê đơn hàng & Doanh thu
+StatsAPI -> OrderService : getAllOrders()
+activate OrderService
+OrderService --> StatsAPI : List<Order>
+deactivate OrderService
+
+StatsAPI -> StatsAPI : Tính toán doanh thu tổng,\nđếm số lượng theo trạng thái,\ntính xu hướng 7 ngày gần nhất
+
+' 2. Thống kê sản phẩm
+StatsAPI -> ProductService : countSearchProductsForAdmin(...)
+activate ProductService
+ProductService -> ProductDAO : countSearch(...)
+activate ProductDAO
+ProductDAO -> DB : SELECT COUNT(*) FROM products
+activate DB
+DB --> ProductDAO : Total Products
+deactivate DB
+ProductDAO --> ProductService : Total
+deactivate ProductDAO
+ProductService --> StatsAPI : long totalProducts
+deactivate ProductService
+
+' 3. Thống kê sản phẩm sắp hết hàng
+StatsAPI -> ProductService : searchProductsForAdmin(..., limit=1000)
+activate ProductService
+ProductService --> StatsAPI : List<Product>
+deactivate ProductService
+StatsAPI -> StatsAPI : Lọc danh sách sản phẩm có\nstockQuantity < 10 (Low Stock)
+
+StatsAPI --> UI : Trả về JSON (revenue, orders, trend, lowStock...)
+deactivate StatsAPI
+
+UI -> UI : Cập nhật biểu đồ (Chart.js)\nvà các thẻ số liệu (Top cards)
+
+UI --> Admin : Hiển thị báo cáo thống kê đầy đủ
+deactivate UI
+
+@enduml

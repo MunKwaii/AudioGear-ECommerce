@@ -1,0 +1,67 @@
+@startuml
+title Sơ đồ Hoạt động Quản lý Thương hiệu (Admin) - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Quản trị viên|
+start
+:Truy cập trang "Quản lý Thương hiệu";
+
+|Hệ thống|
+:Tải danh sách Thương hiệu từ Cơ sở dữ liệu;
+:Hiển thị giao diện quản lý (admin-brands.html);
+
+|Quản trị viên|
+:Chọn một hành động (Thêm, Sửa, hoặc Xóa);
+
+split
+    :Hành động: **Thêm thương hiệu**;
+    :Nhập tên, mô tả và URL Logo;
+    :Nhấn nút "Lưu";
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (POST /api/admin/brands);
+    :Kiểm tra tên thương hiệu (không trống, không trùng);
+    if (Thông tin hợp lệ?) then (Có)
+        :Lưu thương hiệu mới vào Database;
+        :Trả về phản hồi JSON thành công;
+    else (Không)
+        :Báo lỗi "Tên không hợp lệ hoặc đã tồn tại";
+    endif
+
+split again
+    |Quản trị viên|
+    :Hành động: **Sửa thương hiệu**;
+    :Thay đổi thông tin thương hiệu;
+    :Nhấn nút "Cập nhật";
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (PUT /api/admin/brands/{id});
+    :Kiểm tra tính nhất quán của dữ liệu;
+    if (Tên thương hiệu không trùng với bản ghi khác?) then (Có)
+        :Cập nhật thông tin trong Database;
+        :Trả về phản hồi JSON thành công;
+    else (Không)
+        :Báo lỗi "Tên thương hiệu đã tồn tại";
+    endif
+
+split again
+    |Quản trị viên|
+    :Hành động: **Xóa thương hiệu**;
+    :Nhấn nút "Xóa" và xác nhận;
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (DELETE /api/admin/brands/{id});
+    :Kiểm tra số lượng sản phẩm liên quan;
+    if (Đang có sản phẩm thuộc thương hiệu này?) then (Có)
+        :Báo lỗi "Không thể xóa thương hiệu đang có sản phẩm" (409);
+    else (Không)
+        :Xóa thương hiệu khỏi Database;
+        :Trả về phản hồi JSON thành công;
+    endif
+end split
+
+|Quản trị viên|
+:Nhận thông báo kết quả;
+:Giao diện làm mới danh sách thương hiệu;
+
+stop
+@enduml

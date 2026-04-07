@@ -1,0 +1,88 @@
+@startuml
+!theme plain
+autonumber
+skinparam maxMessageSize 150
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+title Sơ đồ tuần tự (Sequence Diagram) - Luồng Đăng nhập (Local Login)
+
+actor "Người dùng" as Guest
+participant "Giao diện (UI)" as UI
+participant "LoginController" as Controller
+participant "AuthService" as Service
+participant "LocalLoginStrategy" as Strategy
+participant "UserDAO" as DAO
+database "PostgreSQL\n(Database)" as DB
+
+Guest -> UI : Nhập Username/Email và Password\nNhấn "Đăng nhập"
+activate UI
+
+UI -> Controller : POST /login\n(Form: usernameOrEmail, password)
+activate Controller
+
+Controller -> Service : login(LoginType.LOCAL, AuthRequest)
+activate Service
+
+Service -> Strategy : authenticate(AuthRequest)
+activate Strategy
+
+Strategy -> DAO : findByUsernameOrEmail(usernameOrEmail)
+activate DAO
+
+DAO -> DB : Query (SELECT * FROM users)
+activate DB
+DB --> DAO : Kết quả truy vấn (Record / Null)
+deactivate DB
+
+DAO --> Strategy : Trả về kết quả (Optional<User>)
+deactivate DAO
+
+alt Xử lý xác thực tại Strategy (Authenticate)
+    alt Không tìm thấy tài khoản
+        Strategy --> Service : Ném ngoại lệ (Không tìm thấy tài khoản)
+    else Tài khoản liên kết Google
+        Strategy --> Service : Ném ngoại lệ (Chưa thiết lập mật khẩu)
+    else Sai mật khẩu (BCrypt check)
+        Strategy -> Strategy : BCrypt.checkpw(password, hash)
+        Strategy --> Service : Ném ngoại lệ (Mật khẩu không chính xác)
+    else Thông tin hợp lệ
+        Strategy --> Service : Trả về đối tượng User
+    end
+end
+deactivate Strategy
+
+alt Tiếp tục kiểm tra trạng thái tại Service
+    alt Nhận Ngoại lệ từ tầng dưới
+        Service --> Controller : Thông biên ngoại lệ lên trên
+    else Tài khoản bị khóa (locked)
+        Service --> Controller : Ném ngoại lệ (Tài khoản bị khóa)
+    else Tài khoản chờ xác thực (pending)
+        Service --> Controller : Ném ngoại lệ (Chờ xác thực Email)
+    else Trạng thái hoàn toàn hợp lệ (active)
+        Service --> Controller : Trả về đối tượng User (Thành công)
+    end
+end
+deactivate Service
+
+alt Luồng thất bại (Bắt lỗi Exception)
+    Controller -> Controller : Set attribute "errorMessage"
+    Controller -> UI : Render lại trang login.html (Thymeleaf)
+    UI --> Guest : Hiển thị thông báo lỗi trên form
+else Luồng thành công (Nhận User)
+    Controller -> Controller : JwtUtil.generateToken()\nLưu vào Cookie "accessToken"
+    Controller -> Controller : GuestCartService.mergeCart()\n(Đồng bộ giỏ hàng vãng lai nếu có)
+
+    alt User Role == admin
+        Controller --> UI : HTTP 302 Redirect (/admin/dashboard)
+        UI --> Guest : Chuyển hướng về trang Quản trị
+    else User Role == customer
+        Controller --> UI : HTTP 302 Redirect (/)
+        UI --> Guest : Chuyển hướng về Trang chủ
+    end
+end
+
+deactivate Controller
+deactivate UI
+
+@enduml

@@ -1,0 +1,61 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Xem danh sách người dùng (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Người dùng)" as UI
+control AdminUserApiController as Controller
+control UserService as Service
+entity UserDAO as DAO
+database "Database" as DB
+
+Admin -> UI : Truy cập trang hoặc nhập từ khóa tìm kiếm,\nlọc vai trò/trạng thái
+activate UI
+
+UI -> Controller : HTTP GET /api/admin/users?keyword=...&role=...&status=...&page=...
+activate Controller
+
+' 1. Xử lý tham số phân trang & lọc
+Controller -> Controller : Parse keyword, role,\nstatus, page, size
+
+' 2. Lấy tổng số lượng để phân trang
+Controller -> Service : countSearchUsers(keyword, role, status)
+activate Service
+Service -> DAO : countSearch(keyword, role, status)
+activate DAO
+DAO -> DB : SELECT COUNT(*) FROM users WHERE ...
+activate DB
+DB --> DAO : Số lượng (long)
+deactivate DB
+DAO --> Service : Trả về số lượng
+deactivate DAO
+Service --> Controller : Trả về số lượng
+deactivate Service
+
+' 3. Lấy dữ liệu danh sách theo offset/limit
+Controller -> Service : searchUsers(keyword, role, status, offset, size)
+activate Service
+Service -> DAO : search(keyword, role, status, offset, size)
+activate DAO
+DAO -> DB : SELECT * FROM users WHERE ... LIMIT ?, ?
+activate DB
+DB --> DAO : ResultSet (List<User>)
+deactivate DB
+DAO --> Service : List<User>
+deactivate DAO
+Service --> Controller : List<User>
+deactivate Service
+
+' 4. Chuyển đổi sang Map/DTO để phản hồi
+Controller -> Controller : toUserResponse(user) - Chuyển đổi sang\ndữ liệu JSON (Map) và định dạng ngày tháng
+
+Controller --> UI : HTTP 200 OK (JSON: success, data, total, totalPages, page)
+deactivate Controller
+
+UI --> Admin : Hiển thị danh sách người dùng và các nút phân trang
+deactivate UI
+
+@enduml

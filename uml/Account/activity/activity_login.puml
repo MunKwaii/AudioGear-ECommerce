@@ -1,0 +1,45 @@
+@startuml
+title Sơ đồ Hoạt động Đăng nhập - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Người dùng|
+start
+:Truy cập trang Đăng nhập;
+:Nhập Email/Username và Mật khẩu;
+:Nhấn nút "Đăng nhập";
+
+|Hệ thống|
+:Tiếp nhận thông tin (LoginController);
+:Xác thực thông tin qua LocalLoginStrategy;
+
+if (Thông tin chính xác?) then (Không)
+    :Thông báo lỗi "Sai tài khoản hoặc mật khẩu";
+    stop
+else (Có)
+    :Kiểm tra trạng thái tài khoản;
+    if (Trạng thái?) then (Bị khóa - Locked)
+        :Báo lỗi "Tài khoản đang bị khóa";
+        stop
+    elseif (Trạng thái?) then (Chờ xác nhận - Pending)
+        :Yêu cầu xác thực OTP để kích hoạt;
+        stop
+    else (Hoạt động - Active)
+        :Tạo mã thông báo JWT (JwtUtil);
+        :Lưu JWT vào Cookie (accessToken);
+        :Kiểm tra và Hợp nhất giỏ hàng tạm (Merge Guest Cart);
+
+        if (Vai trò là Admin?) then (Đúng)
+            :Chuyển hướng đến Dashboard Admin;
+        else (Sai)
+            :Chuyển hướng về Trang chủ;
+        endif
+    endif
+endif
+
+|Người dùng|
+:Thấy giao diện trang chủ hoặc Dashboard;
+
+stop
+@enduml

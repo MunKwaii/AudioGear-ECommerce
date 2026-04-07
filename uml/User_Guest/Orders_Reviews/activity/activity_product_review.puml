@@ -1,0 +1,43 @@
+@startuml
+title Sơ đồ hoạt động Đánh giá sản phẩm - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Khách hàng|
+start
+:Truy cập trang chi tiết sản phẩm đã mua;
+:Chọn số điểm sao và nhập bình luận;
+:Nhấn nút "Gửi đánh giá";
+
+|Hệ thống|
+:Kiểm tra trạng thái đăng nhập;
+
+if (Đã đăng nhập?) then (Không)
+    :Yêu cầu chuyển hướng đến trang Đăng nhập;
+    stop
+else (Có)
+    :Xác thực quyền đánh giá;
+    note right
+        Kiểm tra sản phẩm đã mua/nhận hàng
+    end note
+    
+    if (Hợp lệ?) then (Không)
+        :Hiển thị thông báo lỗi;
+        stop
+    else (Có)
+        :Lưu dữ liệu đánh giá vào Cơ sở dữ liệu;
+        
+
+        :Tính toán và cập nhật điểm đánh giá trung bình;
+        
+        :Tự động tải lại phần nội dung bình luận;
+        :Hiển thị thông báo thành công ;
+    endif
+endif
+
+|Khách hàng|
+:Xem đánh giá mới hiển thị trên giao diện;
+
+stop
+@enduml

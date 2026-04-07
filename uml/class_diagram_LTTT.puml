@@ -1,0 +1,228 @@
+@startuml
+!theme plain
+left to right direction
+skinparam classAttributeIconSize 0
+
+' ========================================================
+' CÁCH CHUẨN ĐỂ PHÓNG TO SIÊU NÉT MÀ KHÔNG BỊ NHỎ HÌNH THOI
+' Thay vì ép chữ to (khiến mũi tên và hình thoi bị còi cọc),
+' ta dùng hệ số scale để ZOOM TOÀN BỘ (Chữ, Nét vẽ, Hình thoi) lên gấp 2.5 lần.
+' ========================================================
+scale 2.5
+
+' Phông chữ tiêu chuẩn, cân xứng với tỷ lệ hình thoi gốc
+skinparam defaultFontSize 14
+skinparam classFontSize 16
+skinparam enumFontSize 14
+skinparam arrowFontSize 13
+skinparam titleFontSize 20
+
+' Khoảng cách các khối chuẩn (Sẽ tự động nhân lên 2.5 lần sau khi dùng scale)
+skinparam nodesep 80
+skinparam ranksep 100
+skinparam Padding 10
+
+
+title Sơ đồ lớp (Entity Class Diagram) - AudioGear E-Commerce
+
+package "utesoundshop" {
+
+    class User {
+        - Long id
+        - String username
+        - String fullName
+        - String email
+        - String passwordHash
+        - String phoneNumber
+        - UserRole role
+        - UserStatus status
+        - String avatar
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+    }
+
+    class Address {
+        - Long id
+        - String recipientName
+        - String phoneNumber
+        - String streetAddress
+        - String province
+        - String provinceCode
+        - String district
+        - String districtCode
+        - String ward
+        - String wardCode
+        - Boolean isDefault
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+    }
+
+    class Product {
+        - Long id
+        - String name
+        - String description
+        - BigDecimal price
+        - String thumbnailUrl
+        - String specifications
+        - Boolean status
+        - Integer stockQuantity
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+    }
+
+    class ProductImage {
+        - Long id
+        - String imageUrl
+        - String altText
+        - Boolean isPrimary
+        - LocalDateTime createdAt
+    }
+
+    class Brand {
+        - Long id
+        - String name
+        - String description
+        - String logoUrl
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+    }
+
+    class Category {
+        - Long id
+        - String name
+        - String description
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+    }
+
+    class Cart {
+        - Long id
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+    }
+
+    class CartItem {
+        - Long id
+        - Integer quantity
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+    }
+
+    class Order {
+        - Long id
+        - String orderCode
+        - String email
+        - String recipientName
+        - String phoneNumber
+        - String streetAddress
+        - String city
+        - OrderStatus status
+        - PaymentStrategy paymentStrategy
+        - BigDecimal totalAmount
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+    }
+
+    class OrderItem {
+        - Long id
+        - Integer quantity
+        - BigDecimal price
+        - LocalDateTime createdAt
+    }
+
+    class Review {
+        - Long id
+        - Integer rating
+        - String comment
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+    }
+
+    class ReviewLike {
+        - Long id
+        - LocalDateTime createdAt
+    }
+
+    class Voucher {
+        - Long id
+        - String code
+        - DiscountType discountType
+        - BigDecimal discountValue
+        - Integer maxUsage
+        - BigDecimal minOrderValue
+        - LocalDateTime expiryDate
+        - VoucherStatus status
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+    }
+}
+
+package "utesoundshop.enums" {
+    enum UserRole {
+        customer
+        admin
+    }
+
+    enum UserStatus {
+        active
+        locked
+        pending
+    }
+
+    enum OrderStatus {
+        PENDING
+        PROCESSING
+        SHIPPED
+        DELIVERED
+        CANCELLED
+    }
+
+    enum DiscountType {
+        PERCENTAGE
+        FIXED_AMOUNT
+    }
+
+    enum VoucherStatus {
+        ACTIVE
+        INACTIVE
+        EXPIRED
+    }
+}
+
+' Relationships (UML chuẩn: Composition, Aggregation, Association)
+' Dùng mũi tên dài (--->) hoặc (-left->) để nới rộng khoảng cách nếu cần
+
+' --- Composition (Quan hệ thành phần - khi cha mất thì con mất) ---
+Order "1" *--> "1..*" OrderItem : "contains"
+Cart "1" *--> "0..*" CartItem : "contains"
+Product "1" *--> "0..*" ProductImage : "has images"
+Review "1" *--> "0..*" ReviewLike : "has likes"
+
+' --- Aggregation (Quan hệ tập hợp) ---
+Category "1" o--> "0..*" Category : "sub-categories"
+
+' --- Association (Quan hệ kết hợp) ---
+User "1" --> "0..*" Address : "has"
+User "1" --> "0..1" Cart : "owns"
+
+Order "*" --> "1" User : "placed by"
+Order "*" --> "0..1" Voucher : "applies"
+
+OrderItem "*" --> "1" Product : "references"
+CartItem "*" --> "1" Product : "references"
+
+Product "*" --> "1" Brand : "manufactures"
+Product "*" --> "1" Category : "categorized by"
+
+Review "*" --> "1" User : "authored by"
+Review "*" --> "1" Product : "reviews"
+ReviewLike "*" --> "1" User : "liked by"
+
+' Enum usage - Sử dụng liên kết ngắn để Enums nằm gần Class liên quan
+User -up-> UserRole
+User -up-> UserStatus
+Order -right-> OrderStatus
+Voucher -left-> DiscountType
+Voucher -left-> VoucherStatus
+
+@enduml

@@ -1,0 +1,72 @@
+@startuml
+!theme plain
+autonumber
+skinparam maxMessageSize 150
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+title Sơ đồ tuần tự (Sequence Diagram) - Luồng Hủy đơn hàng
+
+actor "Người dùng" as User
+participant "Giao diện (UI)" as UI
+participant "OrderController" as Controller
+participant "OrderService" as Service
+participant "OrderDAO" as DAO
+participant "PaymentService" as Payment
+database "PostgreSQL\n(Database)" as DB
+
+User -> UI : Truy cập Chi tiết đơn hàng\nNhấn "Hủy đơn hàng"
+activate UI
+
+UI -> Controller : POST /order/{orderId}/cancel
+activate Controller
+
+Controller -> Service : cancelOrder(orderId, userId, reason)
+activate Service
+
+Service -> DAO : findOrderByIdAndUserId(orderId, userId)
+activate DAO
+DAO -> DB : SELECT * FROM orders WHERE id AND user_id
+activate DB
+DB --> DAO : Dữ liệu Đơn hàng
+deactivate DB
+DAO --> Service : Order Object
+deactivate DAO
+
+alt Không tìm thấy đơn hàng / Không thuộc User
+    Service --> Controller : Ném ngoại lệ (Truy cập trái phép / Không tìm thấy)
+    Controller --> UI : Báo lỗi
+    UI --> User : Hiển thị lỗi
+else Đơn hàng không ở trạng thái cho phép hủy (VD: Đang giao)
+    Service --> Controller : Ném ngoại lệ (Không thể hủy)
+    Controller --> UI : Báo lỗi "Đơn hàng đã xử lý không thể hủy"
+    UI --> User : Hiển thị lỗi
+else Có thể hủy
+    Service -> DAO : updateOrderStatus(orderId, CANCELLED)
+    activate DAO
+    DAO -> DB : UPDATE orders SET status = 'CANCELLED'
+    activate DB
+    DB --> DAO : Thành công
+    deactivate DB
+    DAO --> Service : Done
+    deactivate DAO
+
+    opt Nếu đơn hàng đã thanh toán (VNPAY/MOMO)
+        Service -> Payment : initiateRefund(orderId, amount)
+        activate Payment
+        Payment --> Service : Kết quả xử lý hoàn tiền
+        deactivate Payment
+    end
+
+    Service -> Service : Restore Inventory (Khôi phục tồn kho sản phẩm)
+
+    Service --> Controller : Đã hủy thành công
+    Controller --> UI : Cập nhật lại giao diện đơn hàng
+    UI --> User : Thông báo "Hủy đơn hàng thành công"
+end
+
+deactivate Service
+deactivate Controller
+deactivate UI
+
+@enduml

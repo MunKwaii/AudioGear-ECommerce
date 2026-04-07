@@ -1,0 +1,60 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Xóa Thương hiệu (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Thương hiệu)" as UI
+control AdminBrandApiController as Controller
+control BrandService as Service
+entity BrandDao as DAO
+database "Database" as DB
+
+Admin -> UI : Nhấn nút "Xóa" và xác nhận
+activate UI
+
+UI -> Controller : HTTP DELETE /api/admin/brands/{id}
+activate Controller
+
+' 1. Call Service
+Controller -> Service : deleteBrand(id)
+activate Service
+
+' 2. Constraint Check & Delete
+Service -> DAO : findById(id)
+activate DAO
+DAO --> Service : Thực thể Brand
+deactivate DAO
+
+Service -> DAO : countProductsByBrandId(id)
+activate DAO
+DAO --> Service : Số lượng sản phẩm liên quan (productCount)
+deactivate DAO
+
+alt productCount > 0
+    Service --> Controller : Ném IllegalStateException
+    Controller --> UI : HTTP 409 Conflict (JSON: "Không thể xóa...")
+else productCount == 0
+    Service -> DAO : delete(id)
+    activate DAO
+    DAO -> DB : DELETE FROM brands WHERE id = ?
+    activate DB
+    DB --> DAO : Success
+    deactivate DB
+    DAO --> Service : OK
+    deactivate DAO
+
+    Service --> Controller : Trả về kết quả thành công
+    deactivate Service
+
+    ' 3. Response
+    Controller --> UI : HTTP 200 OK (JSON: success: true)
+end
+deactivate Controller
+
+UI --> Admin : Thông báo xóa thành công và cập nhật UI
+deactivate UI
+
+@enduml

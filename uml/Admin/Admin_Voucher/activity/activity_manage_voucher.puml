@@ -1,0 +1,63 @@
+@startuml
+title Sơ đồ Hoạt động Quản lý Voucher (Admin) - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Quản trị viên|
+start
+:Truy cập trang "Quản lý Voucher";
+
+|Hệ thống|
+:Tải danh sách Voucher từ Cơ sở dữ liệu;
+:Hiển thị giao diện quản lý (admin-vouchers.html);
+
+|Quản trị viên|
+:Chọn một hành động (Thêm, Sửa, hoặc Xóa);
+
+split
+    :Hành động: **Thêm Voucher**;
+    :Nhập thông tin (Mã, Loại giảm giá, Giá trị, Ngày hết hạn...);
+    :Nhấn nút "Lưu";
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (POST /api/admin/vouchers);
+    :Kiểm tra mã Voucher (không trùng);
+    :Kiểm tra ngày hết hạn (phải ở tương lai);
+    if (Thông tin hợp lệ?) then (Có)
+        :Lưu Voucher mới vào Database;
+        :Trả về phản hồi JSON thành công;
+    else (Không)
+        :Báo lỗi "Mã voucher đã tồn tại hoặc ngày hết hạn không hợp lệ";
+    endif
+
+split again
+    |Quản trị viên|
+    :Hành động: **Sửa Voucher**;
+    :Thay đổi thông tin Voucher;
+    :Nhấn nút "Cập nhật";
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (PUT /api/admin/vouchers/{id});
+    :Xác thực thông tin cập nhật;
+    if (Dữ liệu hợp lệ?) then (Có)
+        :Cập nhật thông tin trong Database (JPA Merge);
+        :Trả về phản hồi JSON thành công;
+    else (Không)
+        :Báo lỗi dữ liệu không hợp lệ;
+    endif
+
+split again
+    |Quản trị viên|
+    :Hành động: **Xóa Voucher**;
+    :Nhấn nút "Xóa" và xác nhận;
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (DELETE /api/admin/vouchers/{id});
+    :Xóa bản ghi Voucher khỏi Database;
+    :Trả về phản hồi JSON thành công;
+end split
+
+|Quản trị viên|
+:Nhận thông báo kết quả;
+:Giao diện làm mới danh sách Voucher;
+
+stop
+@enduml

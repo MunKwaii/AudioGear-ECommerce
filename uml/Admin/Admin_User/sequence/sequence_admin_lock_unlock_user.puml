@@ -1,0 +1,72 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Khóa / Mở khóa người dùng (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Người dùng)" as UI
+control AdminUserApiController as Controller
+control UserService as Service
+entity UserDAO as DAO
+database "Database" as DB
+
+Admin -> UI : Nhấn biểu tượng Khóa / Mở khóa
+activate UI
+
+UI -> Controller : HTTP DELETE /api/admin/users/{id}
+activate Controller
+
+' 1. Security Check
+Controller -> Controller : Kiểm tra currentUserId != targetId\n(Không được tự khóa chính mình)
+
+alt Là chính mình
+    Controller --> UI : HTTP 400 Bad Request (Lỗi: "Không thể tự khóa...")
+else Là người dùng khác
+    Controller -> Service : getUserById(id)
+    activate Service
+    Service -> DAO : findById(id)
+    activate DAO
+    DAO --> Service : Đối tượng User
+    deactivate DAO
+    Service --> Controller : Đối tượng User
+    deactivate Service
+
+    ' 2. Toggle Status Logic
+    alt Trạng thái hiện tại == LOCKED
+        Controller -> Service : activateUser(email)
+        activate Service
+        Service -> DAO : Cập nhật status = active
+        activate DAO
+        DAO -> DB : UPDATE users SET status = 'active'
+        activate DB
+        DB --> DAO : Success
+        deactivate DB
+        DAO --> Service : Success
+        deactivate DAO
+        Service --> Controller : Trả về User (Active)
+        deactivate Service
+        Controller --> UI : HTTP 200 OK (Thông báo: "Đã mở khóa")
+    else Trạng thái hiện tại != LOCKED
+        Controller -> Service : lockUser(id)
+        activate Service
+        Service -> DAO : Cập nhật status = locked
+        activate DAO
+        DAO -> DB : UPDATE users SET status = 'locked'
+        activate DB
+        DB --> DAO : Success
+        deactivate DB
+        DAO --> Service : Success
+        deactivate DAO
+        Service --> Controller : Success
+        deactivate Service
+        Controller --> UI : HTTP 200 OK (Thông báo: "Đã khóa")
+    end
+end
+deactivate Controller
+
+UI --> Admin : Hiển thị thông báo và cập nhật icon trạng thái
+deactivate UI
+
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Cập nhật Voucher (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Voucher)" as UI
+control AdminVoucherApiController as Controller
+control VoucherService as Service
+entity VoucherDao as DAO
+database "Database" as DB
+
+Admin -> UI : Thay đổi thông tin Voucher\nvà nhấn "Cập nhật"
+activate UI
+
+UI -> Controller : HTTP PUT /api/admin/vouchers/{id}\n(JSON: code, discountType, price, expiryDate, ...)
+activate Controller
+
+' 1. Logic Packaging
+Controller -> Controller : extractId(pathInfo)
+Controller -> Controller : parseRequestBody(req)
+
+' 2. Call Service
+Controller -> Service : updateVoucher(voucher)
+activate Service
+
+' 3. Business Logic & Validation
+Service -> Service : Kiểm tra ngày hết hạn (expiryDate)
+
+' 4. Persistence
+Service -> DAO : save(voucher)
+activate DAO
+DAO -> DB : UPDATE vouchers (JPA Merge)
+activate DB
+DB --> DAO : Success
+deactivate DB
+DAO --> Service : Trả về Voucher đã cập nhật
+deactivate DAO
+
+Service --> Controller : Trả về thực thể Voucher
+deactivate Service
+
+' 5. Response
+Controller --> UI : HTTP 200 OK (JSON: success: true, message: "Cập nhật thành công")
+deactivate Controller
+
+UI --> Admin : Hiển thị thông báo thành công
+deactivate UI
+
+@enduml

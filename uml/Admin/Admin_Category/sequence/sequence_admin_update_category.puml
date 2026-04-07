@@ -1,0 +1,75 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Admin Cập nhật danh mục
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Danh mục)" as UI
+control "AdminCategoryApiController" as Controller
+control "CategoryServiceImpl" as Service
+entity "CategoryDaoImpl" as DAO
+database "Database (DB)" as DB
+
+Admin -> UI : Thay đổi thông tin,\nchọn danh mục cha mới và nhấn "Cập nhật"
+activate UI
+
+UI -> Controller : HTTP PUT /api/admin/categories/{id}\n(JSON: name, description, parentId)
+activate Controller
+
+' 1. Parse và Lấy thực thể hiện tại
+Controller -> Controller : extractId(pathInfo)
+
+Controller -> Service : updateCategory(id, name, description, parentId)
+activate Service
+
+Service -> DAO : findById(id)
+activate DAO
+DAO --> Service : Thực thể Category hiện tại
+deactivate DAO
+
+' 2. Xử lý logic nghiệp vụ phức tạp
+alt parentId != null
+    Service -> Service : Kiểm tra không trùng id (id != parentId)
+
+    Service -> DAO : findById(parentId)
+    activate DAO
+    DAO --> Service : Thực thể Parent mới
+    deactivate DAO
+
+    Service -> DAO : findAll()
+    activate DAO
+    DAO --> Service : Danh sách tất cả danh mục
+    deactivate DAO
+
+    Service -> Service : isAncestor(id, parentId, map)\n(Kiểm tra tránh vòng lặp cha-con)
+end
+
+' 3. Cập nhật vào DB
+Service -> DAO : update(category)
+activate DAO
+DAO -> DB : Bắt đầu Transaction\nem.merge(category)
+activate DB
+DB --> DAO : Success
+deactivate DB
+DAO --> Service : Thực thể Category đã cập nhật
+deactivate DAO
+
+' 4. Tính toán thống kê cho DTO
+Service -> DAO : countProductsByCategory(id)
+activate DAO
+DAO --> Service : Số lượng sản phẩm hiện tại
+deactivate DAO
+
+Service --> Controller : Trả về CategoryDTO cập nhật
+deactivate Service
+
+' 5. Phản hồi
+Controller --> UI : HTTP 200 OK (JSON: success, message, data)
+deactivate Controller
+
+UI --> Admin : Thông báo thành công và cập nhật UI
+deactivate UI
+
+@enduml

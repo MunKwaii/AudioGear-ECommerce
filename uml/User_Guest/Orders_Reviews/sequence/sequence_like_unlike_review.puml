@@ -1,0 +1,68 @@
+@startuml
+!theme plain
+autonumber
+skinparam maxMessageSize 150
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+title Sơ đồ tuần tự (Sequence Diagram) - Luồng Like/Unlike Đánh giá
+
+actor "Người dùng" as User
+participant "Giao diện (UI)" as UI
+participant "ReviewController" as Controller
+participant "ReviewService" as Service
+participant "ReviewLikeDAO" as LikeDAO
+participant "ReviewDAO" as ReviewDAO
+database "PostgreSQL\n(Database)" as DB
+
+User -> UI : Bấm nút "Hữu ích" (Like) trên đánh giá
+activate UI
+
+UI -> Controller : POST /review/{reviewId}/like\n(Body: userId)
+activate Controller
+
+Controller -> Service : toggleLike(reviewId, userId)
+activate Service
+
+Service -> ReviewDAO : findById(reviewId)
+activate ReviewDAO
+ReviewDAO -> DB : SELECT * FROM reviews WHERE id
+activate DB
+DB --> ReviewDAO : Thực thể Đánh giá
+deactivate DB
+ReviewDAO --> Service : Review Object
+deactivate ReviewDAO
+
+alt Không tìm thấy đánh giá
+    Service --> Controller : Ném ngoại lệ (Review Not Found)
+    Controller --> UI : HTTP 404 (Không tìm thấy đánh giá)
+    UI --> User : Hiển thị lỗi
+else Tồn tại đánh giá
+    Service -> LikeDAO : findByReviewIdAndUserId(reviewId, userId)
+    activate LikeDAO
+    LikeDAO -> DB : SELECT * FROM review_likes WHERE ...
+    activate DB
+    DB --> LikeDAO : Có / Không
+    deactivate DB
+    LikeDAO --> Service : Kết quả Toggle Result
+    deactivate LikeDAO
+
+    alt Đã Like trước đó rồi
+        Service -> LikeDAO : deleteLike(reviewId, userId)
+        Service -> ReviewDAO : decrementLikeCount(reviewId)
+        Service --> Controller : Trả về Trạng thái UNLIKED, Số lượng mới
+    else Chưa Like
+        Service -> LikeDAO : insertLike(reviewId, userId)
+        Service -> ReviewDAO : incrementLikeCount(reviewId)
+        Service --> Controller : Trả về Trạng thái LIKED, Số lượng mới
+    end
+
+    Controller --> UI : HTTP 200 OK (JSON Data)
+    UI --> User : Cập nhật lại giao diện số Like (Đổi màu nút)
+end
+
+deactivate Service
+deactivate Controller
+deactivate UI
+
+@enduml

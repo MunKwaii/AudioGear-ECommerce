@@ -1,0 +1,48 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Xóa Voucher (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Voucher)" as UI
+control AdminVoucherApiController as Controller
+control VoucherService as Service
+entity VoucherDao as DAO
+database "Database" as DB
+
+Admin -> UI : Nhấn biểu tượng "Xóa" và xác nhận
+activate UI
+
+UI -> Controller : HTTP DELETE /api/admin/vouchers/{id}
+activate Controller
+
+' 1. Extract ID
+Controller -> Controller : extractId(pathInfo)
+
+' 2. Call Service
+Controller -> Service : deleteVoucher(id)
+activate Service
+
+' 3. Persistence logic
+Service -> DAO : delete(id)
+activate DAO
+DAO -> DB : DELETE FROM vouchers WHERE id = ?
+activate DB
+DB --> DAO : Success
+deactivate DB
+DAO --> Service : OK
+deactivate DAO
+
+Service --> Controller : Trả về kết quả thành công
+deactivate Service
+
+' 4. Response
+Controller --> UI : HTTP 200 OK (JSON: success: true, message: "Xóa thành công")
+deactivate Controller
+
+UI --> Admin : Hiển thị thông báo thành công và xóa dòng khỏi bảng
+deactivate UI
+
+@enduml

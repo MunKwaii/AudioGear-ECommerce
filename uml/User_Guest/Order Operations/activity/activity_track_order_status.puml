@@ -1,0 +1,43 @@
+@startuml
+title Sơ đồ Hoạt động Theo dõi trạng thái đơn hàng - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Người dùng|
+start
+:Đăng nhập hệ thống;
+:Truy cập mục "Đơn hàng của tôi";
+:Nhấn xem "Chi tiết đơn hàng" cần theo dõi;
+
+|Hệ thống|
+:Tiếp nhận yêu cầu (OrderController);
+:Truy vấn chi tiết đơn hàng (OrderService / OrderDAO);
+if (Đơn hàng thuộc về User?) then (Không)
+    :Trường hợp trái phép;
+    :Trả về lỗi 403 Forbidden;
+    stop
+else (Có)
+    :Lấy lịch sử trạng thái đơn hàng (OrderHistory);
+    :Lấy mã vận đơn (nếu có);
+    if (Có liên kết API Đơn vị vận chuyển?) then (Có)
+        :Fetch cập nhật trạng thái mới nhất từ Giao Hàng Nhanh / NinjaVan;
+        :Cập nhật vào Database;
+    else (Không)
+        :Sử dụng dữ liệu nội bộ sẵn có;
+    endif
+    :Đóng gói dữ liệu hiển thị;
+    :Trả về View Chi tiết đơn hàng;
+endif
+
+|Người dùng|
+:Xem tiến trình qua các trạng thái;
+note right
+  - Đang xử lý
+  - Xác nhận thành công
+  - Đang giao hàng
+  - Giao thành công
+end note
+:Nhận liên kết tracking để tự tra cứu (nếu có);
+stop
+@enduml

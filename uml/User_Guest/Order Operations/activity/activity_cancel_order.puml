@@ -1,0 +1,39 @@
+@startuml
+title Sơ đồ Hoạt động Hủy đơn hàng - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Người dùng/Admin|
+start
+:Chọn đơn hàng muốn hủy;
+:Nhập lý do hủy đơn (nếu có);
+:Xác nhận yêu cầu "Hủy đơn hàng";
+
+|Hệ thống|
+:Tiếp nhận yêu cầu (AdminOrderController);
+:Tải thông tin đơn hàng và danh sách sản phẩm đã đặt;
+
+:Kiểm tra điều kiện hủy thông qua Máy trạng thái (OrderContext);
+if (Trạng thái hiện tại có được phép hủy?) then (Không)
+    :Báo lỗi "Đơn hàng không thể hủy ở trạng thái này";
+    stop
+else (Có)
+    :Cập nhật trạng thái đơn hàng thành CANCELLED;
+
+    :Thực hiện hoàn trả số lượng vào kho (Restock);
+    note right
+        Duyệt qua danh sách OrderItems để
+        cộng lại StockQuantity cho từng Product.
+    end note
+
+    :Lưu các thay đổi vào Cơ sở dữ liệu (Database);
+    :Kích hoạt thông báo cho các Observers;
+    :Gửi Email thông báo đơn hàng đã bị hủy;
+endif
+
+|Người dùng/Admin|
+:Nhận thông báo hủy đơn thành công;
+
+stop
+@enduml

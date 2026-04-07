@@ -1,0 +1,70 @@
+@startuml
+title Sơ đồ Hoạt động Quản lý Sản phẩm (Admin) - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Quản trị viên|
+start
+:Truy cập trang "Quản lý Sản phẩm";
+
+|Hệ thống|
+:Tải danh sách sản phẩm (Phân trang, Tìm kiếm, Lọc);
+:Hiển thị giao diện danh sách sản phẩm (admin-products.html);
+
+|Quản trị viên|
+:Chọn một hành động (Thêm, Sửa, hoặc Xóa);
+
+split
+    :Hành động: **Thêm sản phẩm**;
+    :Nhập thông tin sản phẩm mới;
+    :Nhấn nút "Lưu";
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (POST /admin/products/new);
+    :Kiểm tra tính hợp lệ của dữ liệu (ProductService);
+    if (Dữ liệu hợp lệ?) then (Có)
+        :Lưu sản phẩm vào Database;
+        :Thiết lập thông báo thành công;
+        :Chuyển hướng về trang Danh sách;
+    else (Không)
+        :Hiển thị lại biểu mẫu với thông báo lỗi;
+    endif
+
+split again
+    |Quản trị viên|
+    :Hành động: **Sửa sản phẩm**;
+    |Hệ thống|
+    :Tải thông tin sản phẩm hiện tại (GET /admin/products/edit?id=...);
+    :Hiển thị biểu mẫu chỉnh sửa;
+    |Quản trị viên|
+    :Thay đổi thông tin sản phẩm;
+    :Nhấn nút "Cập nhật";
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (POST /admin/products/edit?id=...);
+    :Xác thực và cập nhật vào Database;
+    if (Cập nhật thành công?) then (Có)
+        :Thiết lập thông báo thành công;
+        :Chuyển hướng về trang Danh sách;
+    else (Không)
+        :Hiển thị lại biểu mẫu với thông báo lỗi;
+    endif
+
+split again
+    |Quản trị viên|
+    :Hành động: **Xóa sản phẩm**;
+    |Hệ thống|
+    :Yêu cầu xác nhận xóa (GET /admin/products/delete?id=...);
+    |Quản trị viên|
+    :Xác nhận xóa sản phẩm;
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (POST /admin/products/delete?id=...);
+    :Thực hiện xóa sản phẩm khỏi Database;
+    :Thiết lập thông báo thành công;
+    :Chuyển hướng về trang Danh sách;
+end split
+
+|Quản trị viên|
+:Nhận thông báo kết quả và xem danh sách cập nhật;
+
+stop
+@enduml

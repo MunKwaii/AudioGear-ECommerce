@@ -1,0 +1,53 @@
+@startuml
+title Sơ đồ Hoạt động Thêm sản phẩm vào giỏ hàng - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Khách hàng|
+start
+:Truy cập trang chi tiết sản phẩm;
+:Chọn số lượng muốn mua;
+:Nhấn nút "Thêm vào giỏ hàng";
+
+|Hệ thống|
+:Tiếp nhận yêu cầu (CartController);
+:Kiểm tra trạng thái đăng nhập (JWT Cookie);
+
+if (Người dùng đã đăng nhập?) then (Có)
+    :Gọi CartFacadeService.addToCart(userId, productId, quantity);
+    :Truy vấn sản phẩm và Giỏ hàng từ Database;
+    if (Sản phẩm đủ tồn kho?) then (Không)
+        :Ném InsufficientStockException;
+        :Hiển thị lỗi "Sản phẩm không đủ hàng";
+        stop
+    else (Có)
+        :Cập nhật số lượng hoặc Thêm mới bản ghi CartItem vào DB;
+        :Lưu các thay đổi và Commit Transaction;
+    endif
+else (Không)
+    :Gọi GuestCartService.addToCart(req, resp, productId, quantity);
+    :Truy vấn Database để lấy thông tin giá và tồn kho sản phẩm;
+    if (Sản phẩm đủ tồn kho?) then (Không)
+        :Báo lỗi "Sản phẩm không đủ hàng";
+        stop
+    else (Có)
+        :Giải mã giỏ hàng từ Cookie (guest_cart);
+        :Thêm mới hoặc cập nhật Item trong giỏ hàng tạm;
+        :Mã hóa và cập nhật lại Cookie vào Response;
+    endif
+endif
+
+|Hệ thống|
+:Chuẩn bị phản hồi kết quả;
+if (Yêu cầu qua AJAX?) then (Có)
+    :Trả về JSON {"success": true};
+else (Không)
+    :Chuyển hướng (Redirect) về trang cũ hoặc trang Giỏ hàng;
+endif
+
+|Khách hàng|
+:Xem thông báo thành công và Cập nhật icon số lượng giỏ hàng;
+
+stop
+@enduml

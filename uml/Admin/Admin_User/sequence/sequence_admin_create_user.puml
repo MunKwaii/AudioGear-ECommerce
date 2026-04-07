@@ -1,0 +1,75 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Thêm mới người dùng (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Người dùng)" as UI
+control AdminUserApiController as Controller
+control UserService as Service
+participant PasswordUtil as Crypto
+entity UserDAO as DAO
+database "Database" as DB
+
+Admin -> UI : Nhập Email, Tên, Mật khẩu,\nchọn Vai trò/Trạng thái và nhấn "Lưu"
+activate UI
+
+UI -> Controller : HTTP POST /api/admin/users\n(JSON: email, username, fullName, password, ...)
+activate Controller
+
+' 1. Parse và Validate sơ bộ
+Controller -> Controller : parseRequestBody(req)
+
+Controller -> Service : createUser(email, username, fullName, password, role, status)
+activate Service
+
+' 2. Nghiệp vụ: Kiểm tra trùng lặp
+Service -> DAO : findByEmail(email)
+activate DAO
+DAO --> Service : Trả về thực thể (nếu tồn tại)
+deactivate DAO
+
+alt Email đã tồn tại
+    Service --> Controller : Ném IllegalArgumentException("Email đã tồn tại")
+    Controller --> UI : HTTP 400 Bad Request
+else Email hợp lệ
+    Service -> Service : Tạo username từ email (nếu để trống)
+    Service -> DAO : findByUsername(username)
+    activate DAO
+    DAO --> Service : Trả về thực thể (nếu tồn tại)
+    deactivate DAO
+
+    alt Username đã tồn tại
+        Service --> Controller : Ném IllegalArgumentException
+    else Thông tin hợp lệ
+        ' 3. Mã hóa mật khẩu
+        Service -> Crypto : hashPassword(password)
+        activate Crypto
+        Crypto --> Service : passwordHash
+        deactivate Crypto
+
+        ' 4. Lưu vào Database
+        Service -> Service : Khởi tạo thực thể User mới
+        Service -> DAO : save(user)
+        activate DAO
+        DAO -> DB : INSERT INTO users (JPA Persist)
+        activate DB
+        DB --> DAO : Success (New ID)
+        deactivate DB
+        DAO --> Service : Thực thể User hoàn chỉnh
+        deactivate DAO
+
+        Service --> Controller : Đối tượng User
+        deactivate Service
+
+        Controller --> UI : HTTP 201 Created (JSON: success, message, data)
+        deactivate Controller
+    end
+end
+
+UI --> Admin : Hiển thị thông báo thành công và cập nhật danh sách
+deactivate UI
+
+@enduml

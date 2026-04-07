@@ -1,0 +1,70 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Admin Xóa danh mục
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Danh mục)" as UI
+control "AdminCategoryApiController" as Controller
+control "CategoryServiceImpl" as Service
+entity "CategoryDaoImpl" as DAO
+database "Database (DB)" as DB
+
+Admin -> UI : Nhấn nút "Xóa" và xác nhận
+activate UI
+
+UI -> Controller : HTTP DELETE /api/admin/categories/{id}
+activate Controller
+
+Controller -> Controller : extractId(pathInfo)
+
+Controller -> Service : deleteCategory(id)
+activate Service
+
+' 1. Kiểm tra điều kiện xóa
+Service -> DAO : findById(id)
+activate DAO
+DAO --> Service : Thực thể Category
+deactivate DAO
+
+Service -> DAO : countProductsByCategory(id)
+activate DAO
+DAO --> Service : Số lượng sản phẩm liên quan (productCount)
+deactivate DAO
+
+alt productCount > 0
+    Service --> Controller : IllegalStateException("Không thể xóa danh mục đang có sản phẩm")
+    Controller --> UI : HTTP 409 Conflict (Báo lỗi ràng buộc)
+else productCount == 0
+    ' 2. Xử lý danh mục con (Gỡ bỏ cha)
+    Service -> DAO : detachChildren(id)
+    activate DAO
+    DAO -> DB : UPDATE categories SET parent_id = NULL WHERE parent_id = ?
+    activate DB
+    DB --> DAO : OK
+    deactivate DB
+    DAO --> Service : Hoàn tất gỡ bỏ con
+    deactivate DAO
+
+    ' 3. Thực hiện xóa
+    Service -> DAO : delete(id)
+    activate DAO
+    DAO -> DB : Bắt đầu Transaction\nem.remove(category)
+    activate DB
+    DB --> DAO : Success
+    deactivate DB
+    DAO --> Service : OK
+    deactivate DAO
+
+    Service --> Controller : Trả về kết quả thành công
+    deactivate Service
+
+    Controller --> UI : HTTP 200 OK (JSON: success, message)
+end
+
+UI --> Admin : Thông báo xóa thành công và cập nhật UI
+deactivate UI
+
+@enduml

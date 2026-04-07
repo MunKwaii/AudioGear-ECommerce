@@ -1,0 +1,106 @@
+@startuml
+skinparam actorStyle awesome
+left to right direction
+
+actor "Khách vãng lai" as Guest
+actor "Thành viên" as User
+actor "Quản trị viên" as Admin
+
+' Thừa kế: Thành viên có mọi quyền của Khách hàng
+User --|> Guest
+
+package "Quản lý Tài khoản" {
+    usecase "Đăng ký" as UC_Register
+    usecase "Đăng nhập" as UC_Login
+    usecase "Đổi mật khẩu" as UC_ChangePass
+    usecase "Đăng nhập Google" as UC_OAuth
+    usecase "Quên mật khẩu(Xác thực OTP qua email)" as UC_OTP
+    usecase "Cập nhật thông tin/Địa chỉ" as UC_Profile
+    usecase "Đăng xuất" as UC_Logout
+    UC_OAuth ..> UC_Login : <<extend>>
+    UC_OTP   ..> UC_Login : <<extend>>
+}
+
+package "Duyệt & Tìm kiếm" {
+    usecase "Xem danh sách sản phẩm" as UC_ViewProd
+    usecase "Xem chi tiết sản phẩm" as UC_ViewDetail
+    usecase "Tìm kiếm & Lọc sản phẩm" as UC_Search
+    usecase "Xem thông số kỹ thuật" as UC_ViewSpec
+    usecase "Xắp xếp sản phẩm theo tiêu chí" as UC_Sort
+    usecase "Xem đánh giá, bình luận" as UC_ViewReview
+}
+
+package "Giỏ hàng & Đặt hàng" {
+    usecase "Quản lý giỏ hàng" as UC_Cart
+    usecase "Đặt hàng (Guest/User)" as UC_Checkout
+    usecase "Áp dụng Voucher" as UC_Voucher_Use
+    usecase "Kiểm tra tồn kho" as UC_Stock_Check
+    usecase "Tra cứu đơn hàng công khai" as UC_Track_Public
+    usecase "Chọn phương thức thanh toán" as UC_Payment
+
+    UC_Checkout ..> UC_Stock_Check : <<include>>
+    UC_Voucher_Use ..> UC_Checkout : <<extend>>
+    UC_Checkout ..> UC_Payment : <<include>>
+}
+
+package "Quản lý đơn hàng" {
+    usecase "Xem lịch sử đơn hàng" as UC_History
+    usecase "Xem chi tiết đơn hàng(mã đơn) " as UC_Order_Detail
+    usecase "Hủy đơn hàng" as UC_Cancel_Order
+    usecase "Theo dõi trạng thái đơn hàng" as UC_Track_Order
+}
+
+package "Đánh giá sản phẩm" {
+    usecase "Đánh giá & Bình luận sản phẩm" as UC_Rate
+    usecase "Like/Unlike đánh giá" as UC_Like_Review
+}
+
+
+
+package "Quản trị hệ thống (Admin Only)" {
+    usecase "Xem Dashboard & Thống kê" as UC_Dash
+    usecase "Quản lý Sản phẩm" as UC_Mng_Prod
+    usecase "Quản lý Danh mục" as UC_Mng_Cat
+    usecase "Quản lý Thương hiệu" as UC_Mng_Brand
+    usecase "Quản lý Đơn hàng & Trạng thái" as UC_Mng_Order
+    usecase "Quản lý Người dùng" as UC_Mng_User
+    usecase "Quản lý Mã giảm giá (Voucher)" as UC_Mng_Voucher
+}
+
+' Kết nối Khách hàng (Guest)
+Guest --> UC_Register
+Guest --> UC_Login
+Guest --> UC_ViewProd
+Guest --> UC_Search
+Guest --> UC_Cart
+Guest --> UC_Checkout
+Guest --> UC_Track_Public
+Guest --> UC_ViewReview
+Guest --> UC_ViewDetail
+Guest --> UC_ViewSpec
+Guest --> UC_Sort
+Guest --> UC_Order_Detail
+
+' Kết nối Thành viên (User)
+User --> UC_Profile
+User --> UC_ChangePass
+User --> UC_Logout
+User --> UC_History
+User --> UC_Cancel_Order
+User --> UC_Track_Order
+User --> UC_Rate
+User --> UC_Like_Review
+
+' Kết nối Admin
+Admin --> UC_Dash
+Admin --> UC_Mng_Prod
+Admin --> UC_Mng_Cat
+Admin --> UC_Mng_Brand
+Admin --> UC_Mng_Order
+Admin --> UC_Mng_User
+Admin --> UC_Mng_Voucher
+Admin --> UC_ChangePass
+Admin --> UC_Logout
+
+
+@enduml

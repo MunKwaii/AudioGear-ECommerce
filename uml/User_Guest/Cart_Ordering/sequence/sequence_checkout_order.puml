@@ -1,0 +1,75 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Đặt hàng (Checkout)
+
+actor "Khách hàng" as Customer
+boundary "UI (Trình duyệt)" as UI
+control CheckoutController
+control CheckoutService
+control VoucherService
+entity ProductDao
+entity OrderDao
+participant PaymentStrategy
+database "Database" as DB
+
+Customer -> UI : Gửi yêu cầu đặt hàng\n(Danh sách SP + PT Thanh toán)
+activate UI
+
+UI -> CheckoutController : HTTP POST /api/v1/checkout\n(JSON Data)
+activate CheckoutController
+
+CheckoutController -> CheckoutService : checkout(userId, checkoutRequest)
+activate CheckoutService
+
+' 1. Voucher Validation
+CheckoutService -> VoucherService : validateVoucher(code, total, userId)
+activate VoucherService
+VoucherService --> CheckoutService : Trả về kết quả xác thực & giảm giá
+deactivate VoucherService
+
+' 2. Inventory Check
+CheckoutService -> ProductDao : findById(productId)
+activate ProductDao
+ProductDao -> DB : SELECT product
+activate DB
+DB --> ProductDao : Dữ liệu sản phẩm
+deactivate DB
+ProductDao --> CheckoutService : Trả về thông tin sản phẩm
+deactivate ProductDao
+
+CheckoutService -> CheckoutService : Kiểm tra tồn kho
+
+' 3. Payment Strategy
+CheckoutService -> PaymentStrategy : pay(totalAmount)
+activate PaymentStrategy
+PaymentStrategy --> CheckoutService : Trả về PaymentResult (Thành công)
+deactivate PaymentStrategy
+
+' 4. Order creation & storage
+CheckoutService -> CheckoutService : Khởi tạo thực thể Order & OrderItems
+
+CheckoutService -> OrderDao : save(order)
+activate OrderDao
+OrderDao -> DB : INSERT order & order_items
+activate DB
+DB --> OrderDao : Success
+deactivate DB
+OrderDao --> CheckoutService : Trả về đơn hàng đã lưu
+deactivate OrderDao
+
+' 5. Response
+CheckoutService --> CheckoutController : Trả về CheckoutResponse
+deactivate CheckoutService
+
+CheckoutController --> UI : HTTP 201 Created (CheckoutResponse)
+deactivate CheckoutController
+
+UI -> UI : Điều hướng sang giao diện\n"Hoàn tất đặt hàng"
+
+UI --> Customer : Hiển thị thông báo thành công
+deactivate UI
+
+@enduml

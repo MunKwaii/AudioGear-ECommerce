@@ -1,0 +1,102 @@
+@startuml
+!theme plain
+autonumber
+skinparam SequenceMessageAlign center
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+title Sơ đồ tuần tự (Sequence Diagram) - Luồng Cập nhật Địa chỉ (Profile Update)
+
+actor "Người dùng" as User
+participant "Giao diện (UI)" as UI
+participant "UserProfileController\n(Front Controller)" as Controller
+participant "ProfileCommand\n(Command Pattern)" as Command
+participant "UserProfileFacade\n(Facade Pattern)" as Facade
+participant "AddressService" as Service
+participant "AddressDAO" as DAO
+database "PostgreSQL\n(Database)" as DB
+
+User -> UI : Chỉnh sửa form địa chỉ (Edit Address)\nNhấn "Lưu thay đổi"
+activate UI
+
+UI -> Controller : POST /profile/addresses/edit\n(Form Data: recipientName, street..., isDefault)
+activate Controller
+
+Controller -> Controller : req.getAttribute("currentUserId")
+Controller -> Controller : ProfileCommandFactory.getCommand()
+Controller -> Command : execute(req, resp, userId)
+activate Command
+
+Command -> Facade : extractAddressFromRequest(req)
+activate Facade
+Facade --> Command : Đối tượng Address (từ Request)
+deactivate Facade
+
+Command -> Facade : updateAddress(userId, address)
+activate Facade
+
+Facade -> Service : updateAddress(userId, address)
+activate Service
+
+Service -> DAO : findById(address.getId())
+activate DAO
+DAO -> DB : Query (SELECT * FROM addresses WHERE id = ?)
+activate DB
+DB --> DAO : Kết quả Record
+deactivate DB
+DAO --> Service : Trả về existingAddress (Managed Entity)
+deactivate DAO
+
+alt Kiểm tra quyền sở hữu THẤT BẠI
+    Service -> Service : Check existingAddress.userId != userId
+    Service --> Facade : Ném Ngoại lệ (Không có quyền cập nhật)
+    Facade --> Command : Ném Ngoại lệ
+    Command --> Controller : Truyền lỗi lên Controller
+
+    Controller -> Controller : Bắt Ngoại lệ (Fallback Command)\nSet Attribute "errorMessage"
+    Controller -> UI : Render lại trang /profile kèm thông báo lỗi
+    UI --> User : Hiển thị lỗi bảo mật trên thẻ Message
+else Thông tin hợp lệ (Thuộc sở hữu User)
+    Service -> Service : Gán dữ liệu form vào existingAddress\n(setRecipientName, setStreetAddress...)
+
+    alt Nếu form check "Đặt làm mặc định"
+        Service -> DAO : resetDefaultAddress(userId)
+        activate DAO
+        DAO -> DB : UPDATE addresses SET is_default = false\nWHERE user_id = ?
+        activate DB
+        DB --> DAO : Success
+        deactivate DB
+        DAO --> Service : Hoàn tất Reset
+        deactivate DAO
+
+        Service -> Service : existingAddress.setIsDefault(true)
+    end
+
+    Service -> DAO : save(existingAddress)
+    activate DAO
+    DAO -> DB : DML (UPDATE addresses SET ... WHERE id = ?)
+    activate DB
+    DB --> DAO : Success
+    deactivate DB
+    DAO --> Service : Trả về DB Address đã cập nhật
+    deactivate DAO
+
+    Service --> Facade : Thành công
+    deactivate Service
+
+    Facade --> Command : Thành công
+    deactivate Facade
+
+    Command -> Command : Set session "successMessage"
+    Command --> Controller : Kết thúc lệnh
+    deactivate Command
+
+    Controller --> UI : HTTP 302 Redirect (/profile)
+    deactivate Controller
+
+    UI --> User : Làm mới trang\nHiển thị "Cập nhật địa chỉ thành công"
+end
+
+deactivate UI
+
+@enduml

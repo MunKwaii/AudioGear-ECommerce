@@ -1,0 +1,52 @@
+@startuml
+title Sơ đồ Hoạt động Thanh toán - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Khách hàng|
+start
+:Truy cập trang Giỏ hàng;
+:Nhấn nút "Thành toán";
+
+|Hệ thống|
+if (Đã đăng nhập?) then (Chưa)
+    :Lấy giỏ hàng khách từ Cookie;
+else (Rồi)
+    :Tải giỏ hàng từ Cơ sở dữ liệu;
+endif
+
+|Khách hàng|
+:Điền thông tin giao hàng;
+if (Có mã giảm giá?) then (Có)
+    :Nhập mã khuyến mãi;
+else (Không)
+endif
+:Chọn phương thức thanh toán;
+:Nhấn "Xác nhận đặt hàng";
+
+|Hệ thống|
+:Kiểm tra số lượng tồn kho thực tế;
+if (Đủ hàng?) then (Không)
+    :Chặn giao dịch;
+    :Báo lỗi "Không đủ hàng";
+    :Yêu cầu cập nhật lại giỏ hàng;
+    stop
+else (Có)
+    :Khởi tạo đơn hàng;
+    :Ghi vào DB ;
+    :Trừ số lượng tồn kho;
+    
+
+    :Kích hoạt sự kiện tạo đơn hàng;
+    :Gửi email xác nhận cho khách hàng;
+
+    
+    :Chuyển hướng đến trang "Đặt hàng thành công";
+endif
+
+|Khách hàng|
+:Xem thông báo đặt hàng thành công;
+
+stop
+@enduml

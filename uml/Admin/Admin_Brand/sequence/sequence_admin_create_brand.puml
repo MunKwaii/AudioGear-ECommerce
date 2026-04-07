@@ -1,0 +1,65 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Thêm mới Thương hiệu (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Thương hiệu)" as UI
+control AdminBrandApiController as Controller
+control BrandService as Service
+entity BrandDao as DAO
+database "Database" as DB
+
+Admin -> UI : Nhập tên, mô tả, logo\nvà nhấn "Lưu"
+activate UI
+
+UI -> Controller : HTTP POST /api/admin/brands\n(JSON: name, description, logoUrl)
+activate Controller
+
+' 1. Packaging DTO
+Controller -> Controller : Parse JSON yêu cầu vào DTO
+
+' 2. Call Service
+Controller -> Service : createBrand(name, description, logoUrl)
+activate Service
+
+' 3. Business Logic & Validation
+Service -> Service : Validate tên (không để trống)
+Service -> DAO : findByName(name)
+activate DAO
+DAO -> DB : SELECT FROM brands WHERE name = ?
+activate DB
+DB --> DAO : ResultSet
+deactivate DB
+DAO --> Service : Trả về thực thể (nếu có)
+deactivate DAO
+
+alt Tên đã tồn tại
+    Service --> Controller : Ném IllegalArgumentException
+    Controller --> UI : HTTP 400 Bad Request (JSON: success: false)
+else Tên hợp lệ
+    Service -> Service : Khởi tạo thực thể Brand mới
+
+    Service -> DAO : save(brand)
+    activate DAO
+    DAO -> DB : INSERT INTO brands (JPA Persist)
+    activate DB
+    DB --> DAO : Success
+    deactivate DB
+    DAO --> Service : Trả về Brand (đã có ID)
+    deactivate DAO
+
+    Service --> Controller : Trả về BrandDTO vừa tạo
+    deactivate Service
+
+    ' 4. Response
+    Controller --> UI : HTTP 201 Created (JSON: success: true)
+end
+deactivate Controller
+
+UI --> Admin : Hiển thị thông báo thành công
+deactivate UI
+
+@enduml

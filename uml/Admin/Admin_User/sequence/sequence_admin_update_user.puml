@@ -1,0 +1,74 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Cập nhật thông tin người dùng (Admin)
+
+actor "Quản trị viên" as Admin
+boundary "UI (Quản lý Người dùng)" as UI
+control AdminUserApiController as Controller
+control UserService as Service
+participant PasswordUtil as Crypto
+entity UserDAO as DAO
+database "Database" as DB
+
+Admin -> UI : Thay đổi thông tin người dùng và nhấn "Cập nhật"
+activate UI
+
+UI -> Controller : HTTP PUT /api/admin/users/{id}\n(JSON: email, fullName, password, status, role, ...)
+activate Controller
+
+' 1. Security Check
+Controller -> Controller : Kiểm tra (Không tự khóa chính mình)
+
+Controller -> Service : updateUser(id, email, username, fullName, password, role, status)
+activate Service
+
+' 2. Fetch thực thể hiện tại
+Service -> Service : getUserById(id)
+Service -> DAO : findById(id)
+activate DAO
+DAO --> Service : Đối tượng User hiện tại
+deactivate DAO
+
+' 3. Xử lý cập nhật từng trường (Partial Update)
+alt Email mới != Email cũ
+    Service -> DAO : findByEmail(newEmail)
+    activate DAO
+    DAO --> Service : Kết quả tìm kiếm
+    deactivate DAO
+    alt Trùng Email người khác
+        Service --> Controller : Ném IllegalArgumentException
+    end
+end
+
+alt Mật khẩu có thay đổi
+    Service -> Crypto : hashPassword(newPassword)
+    activate Crypto
+    Crypto --> Service : newPasswordHash
+    deactivate Crypto
+end
+
+' 4. Đồng bộ vào Database
+Service -> Service : Cập nhật các trường dữ liệu vào User entity
+Service -> DAO : save(user)
+activate DAO
+DAO -> DB : UPDATE users (JPA Merge)
+activate DB
+DB --> DAO : Success
+deactivate DB
+DAO --> Service : Đối tượng User đã cập nhật
+deactivate DAO
+
+Service --> Controller : Đối tượng User
+deactivate Service
+
+' 5. Phản hồi
+Controller --> UI : HTTP 200 OK (JSON: success, message, data)
+deactivate Controller
+
+UI --> Admin : Thông báo cập nhật thành công
+deactivate UI
+
+@enduml

@@ -1,0 +1,67 @@
+@startuml
+title Sơ đồ Hoạt động Quản lý Danh mục (Admin) - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Quản trị viên|
+start
+:Truy cập trang "Quản lý Danh mục";
+
+|Hệ thống|
+:Tải danh sách Danh mục (Dạng cây và Dạng phẳng);
+:Hiển thị giao diện quản lý (admin-categories.html);
+
+|Quản trị viên|
+:Chọn một hành động (Thêm, Sửa, hoặc Xóa);
+
+split
+    :Hành động: **Thêm danh mục**;
+    :Nhập tên, mô tả và chọn danh mục cha (nếu có);
+    :Nhấn nút "Lưu";
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (POST /api/admin/categories);
+    :Kiểm tra tên danh mục (không được để trống);
+    if (Tên hợp lệ?) then (Có)
+        :Lưu danh mục mới vào Database;
+        :Trả về phản hồi JSON thành công;
+    else (Không)
+        :Báo lỗi "Tên không được để trống";
+    endif
+
+split again
+    |Quản trị viên|
+    :Hành động: **Sửa danh mục**;
+    :Thay đổi thông tin danh mục;
+    :Nhấn nút "Cập nhật";
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (PUT /api/admin/categories/{id});
+    :Xác thực ID và dữ liệu đầu vào;
+    if (Dữ liệu hợp lệ?) then (Có)
+        :Cập nhật thông tin trong Database;
+        :Trả về phản hồi JSON thành công;
+    else (Không)
+        :Báo lỗi dữ liệu không hợp lệ;
+    endif
+
+split again
+    |Quản trị viên|
+    :Hành động: **Xóa danh mục**;
+    :Nhấn nút "Xóa" và xác nhận;
+    |Hệ thống|
+    :Tiếp nhận yêu cầu (DELETE /api/admin/categories/{id});
+    :Kiểm tra ràng buộc (Danh mục con hoặc Sản phẩm liên quan);
+    if (Có ràng buộc dữ liệu?) then (Có)
+        :Báo lỗi "Không thể xóa do có dữ liệu liên quan" (409);
+    else (Không)
+        :Xóa danh mục khỏi Database;
+        :Trả về phản hồi JSON thành công;
+    endif
+end split
+
+|Quản trị viên|
+:Nhận thông báo kết quả;
+:Giao diện tự động làm mới danh sách danh mục;
+
+stop
+@enduml

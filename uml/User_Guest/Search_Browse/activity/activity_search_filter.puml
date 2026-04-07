@@ -1,0 +1,35 @@
+@startuml
+title Sơ đồ Hoạt động Duyệt và Tìm kiếm - AudioGear E-Commerce
+
+skinparam ActivityStartColor white
+skinparam ActivityEndColor white
+
+|Người dùng|
+start
+:Truy cập trang Danh sách sản phẩm;
+:Nhập từ khóa tìm kiếm hoặc chọn bộ lọc (Giá, Danh mục, Hãng...);
+:Nhấn "Tìm kiếm" / "Áp dụng";
+
+|Hệ thống|
+:Tiếp nhận yêu cầu (ProductController);
+:Chuyển thông số truy vấn sang dạng Query (ProductService);
+:Truy vấn Database (ProductDAO) theo điều kiện;
+if (Có kết quả phù hợp?) then (Có)
+    :Tổng hợp danh sách Sản phẩm;
+    :Tính toán phân trang (Pagination);
+    :Trả về giao diện danh sách Sản phẩm;
+else (Không)
+    :Trả về giao diện kết quả rỗng;
+endif
+
+|Người dùng|
+if (Giao diện hiển thị gì?) then (Danh sách Sản phẩm)
+    :Xem danh sách các Sản phẩm;
+    :Click vào một Sản phẩm để xem chi tiết;
+else (Kết quả rỗng)
+    :Xem thông báo "Không tìm thấy sản phẩm";
+    :Nhập lại từ khóa hoặc xóa bộ lọc;
+endif
+
+stop
+@enduml

@@ -1,0 +1,66 @@
+@startuml
+!theme plain
+skinparam SequenceMessageAlign center
+skinparam linetype ortho
+
+title Sơ đồ tuần tự: Xem lịch sử và chi tiết đơn hàng cá nhân (Show Orders)
+
+actor "Thành viên (User)" as User
+boundary "UI (Trang Hồ sơ)" as UI
+control UserProfileController as Controller
+participant "ProfileCommandFactory" as Factory
+control ShowOrdersCommand as Command
+control ProfileFacadeImpl as Facade
+entity OrderDaoImpl as DAO
+database "Database (DB)" as DB
+
+User -> UI : Chuyển sang Tab "Đơn hàng của tôi"
+activate UI
+
+UI -> Controller : HTTP GET /profile/orders
+activate Controller
+
+' 1. Xác thực và Gọi Command
+Controller -> Controller : Xác thực Token (JWT Authentication)\nLấy userId hiện tại
+Controller -> Factory : getCommand("GET", "/profile/orders")
+activate Factory
+Factory --> Controller : Trả về instance ShowOrdersCommand
+deactivate Factory
+
+Controller -> Command : execute(req, resp, userId)
+activate Command
+
+' 2. Truy xuất Lịch sử Đơn hàng
+Command -> Facade : getUserOrders(userId)
+activate Facade
+
+Facade -> DAO : findByUserId(userId)
+activate DAO
+DAO -> DB : SELECT * FROM orders WHERE user_id = ?\n(Và tải các OrderItems đính kèm)
+activate DB
+DB --> DAO : ResultSet
+deactivate DB
+DAO --> Facade : Trả về List<Order>
+deactivate DAO
+
+Facade --> Command : Kết quả danh sách Đơn hàng
+deactivate Facade
+
+' 3. Truy xuất Thông tin User bổ sung
+Command -> Facade : getUserDetails(userId)
+activate Facade
+Facade --> Command : Trả về User entity
+deactivate Facade
+
+' 4. Render Layout
+Command -> Command : setVariable("orders", orders) \nvà "user" vào Thymeleaf WebContext
+Command -> UI : Process view template "orders.html"
+deactivate Command
+
+Controller --> UI : Trả về trang HTML
+deactivate Controller
+
+UI --> User : Hiển thị giao diện danh sách đơn hàng\ncùng chi tiết từng mặt hàng đã đặt
+deactivate UI
+
+@enduml

@@ -1,0 +1,64 @@
+@startuml
+!theme plain
+autonumber
+skinparam maxMessageSize 150
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+title Sơ đồ tuần tự (Sequence Diagram) - Luồng Xem chi tiết sản phẩm
+
+actor "Người dùng" as Guest
+participant "Giao diện (UI)" as UI
+participant "ProductController" as Controller
+participant "ProductService" as Service
+participant "ReviewService" as Review
+participant "ProductDAO" as DAO
+database "PostgreSQL\n(Database)" as DB
+
+Guest -> UI : Click vào một sản phẩm cụ thể
+activate UI
+
+UI -> Controller : GET /product/{id}
+activate Controller
+
+Controller -> Service : getProductDetail(id)
+activate Service
+
+Service -> DAO : findById(id)
+activate DAO
+DAO -> DB : SELECT * FROM products WHERE id
+activate DB
+DB --> DAO : Dữ liệu Sản phẩm
+deactivate DB
+DAO --> Service : Product Object
+deactivate DAO
+
+alt Xử lý nếu sản phẩm không tồn tại
+    Service --> Controller : Ném ngoại lệ (Không tìm thấy sản phẩm)
+    Controller --> UI : HTTP 404 Not Found
+    UI --> Guest : Hiển thị lỗi "Không tìm thấy sản phẩm"
+else Tìm thấy sản phẩm
+    Service -> Service : Tăng lượt xem (Tùy chọn)
+    
+    Controller -> Review : getReviewsByProductId(id)
+    activate Review
+    Review -> DAO : findReviews(id, pagination)
+    activate DAO
+    DAO -> DB : SELECT * FROM reviews
+    activate DB
+    DB --> DAO : Dữ liệu Đánh giá
+    deactivate DB
+    DAO --> Review : List<Review>
+    deactivate DAO
+    Review --> Controller : Danh sách đánh giá
+    deactivate Review
+
+    Controller --> UI : Trả về Model View chi tiết sản phẩm\n(Kèm Đánh giá)
+    UI --> Guest : Hiển thị trang chi tiết sản phẩm
+end
+
+deactivate Service
+deactivate Controller
+deactivate UI
+
+@enduml
