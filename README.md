@@ -112,9 +112,9 @@ Sau đó copy file target/AudioGear-ECommerce.war bỏ vào thư mục webapps c
 ## 8. Tài khoản mẫu
 
 | Vai trò | Username / Email | Password |
-| :--- | :--- | :--- |
-| **ADMIN** | `admin@example.com` | `123456` |
-| **USER** | `user@example.com` | `123456` |
+| :--- | :--- |:---------|
+| **ADMIN** | `admin` | `12345`  |
+| **USER** | `user` | `12345`  |
 
 ## 9. Phân quyền
 

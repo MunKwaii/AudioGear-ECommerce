@@ -1,0 +1,239 @@
+INSERT INTO addresses (id,created_at,is_default,phone_number,province,province_code,recipient_name,street_address,updated_at,ward,ward_code,user_id,district_code,district) VALUES
+	 (1,'2026-03-27 14:30:43.925629',true,'0902222222','Hồ Chí Minh','79','Nguyễn Văn A','1 Võ Văn Ngân','2026-03-27 14:30:43.925629','Linh Chiểu','26881',2,NULL,'Chưa cập nhật'),
+	 (2,'2026-03-27 14:30:43.925629',true,'0903333333','Hồ Chí Minh','79','Trần Thị B','2 Lê Lợi','2026-03-27 14:30:43.925629','Bến Nghé','26734',3,NULL,'Chưa cập nhật'),
+	 (3,'2026-03-27 14:30:43.925629',true,'0904444444','Hà Nội','01','Lê Văn C','3 Nguyễn Trãi','2026-03-27 14:30:43.925629','Thanh Xuân','00001',4,NULL,'Chưa cập nhật'),
+	 (4,'2026-03-27 14:30:43.925629',false,'0902222222','Hồ Chí Minh','79','Công ty Nguyễn Văn A','Tòa nhà Bitexco','2026-03-27 14:30:43.925629','Bến Nghé','26734',2,NULL,'Chưa cập nhật'),
+	 (5,'2026-03-27 14:30:43.925629',true,'0906666666','Đà Nẵng','48','Hoàng Văn E','120 Trần Hưng Đạo','2026-03-27 14:30:43.925629','Hải Châu 1','20202',6,NULL,'Chưa cập nhật'),
+	 (6,'2026-03-27 14:30:43.925629',true,'0907777777','Hà Nội','01','Vũ Thị F','15 Lê Duẩn','2026-03-27 14:30:43.925629','Khâm Thiên','00002',7,NULL,'Chưa cập nhật'),
+	 (7,'2026-03-27 14:30:43.925629',true,'0908888888','Cần Thơ','92','Đặng Văn G','45 Hùng Vương','2026-03-27 14:30:43.925629','Tân An','31001',8,NULL,'Chưa cập nhật'),
+	 (8,'2026-03-27 14:30:43.925629',true,'0909999999','Hồ Chí Minh','79','Bùi Thị H','77 Nguyễn Đình Chiểu','2026-03-27 14:30:43.925629','Võ Thị Sáu','26800',9,NULL,'Chưa cập nhật'),
+	 (9,'2026-03-27 14:30:43.925629',true,'0910000000','Hà Nội','01','Đỗ Văn I','90 Lý Thái Tổ','2026-03-27 14:30:43.925629','Tràng Tiền','00003',10,NULL,'Chưa cập nhật'),
+	 (10,'2026-03-27 14:30:43.925629',false,'0903333333','Đà Nẵng','48','Nhà mẹ Trần Thị B','88 Quang Trung','2026-03-27 14:30:43.925629','Thạch Thang','20203',3,NULL,'Chưa cập nhật');
+INSERT INTO addresses (id,created_at,is_default,phone_number,province,province_code,recipient_name,street_address,updated_at,ward,ward_code,user_id,district_code,district) VALUES
+	 (12,'2026-04-04 16:40:01.34342',false,'03636367','Thành phố Hà Nội','1','Tan lee','36 VVN','2026-04-04 16:40:01.343434','Phường Trúc Bạch','4',21,'1','Quận Ba Đình'),
+	 (13,'2026-04-04 16:40:02.483545',true,'03636367','Thành phố Hà Nội','1','Tan lee','36 VVN','2026-04-04 16:40:02.483559','Phường Trúc Bạch','4',21,'1','Quận Ba Đình'),
+	 (14,'2026-04-04 16:55:37.030213',false,'0372008321','Thành phố Hồ Chí Minh','79','Võ Trí Hiệu','730 Kha Van Can','2026-04-04 16:57:56.251216','Phường Linh Đông','26821',18,'769','Thành phố Thủ Đức'),
+	 (15,'2026-04-04 16:57:44.05763',true,'0877704945','Thành phố Hồ Chí Minh','79','Howard Vo','730 Kha Vạn Cân','2026-04-04 16:58:00.479252','Phường Linh Đông','26821',18,'769','Thành phố Thủ Đức'),
+	 (16,'2026-04-06 15:26:38.684093',true,'0372008321','Tỉnh Khánh Hòa','56','Võ Trí Hiệu','Ngã 3 cây duối','2026-04-06 15:26:38.684096','Xã Vạn Long','22498',23,'571','Huyện Vạn Ninh'),
+	 (11,'2026-04-02 15:13:10.143573',true,'0363636','Tỉnh An Giang','89','Tan lee','36','2026-04-06 21:05:12.899943','Thị trấn Chợ Vàm','30409',16,'888','Huyện Phú Tân');
+INSERT INTO brands (id,created_at,description,logo_url,name,updated_at) VALUES
+	 (1,'2026-03-27 14:30:44.214601','Thương hiệu âm thanh nổi tiếng từ Nhật Bản','/images/brands/sony.png','Sony','2026-03-27 14:30:44.214601'),
+	 (2,'2026-03-27 14:30:44.214601','Thương hiệu âm thanh cao cấp từ Đức','/images/brands/sennheiser.png','Sennheiser','2026-03-27 14:30:44.214601'),
+	 (3,'2026-03-27 14:30:44.214601','Hãng âm thanh Nhật Bản','/images/brands/audio_technica.png','Audio-Technica','2026-03-27 14:30:44.214601'),
+	 (4,'2026-03-27 14:30:44.214601','Công nghệ chống ồn hàng đầu','/images/brands/bose.png','Bose','2026-03-27 14:30:44.214601'),
+	 (6,'2026-03-27 14:30:44.214601','Loa và tai nghe phổ thông','/images/brands/jbl.png','JBL','2026-03-27 14:30:44.214601'),
+	 (8,'2026-03-27 14:30:44.214601','Phong cách Rock n Roll','/images/brands/marshall.png','Marshall','2026-03-27 14:30:44.214601'),
+	 (9,'2026-03-27 14:30:44.214601','DAC/AMP và tai nghe audiophile','/images/brands/fiio.png','FiiO','2026-03-27 14:30:44.214601'),
+	 (10,'2026-03-27 14:30:44.214601','Tai nghe In-ear phong cách Anime','/images/brands/moondrop.png','Moondrop','2026-03-27 14:30:44.214601'),
+	 (5,'2026-03-27 14:30:44.214601','Hệ sinh thái âm thanh Apple','/images/brands/apple.png','Apple','2026-04-03 22:02:30.928978'),
+	 (11,'2026-04-03 22:28:18.452748','Headphone brand, mainly planar',NULL,'Hifiman','2026-04-03 22:28:18.452753');
+INSERT INTO brands (id,created_at,description,logo_url,name,updated_at) VALUES
+	 (7,'2026-03-27 14:30:44.214601','Thiết bị âm thanh chuyên nghiệp','/static/images/brands/c4440689-1fbc-423d-8896-e331c7ff1f3e.jpeg','Shure','2026-04-03 23:02:50.773379');
+INSERT INTO cart_items (id,created_at,quantity,updated_at,cart_id,product_id) VALUES
+	 (1,'2026-03-30 21:38:39.435',4,'2026-03-30 21:38:35.653',1,3),
+	 (5,'2026-03-30 21:44:24.436',1,'2026-03-30 21:44:29.501',2,8),
+	 (49,'2026-04-06 15:50:55.853997',1,'2026-04-06 15:50:55.853997',8,1),
+	 (51,'2026-04-06 20:09:55.998332',1,'2026-04-06 20:09:55.998332',4,14),
+	 (50,'2026-04-06 20:09:00.190404',3,'2026-04-06 20:10:59.420963',3,6),
+	 (52,'2026-04-06 20:13:29.161054',34,'2026-04-06 20:13:29.161054',3,14),
+	 (3,'2026-03-30 21:39:49.385',2,'2026-04-06 20:14:14.533445',3,5),
+	 (8,'2026-03-31 23:56:46.91429',2,'2026-04-06 20:18:06.786371',3,1),
+	 (53,'2026-04-06 20:25:06.495225',1,'2026-04-06 20:25:06.495228',10,27),
+	 (32,'2026-04-05 14:29:24.776481',2,'2026-04-05 14:29:48.026922',9,28);
+INSERT INTO cart_items (id,created_at,quantity,updated_at,cart_id,product_id) VALUES
+	 (54,'2026-04-07 04:01:09.596282',1,'2026-04-07 04:01:09.596282',4,11),
+	 (7,'2026-03-31 23:27:56.800615',1,'2026-03-31 23:27:56.800618',3,11),
+	 (19,'2026-04-04 03:05:51.159544',10,'2026-04-05 15:13:01.463075',6,28),
+	 (13,'2026-04-02 23:01:15.701346',1,'2026-04-02 23:01:15.701355',3,27),
+	 (43,'2026-04-05 15:48:08.062605',2,'2026-04-05 15:48:15.834344',4,13),
+	 (44,'2026-04-05 15:48:31.204848',2,'2026-04-05 15:48:32.845834',4,28),
+	 (46,'2026-04-05 18:16:52.764584',3,'2026-04-05 18:17:09.222811',8,28);
+INSERT INTO carts (id,created_at,updated_at,user_id) VALUES
+	 (1,'2026-03-30 21:40:48.18','2026-03-30 21:40:50.397',1),
+	 (2,'2026-03-30 21:41:12.082','2026-03-30 21:41:14.578',2),
+	 (3,'2026-03-30 21:41:30.088','2026-03-30 21:41:31.911',16),
+	 (4,'2026-03-30 21:41:42.347','2026-03-30 21:41:44.25',15),
+	 (5,'2026-03-30 21:44:05.74','2026-03-30 21:44:07.979',8),
+	 (6,'2026-04-01 13:32:23.899178','2026-04-01 13:32:23.899186',18),
+	 (8,'2026-04-04 22:26:50.828372','2026-04-04 22:26:50.828382',21),
+	 (9,'2026-04-05 14:29:23.939278','2026-04-05 14:29:23.939278',22),
+	 (10,'2026-04-06 15:15:36.780816','2026-04-06 15:15:36.780823',23);
+INSERT INTO categories (id,created_at,description,name,updated_at,parent_id) VALUES
+	 (1,'2026-03-27 14:30:44.425997','Các loại tai nghe nói chung','Tai nghe (Headphones)','2026-03-27 14:30:44.425997',NULL),
+	 (2,'2026-03-27 14:30:44.425997','Các loại loa di động và để bàn','Loa (Speakers)','2026-03-27 14:30:44.425997',NULL),
+	 (3,'2026-03-27 14:30:44.425997','Bộ giải mã và khuếch đại âm thanh','DAC & AMP','2026-03-27 14:30:44.425997',NULL),
+	 (4,'2026-03-27 14:30:44.425997','Cáp, đệm tai, case bảo vệ','Phụ kiện','2026-03-27 14:30:44.425997',NULL),
+	 (5,'2026-03-27 14:30:44.425997','Tai nghe trùm đầu','Tai nghe Over-ear','2026-03-27 14:30:44.425997',1),
+	 (6,'2026-03-27 14:30:44.425997','Tai nghe nhét tai','Tai nghe In-ear (IEM)','2026-03-27 14:30:44.425997',1),
+	 (7,'2026-03-27 14:30:44.425997','Tai nghe không dây hoàn toàn','Tai nghe True Wireless','2026-03-27 14:30:44.425997',1),
+	 (8,'2026-03-27 14:30:44.425997','Loa di động không dây','Loa Bluetooth','2026-03-27 14:30:44.425997',2),
+	 (9,'2026-03-27 14:30:44.425997','DAC/AMP di động (Dongle)','Portable DAC/AMP','2026-03-27 14:30:44.425997',3),
+	 (10,'2026-03-27 14:30:44.425997','Cáp nâng cấp cho tai nghe','Cáp âm thanh','2026-03-27 14:30:44.425997',4);
+INSERT INTO order_items (id,created_at,price,quantity,order_id,product_id) VALUES
+	 (1,'2026-03-30 21:56:23.355',720000.00,2,1,1),
+	 (2,'2026-03-30 21:56:54.47',240000.00,3,2,8),
+	 (3,'2026-04-02 03:21:25.854743',3600000.00,1,6,14),
+	 (16,'2026-04-04 18:20:28.088377',1000.00,10,19,28),
+	 (17,'2026-04-04 18:47:24.983296',1000.00,2,20,28),
+	 (18,'2026-04-04 18:53:44.026179',1000.00,9,21,28),
+	 (19,'2026-04-04 19:01:33.697574',1000.00,9,22,28),
+	 (20,'2026-04-04 23:13:43.203221',3490000.00,1,23,7),
+	 (21,'2026-04-04 23:24:45.016594',9990000.00,1,24,6),
+	 (22,'2026-04-04 23:48:20.972484',2490000.00,1,25,11);
+INSERT INTO order_items (id,created_at,price,quantity,order_id,product_id) VALUES
+	 (23,'2026-04-04 23:52:07.759718',2490000.00,1,26,11),
+	 (24,'2026-04-05 14:30:53.594741',1000.00,9,27,28),
+	 (25,'2026-04-05 14:53:16.768906',1110000.00,1,28,9),
+	 (26,'2026-04-05 14:53:16.95951',2490000.00,1,28,11),
+	 (28,'2026-04-05 18:17:21.416835',1000.00,3,29,28),
+	 (29,'2026-04-06 15:54:04.894759',2000.00,3,30,28),
+	 (31,'2026-04-06 16:02:01.087962',2000.00,3,32,28),
+	 (39,'2026-04-06 20:25:15.814008',720000.00,1,35,27),
+	 (40,'2026-04-07 04:10:29.257645',2490000.00,3,36,11),
+	 (41,'2026-04-07 04:10:29.464996',500000.00,1,36,8);
+INSERT INTO order_items (id,created_at,price,quantity,order_id,product_id) VALUES
+	 (42,'2026-04-07 04:12:15.329245',500000.00,1,37,8);
+INSERT INTO orders (id,city,created_at,email,order_code,payment_method,phone_number,recipient_name,status,street_address,total_amount,updated_at,user_id,voucher_id) VALUES
+	 (22,'Thành phố Hồ Chí Minh','2026-04-04 19:01:33.708194','23110219@student.hcmute.edu.vn','ORD-56FFD39A','SEPAY_QR','0372008321','Võ Trí Hiệu','PROCESSING','730 Kha Van Can, Phường Linh Đông, Thành phố Thủ Đức',9000.00,'2026-04-04 19:01:58.589265',18,NULL),
+	 (28,'Thành phố Hà Nội','2026-04-05 14:53:17.152874','lengonhuttan2005@gmail.com','ORD-FC4FB123','SEPAY_QR','03636367','Tan lee','CANCELLED','36 VVN, Phường Trúc Bạch, Quận Ba Đình',4800000.00,'2026-04-06 16:03:39.919454',21,NULL),
+	 (26,'Thành phố Hà Nội','2026-04-04 23:52:07.764119','lengonhuttan2005@gmail.com','ORD-ADD8E2C2','STORE_PICKUP','03636367','Tan lee','CANCELLED','36 VVN, Phường Trúc Bạch, Quận Ba Đình',2490000.00,'2026-04-06 16:03:39.919454',21,NULL),
+	 (29,'Thành phố Hà Nội','2026-04-05 18:17:21.419411','lengonhuttan2005@gmail.com','ORD-A5BFA2AF','SEPAY_QR','03636367','Tan lee','CANCELLED','36 VVN, Phường Trúc Bạch, Quận Ba Đình',3000.00,'2026-04-06 20:43:30.944441',21,NULL),
+	 (2,'Thanh Hoá','2026-03-30 21:54:47.164','trihieuvo@gmail.com','2','BANK','0363636363','Võ Trí Hiệu','DELIVERED','Số 67',180000.00,'2026-04-04 15:55:17.683983',15,1),
+	 (3,'Đồng Nai','2026-03-30 21:45:07.933','23110239@student.hcmute.edu.vn','3','MOMO','0363636363','Võ Trí Hiệu 2','CANCELLED','38',360000.00,'2026-04-04 15:55:17.683983',15,1),
+	 (1,'Hồ Chí MInh','2026-03-30 21:45:07.933','lengonhuttan20005@gmail.com','1','MOMO','0814580727','Lê Ngô Nhựt Tân','CANCELLED','Số 36',360000.00,'2026-04-04 15:56:29.500719',16,1),
+	 (27,'Thành phố Hồ Chí Minh','2026-04-05 14:30:53.619293','23110219@student.hcmute.edu.vn','ORD-7E20364D','SEPAY_QR','0877704945','Howard Vo','PROCESSING','730 Kha Vạn Cân, Phường Linh Đông, Thành phố Thủ Đức',9000.00,'2026-04-05 14:31:26.656075',18,NULL),
+	 (6,'Thu Duc','2026-04-02 03:21:25.86295','hieu981.vn@gmail.com','ORD-DD353782','COD','0372008321','Võ Trí Hiệu','DELIVERED','730 Kha Van Can',3600000.00,'2026-04-04 16:28:01.083471',18,NULL),
+	 (24,'Thành phố Hà Nội','2026-04-04 23:24:45.038934','lengonhuttan2005@gmail.com','ORD-88523682','STORE_PICKUP','03636367','Tan lee','DELIVERED','36 VVN, Phường Trúc Bạch, Quận Ba Đình',9990000.00,'2026-04-06 20:46:01.71416',21,NULL);
+INSERT INTO orders (id,city,created_at,email,order_code,payment_method,phone_number,recipient_name,status,street_address,total_amount,updated_at,user_id,voucher_id) VALUES
+	 (8,'Thu Duc','2026-04-04 03:05:02.273392','hieu981.vn@gmail.com','ORD-9553989A','COD','0372008321','Võ Trí Hiệu','PENDING','730 Kha Van Can',1000.00,'2026-04-04 03:05:02.987926',NULL,NULL),
+	 (19,'Thành phố Hồ Chí Minh','2026-04-04 18:20:28.102714','23110219@student.hcmute.edu.vn','ORD-943E2E1F','SEPAY_QR','0877704945','Howard Vo','PENDING','730 Kha Vạn Cân, Phường Linh Đông, Thành phố Thủ Đức',10000.00,'2026-04-04 18:20:28.635212',18,NULL),
+	 (23,'Thành phố Hà Nội','2026-04-04 23:13:43.206473','lengonhuttan2005@gmail.com','ORD-D3307591','STORE_PICKUP','03636367','Tan lee','DELIVERED','36 VVN, Phường Trúc Bạch, Quận Ba Đình',3490000.00,'2026-04-06 20:46:06.813965',21,NULL),
+	 (20,'Tỉnh An Giang','2026-04-04 18:47:24.99753','hieu981.vn@gmail.com','ORD-D92FE312','SEPAY_QR','0372008321','Võ Trí Hiệu','PROCESSING','730 Kha Van Can, Xã Vĩnh Lộc, Huyện An Phú',2000.00,'2026-04-04 18:48:05.373614',NULL,NULL),
+	 (21,'Thành phố Hồ Chí Minh','2026-04-04 18:53:44.039643','23110219@student.hcmute.edu.vn','ORD-76F57143','SEPAY_QR','0372008321','Võ Trí Hiệu','PENDING','730 Kha Van Can, Phường Linh Đông, Thành phố Thủ Đức',9000.00,'2026-04-04 18:53:44.653762',18,NULL),
+	 (30,'Tỉnh Khánh Hòa','2026-04-06 15:54:04.905839','trihieuvo4@gmail.com','ORD-B0EA7F59','SEPAY_QR','0372008321','Võ Trí Hiệu','PENDING','Ngã 3 cây duối, Xã Vạn Long, Huyện Vạn Ninh',6000.00,'2026-04-06 15:54:05.489877',23,NULL),
+	 (37,'Hồ Chí Minh','2026-04-07 04:12:15.329245','huynhngoctai205@gmail.com','ORD-53276D0A','COD','0902222222','Nguyễn Văn A','DELIVERED','1 Võ Văn Ngân, Linh Chiểu, Chưa cập nhật',500000.00,'2026-04-07 04:13:45.082749',2,NULL),
+	 (32,'Tỉnh Khánh Hòa','2026-04-06 16:02:01.088269','trihieuvo4@gmail.com','ORD-62985712','SEPAY_QR','0372008321','Võ Trí Hiệu','PENDING','Ngã 3 cây duối, Xã Vạn Long, Huyện Vạn Ninh',6000.00,'2026-04-06 16:02:01.527672',23,NULL),
+	 (25,'Thành phố Hà Nội','2026-04-04 23:48:20.980156','lengonhuttan2005@gmail.com','ORD-CB193988','STORE_PICKUP','03636367','Tan lee','CANCELLED','36 VVN, Phường Trúc Bạch, Quận Ba Đình',2490000.00,'2026-04-06 16:03:39.919454',21,NULL),
+	 (35,'Tỉnh Khánh Hòa','2026-04-06 20:25:15.817259','trihieuvo4@gmail.com','ORD-728E47F5','COD','0372008321','Võ Trí Hiệu','DELIVERED','Ngã 3 cây duối, Xã Vạn Long, Huyện Vạn Ninh',720000.00,'2026-04-06 20:38:52.812409',23,NULL);
+INSERT INTO orders (id,city,created_at,email,order_code,payment_method,phone_number,recipient_name,status,street_address,total_amount,updated_at,user_id,voucher_id) VALUES
+	 (36,'Hồ Chí Minh','2026-04-07 04:10:29.895689','huynhngoctai205@gmail.com','ORD-C6E6169F','COD','0902222222','Nguyễn Văn A','PENDING','1 Võ Văn Ngân, Linh Chiểu, Chưa cập nhật',6376000.00,'2026-04-07 04:10:30.530136',15,6);
+INSERT INTO product_images (id,alt_text,created_at,image_url,is_primary,product_id) VALUES
+	 (3,'Tai nghe Bluetooth chụp tai Sony WH-1000XM5','2026-03-28 19:47:45.195644','/images/products/sony-wh-1000xm5.jpg',true,3),
+	 (154,'Tai nghe không dây JBL Wave Buds 2','2026-04-07 04:30:13.359513','/static/images/products/2e6d906d-652e-458c-8315-492d729a3064.png',true,9),
+	 (155,'Tai nghe không dây JBL Wave Buds 2','2026-04-07 04:30:13.359513','/static/images/products/aab8d7b9-0374-48ad-97af-73d5ddca9279.png',false,9),
+	 (156,'Tai nghe không dây JBL Wave Buds 2','2026-04-07 04:30:13.359513','/static/images/products/cd43bcbf-a6af-45ab-8738-c57a7d991e15.png',false,9),
+	 (184,'Tai nghe Bluetooth chụp tai Bose QuietComfort Ultra','2026-04-07 04:42:52.979882','/static/images/products/2358a12e-e320-4d68-9539-272f1bddce1e.webp',true,6),
+	 (185,'Tai nghe Bluetooth chụp tai Bose QuietComfort Ultra','2026-04-07 04:42:52.979882','/static/images/products/a3c4717b-9745-4f0b-9db0-24abeaa1376c.webp',false,6),
+	 (186,'Tai nghe Bluetooth chụp tai Bose QuietComfort Ultra','2026-04-07 04:42:52.979882','/static/images/products/703c563a-fc53-4ed7-ade0-12bc82a2866c.webp',false,6),
+	 (187,'Tai nghe Bluetooth chụp tai Bose QuietComfort Ultra','2026-04-07 04:42:52.979882','/static/images/products/3f078c3a-acf3-4843-bfb2-e0ee9ddb2b1c.jpeg',false,6),
+	 (157,'Tai nghe Apple EarPods Lightning','2026-04-07 04:31:45.179394','/static/images/products/15efb53c-0f48-43ae-9a42-5295b32b49d2.webp',false,8),
+	 (158,'Tai nghe Apple EarPods Lightning','2026-04-07 04:31:45.179394','/static/images/products/7ca90be4-b33d-4b7a-b724-bbb0e5f2dd97.webp',false,8);
+INSERT INTO product_images (id,alt_text,created_at,image_url,is_primary,product_id) VALUES
+	 (159,'Tai nghe Apple EarPods Lightning','2026-04-07 04:31:45.179394','/static/images/products/89bcd369-bace-4d7f-a9ab-31e462dfe3ae.jpeg',true,8),
+	 (160,'Tai nghe Bluetooth Apple AirPods 4','2026-04-07 04:34:02.812587','/static/images/products/99d133a9-74f4-426d-9917-f3f16684cabf.webp',false,7),
+	 (161,'Tai nghe Bluetooth Apple AirPods 4','2026-04-07 04:34:02.812587','/static/images/products/1adfb4c1-ee9d-463f-9294-750f412e07ba.jpg',false,7),
+	 (162,'Tai nghe Bluetooth Apple AirPods 4','2026-04-07 04:34:02.812587','/static/images/products/1d041cab-6c64-4340-8dda-e0933521255d.jpeg',true,7),
+	 (166,'Tai nghe Bluetooth True Wireless Audio-Technica ATH-SQ1TW','2026-04-07 04:36:16.932055','/static/images/products/eb95750b-b66a-4b84-ab03-355e994532ac.jpeg',true,5),
+	 (167,'Tai nghe Bluetooth True Wireless Audio-Technica ATH-SQ1TW','2026-04-07 04:36:16.932055','/static/images/products/272e3637-f31e-4ca9-a25f-f1cb07eae093.jpg',false,5),
+	 (168,'Tai nghe Bluetooth True Wireless Audio-Technica ATH-SQ1TW','2026-04-07 04:36:16.932055','/static/images/products/ae6bbb26-f218-416d-bcf7-8dec8804076b.jpg',false,5),
+	 (169,'Tai nghe Bluetooth True Wireless Audio-Technica ATH-SQ1TW','2026-04-07 04:36:16.932055','/static/images/products/eac8ccd9-7727-4e0d-9a2a-45bae56ea5de.jpg',false,5),
+	 (73,'Tai nghe Bluetooth chụp tai Sony WH-1000XM5','2026-04-02 00:37:02.943111','/images/products/sony-wh-1000xm5.jpg',false,3),
+	 (74,'Tai nghe Bluetooth chụp tai Sony WH-1000XM5','2026-04-02 00:37:02.943115','/images/products/e9bf73f6-6711-4a02-a73e-6371b509baa9.jpeg',true,3);
+INSERT INTO product_images (id,alt_text,created_at,image_url,is_primary,product_id) VALUES
+	 (75,'Tai nghe Bluetooth chụp tai Sony WH-1000XM5','2026-04-02 00:37:13.728839','/images/products/e9bf73f6-6711-4a02-a73e-6371b509baa9.jpeg',true,3),
+	 (76,'Tai nghe Bluetooth chụp tai Sony WH-1000XM5','2026-04-02 00:37:13.728846','/images/products/sony-wh-1000xm5.jpg',false,3),
+	 (77,'Tai nghe Bluetooth chụp tai Sony WH-1000XM5','2026-04-02 00:37:50.787864','/images/products/e9bf73f6-6711-4a02-a73e-6371b509baa9.jpeg',true,3),
+	 (78,'Tai nghe Bluetooth chụp tai Sony WH-1000XM5','2026-04-02 00:37:50.787867','/images/products/sony-wh-1000xm5.jpg',false,3),
+	 (170,'Tai nghe Bluetooth chụp tai Sennheiser Momentum 4 Wireless','2026-04-07 04:38:15.774269','/static/images/products/sennheiser-momentum-4.jpg',false,4),
+	 (171,'Tai nghe Bluetooth chụp tai Sennheiser Momentum 4 Wireless','2026-04-07 04:38:15.774269','/static/images/products/388997e2-bf67-44e7-a50c-959df33eff46.webp',false,4),
+	 (172,'Tai nghe Bluetooth chụp tai Sennheiser Momentum 4 Wireless','2026-04-07 04:38:15.774269','/static/images/products/41e483df-3693-4a52-8071-2c10dcec0caf.webp',false,4),
+	 (173,'Tai nghe Bluetooth chụp tai Sennheiser Momentum 4 Wireless','2026-04-07 04:38:15.774269','/static/images/products/257f2039-f089-424d-82d8-ca409a399524.jpeg',true,4),
+	 (174,'Tai nghe Bluetooth chụp tai Sennheiser Momentum 4 Wireless','2026-04-07 04:38:15.774269','/static/images/products/18c0d430-ea15-4355-a3dc-1275d229d3b2.webp',false,4),
+	 (175,'Tai nghe Bluetooth chụp tai Sony WH-CH720N','2026-04-07 04:39:32.519101','/static/images/products/7e8baf8f-92ba-4a88-ab9a-2164a05a7e1f.jpeg',true,2);
+INSERT INTO product_images (id,alt_text,created_at,image_url,is_primary,product_id) VALUES
+	 (176,'Tai nghe Bluetooth chụp tai Sony WH-CH720N','2026-04-07 04:39:32.519101','/static/images/products/sony-wh-ch720n.jpg',false,2),
+	 (177,'Tai nghe Bluetooth chụp tai Sony WH-CH720N','2026-04-07 04:39:32.519101','/static/images/products/345320f2-f8e6-48f3-90df-c1d8bd084207.jpeg',false,2),
+	 (178,'Tai nghe Bluetooth chụp tai Sony WH-CH720N','2026-04-07 04:39:32.519101','/static/images/products/be9bf5c7-ea38-4535-90e6-eeefaef0a5c5.webp',false,2),
+	 (179,'Tai nghe Bluetooth chụp tai Sony WH-CH720N','2026-04-07 04:39:32.519101','/static/images/products/698b5150-3a08-4e8c-a6f0-d57950a17a96.webp',false,2),
+	 (180,'Tai nghe Bluetooth chụp tai Sony WH-CH720N','2026-04-07 04:39:32.519101','/static/images/products/4a69fe35-19b0-49f2-ab8c-b2124457a40a.webp',false,2),
+	 (181,'Tai nghe Moondrop Aria','2026-04-07 04:40:54.116678','/static/images/products/moondrop-aria.jpg',false,1),
+	 (182,'Tai nghe Moondrop Aria','2026-04-07 04:40:54.116678','/static/images/products/12804f5d-69c0-46b6-a698-7595a5306b4c.jpg',true,1),
+	 (183,'Tai nghe Moondrop Aria','2026-04-07 04:40:54.116678','/static/images/products/4a569cf2-7e06-45c1-864f-e5a40012bc72.webp',false,1),
+	 (125,'Tai nghe demo','2026-04-06 15:09:08.429597','/static/images/products/ade5513a-d2d7-482e-a7e0-e10bae31a51c.webp',true,28),
+	 (134,'Moondrop Dawn','2026-04-07 04:21:08.735506','/static/images/products/7cbee907-daa5-474c-ad87-c1e95f220cab.jpg',false,27);
+INSERT INTO product_images (id,alt_text,created_at,image_url,is_primary,product_id) VALUES
+	 (135,'Moondrop Dawn','2026-04-07 04:21:08.735506','/static/images/products/233dc68c-f181-49a7-9d3f-f8eb1e8e0159.jpg',true,27),
+	 (136,'Moondrop Dawn','2026-04-07 04:21:08.735506','/static/images/products/50d518e0-be97-4253-a5b1-30b461f4da2e.jpg',false,27),
+	 (137,'Space Travel','2026-04-07 04:22:59.148143','/static/images/products/test.jpg',true,14),
+	 (138,'Space Travel','2026-04-07 04:22:59.148143','/static/images/products/9696987a-f907-4e2c-a9dc-1f8ea67a6e3e.jpg',false,14),
+	 (139,'Space Travel','2026-04-07 04:22:59.148143','/static/images/products/524d165a-d437-4514-ba5e-1232ce019cd0.jpg',false,14),
+	 (140,'space travel 2','2026-04-07 04:24:48.6619','/static/images/products/beaa23d7-0dce-49fa-9f3b-cd2b3cc81e30.jpeg',true,13),
+	 (141,'space travel 2','2026-04-07 04:24:48.6619','/uploads/products/test.jpg',false,13),
+	 (142,'space travel 2','2026-04-07 04:24:48.6619','/static/images/products/d6a635df-c42d-4971-9676-cb33ce046d56.webp',false,13),
+	 (143,'space travel 2','2026-04-07 04:24:48.6619','/static/images/products/70c9f2b4-d2b5-4b8d-9f3f-89392221a236.jpg',false,13),
+	 (144,'Tai nghe FiiO JD1','2026-04-07 04:26:25.684471','/static/images/products/8123d2af-1299-4498-b078-fea0b2143af1.jpg',true,12);
+INSERT INTO product_images (id,alt_text,created_at,image_url,is_primary,product_id) VALUES
+	 (145,'Tai nghe FiiO JD1','2026-04-07 04:26:25.68714','/static/images/products/fiio-jd1.jpg',false,12),
+	 (146,'Tai nghe FiiO JD1','2026-04-07 04:26:25.68714','/static/images/products/3ac5bfbc-cff8-4aa3-842d-d74db48233e8.webp',false,12),
+	 (147,'Tai nghe FiiO JD1','2026-04-07 04:26:25.68714','/static/images/products/a57001a3-1a61-4152-a286-a3a05114e135.webp',false,12),
+	 (148,'Tai nghe Shure SE215','2026-04-07 04:27:32.272364','/static/images/products/107d9609-4bfa-406e-87df-d69c1137d92c.gif',false,11),
+	 (149,'Tai nghe Shure SE215','2026-04-07 04:27:32.272364','/static/images/products/3bc76ae6-5dca-4f9f-8d2a-69e51570e36f.jpg',false,11),
+	 (150,'Tai nghe Shure SE215','2026-04-07 04:27:32.272364','/static/images/products/9dd85434-7280-4841-9a60-a009d3cfa288.jpeg',true,11),
+	 (151,'Tai nghe Bluetooth chụp tai Marshall Major IV','2026-04-07 04:29:10.787837','/static/images/products/ef6bfbfe-6ba7-4899-a3fa-9170da23e822.webp',false,10),
+	 (152,'Tai nghe Bluetooth chụp tai Marshall Major IV','2026-04-07 04:29:10.787837','/static/images/products/f27e00c6-fc6b-4597-a050-7f2645015d85.png',true,10),
+	 (153,'Tai nghe Bluetooth chụp tai Marshall Major IV','2026-04-07 04:29:10.787837','/static/images/products/6fa52f2d-65d2-49ba-9e6b-f5aad1573326.webp',false,10);
+INSERT INTO products (id,created_at,description,name,price,specifications,status,thumbnail_url,updated_at,brand_id,category_id,stock_quantity) VALUES
+	 (3,'2026-03-28 19:47:18.14984','Tai nghe over-ear cao cấp chống ồn chủ động, âm thanh chi tiết.','Tai nghe Bluetooth chụp tai Sony WH-1000XM5',5985000.00,'{"type": "Over-ear", "brand": "Sony", "color": "Đen", "connectivity": "Bluetooth", "noise_canceling": "Có"}',true,'/images/products/e9bf73f6-6711-4a02-a73e-6371b509baa9.jpeg','2026-04-02 00:37:51.621586',1,5,6),
+	 (11,'2026-03-28 19:47:20.980874','Tai nghe in-ear monitor nổi tiếng.','Tai nghe Shure SE215',2490000.00,'{"type": "In-ear Monitor", "brand": "Shure", "color": "Clear", "connectivity": "3.5mm"}',true,'/static/images/products/9dd85434-7280-4841-9a60-a009d3cfa288.jpeg','2026-04-07 04:27:34.115064',7,6,1),
+	 (5,'2026-03-28 19:47:19.103913','Tai nghe true wireless nhỏ gọn, trẻ trung.','Tai nghe Bluetooth True Wireless Audio-Technica ATH-SQ1TW',1890000.00,'{"type": "True Wireless", "brand": "Audio-Technica", "color": "Navy", "connectivity": "Bluetooth 5.0"}',true,'/static/images/products/eb95750b-b66a-4b84-ab03-355e994532ac.jpeg','2026-04-07 04:36:19.390002',3,7,5),
+	 (4,'2026-03-28 19:47:18.856888','Tai nghe over-ear cao cấp, pin lâu, âm thanh cân bằng.','Tai nghe Bluetooth chụp tai Sennheiser Momentum 4 Wireless',8490000.00,'{"type": "Over-ear", "brand": "Sennheiser", "color": "Đen", "battery": "60 giờ", "connectivity": "Bluetooth"}',true,'/static/images/products/257f2039-f089-424d-82d8-ca409a399524.jpeg','2026-04-07 04:38:18.715493',2,5,4),
+	 (2,'2026-03-28 19:47:17.902205','Tai nghe over-ear không dây chống ồn, thiết kế nhẹ, phù hợp học tập và làm việc.','Tai nghe Bluetooth chụp tai Sony WH-CH720N',2210000.00,'{"type": "Over-ear", "brand": "Sony", "color": "Đen", "connectivity": "Bluetooth", "noise_canceling": "Có"}',true,'/static/images/products/7e8baf8f-92ba-4a88-ab9a-2164a05a7e1f.jpeg','2026-04-07 04:39:35.792064',1,5,4),
+	 (10,'2026-03-28 19:47:20.304382','Tai nghe phong cách cổ điển, pin lâu.','Tai nghe Bluetooth chụp tai Marshall Major IV',2990000.00,'{"type": "Over-ear", "brand": "Marshall", "color": "Đen", "battery": "80 giờ", "connectivity": "Bluetooth 5.0"}',true,'/static/images/products/f27e00c6-fc6b-4597-a050-7f2645015d85.png','2026-04-07 04:29:12.468823',8,5,0),
+	 (9,'2026-03-28 19:47:20.061107','Tai nghe true wireless chống nước IP54, âm thanh JBL Pure Bass.','Tai nghe không dây JBL Wave Buds 2',1110000.00,'{"type": "True Wireless", "brand": "JBL", "color": "Đen", "connectivity": "Bluetooth 5.3", "water_resistance": "IP54"}',true,'/static/images/products/2e6d906d-652e-458c-8315-492d729a3064.png','2026-04-07 04:30:14.50533',6,7,5),
+	 (1,'2026-03-28 19:37:27.180482','Tai nghe IEM được yêu thích nhờ chất âm cân bằng và thiết kế đẹp.','Tai nghe Moondrop Aria',1890000.00,'{"type": "IEM", "brand": "Moondrop", "color": "Bạc", "driver": "Dynamic", "connectivity": "3.5mm"}',true,'/static/images/products/12804f5d-69c0-46b6-a698-7595a5306b4c.jpg','2026-04-07 04:40:55.818675',10,6,2),
+	 (27,'2026-04-02 16:29:11.256158','DAC','Moondrop Dawn',720000.00,'{"Hãng": "Moondrop"}',true,'/static/images/products/233dc68c-f181-49a7-9d3f-f8eb1e8e0159.jpg','2026-04-07 04:21:09.96951',10,3,18),
+	 (8,'2026-03-28 19:47:19.80732','Tai nghe có dây cổng Lightning, mic thoại tích hợp.','Tai nghe Apple EarPods Lightning',500000.00,'{"type": "Wired In-ear", "brand": "Apple", "color": "Trắng", "microphone": "Có", "connectivity": "Lightning"}',true,'/static/images/products/89bcd369-bace-4d7f-a9ab-31e462dfe3ae.jpeg','2026-04-07 04:31:46.386246',5,6,7);
+INSERT INTO products (id,created_at,description,name,price,specifications,status,thumbnail_url,updated_at,brand_id,category_id,stock_quantity) VALUES
+	 (6,'2026-03-28 19:47:19.356828','Tai nghe over-ear chống ồn cao cấp, đeo êm.','Tai nghe Bluetooth chụp tai Bose QuietComfort Ultra',9990000.00,'{"type": "Over-ear", "brand": "Bose", "color": "Đen", "connectivity": "Bluetooth", "noise_canceling": "Có"}',true,'/static/images/products/2358a12e-e320-4d68-9539-272f1bddce1e.webp','2026-04-07 04:42:54.505941',4,5,8),
+	 (7,'2026-03-28 19:47:19.574846','Tai nghe true wireless Apple AirPods 4.','Tai nghe Bluetooth Apple AirPods 4',3490000.00,'{"type": "True Wireless", "brand": "Apple", "color": "Trắng", "connectivity": "Bluetooth"}',true,'/static/images/products/1d041cab-6c64-4340-8dda-e0933521255d.jpeg','2026-04-07 04:34:04.256992',5,7,4),
+	 (14,'2026-04-01 09:42:15.947133','Thanh hóa tôi yêu','Space Travel',365000.00,'{"driver": "40mm", "weight": "250g", "battery": "20h", "bluetooth": "5.3"}',true,'/static/images/products/test.jpg','2026-04-07 04:23:00.480416',10,7,0),
+	 (13,'2026-04-01 09:02:33.467541','36','space travel 2',360000.00,'{"driver": "40mm", "weight": "250g", "battery": "20h", "bluetooth": "5.3"}',true,'/static/images/products/beaa23d7-0dce-49fa-9f3b-cd2b3cc81e30.jpeg','2026-04-07 04:24:50.157525',10,7,36),
+	 (28,'2026-04-03 22:37:31.171716','For demo','Tai nghe demo',2000.00,'{"Form": "Natural", "Màu": "Any", "Kích cỡ": "Freesize"}',false,'/static/images/products/ade5513a-d2d7-482e-a7e0-e10bae31a51c.webp','2026-04-06 20:43:30.400064',10,1,927),
+	 (12,'2026-03-28 19:47:21.518975','Tai nghe in-ear có dây giá tốt.','Tai nghe FiiO JD1',490000.00,'{"type": "In-ear", "brand": "FiiO", "color": "Đen", "driver": "Dynamic", "connectivity": "3.5mm"}',true,'/static/images/products/8123d2af-1299-4498-b078-fea0b2143af1.jpg','2026-04-07 04:26:27.706254',9,6,17);
+INSERT INTO review_likes (id,created_at,review_id,user_id) VALUES
+	 (1,'2026-03-30 21:53:31.078',2,15),
+	 (2,'2026-03-30 21:53:49.439',3,2),
+	 (3,'2026-03-30 21:54:06.438',1,1),
+	 (6,'2026-04-02 23:01:47.355821',2,18);
+INSERT INTO reviews (id,"comment",created_at,rating,updated_at,product_id,user_id) VALUES
+	 (1,'Tai nghe ncc','2026-03-30 21:48:39.896',3,'2026-03-30 21:48:45.613',8,1),
+	 (3,'Tai nghe peak vl','2026-03-30 21:49:46.764',3,'2026-03-30 21:49:50.736',12,2),
+	 (7,'demo','2026-04-02 23:13:48.877286',3,'2026-04-02 23:13:48.877287',14,18),
+	 (2,'Tai nghe ok','2026-03-30 21:49:16.651',4,'2026-03-30 21:49:21.246',1,16),
+	 (9,'OKE HAY','2026-04-07 04:14:44.782027',4,'2026-04-07 04:14:44.782027',8,2);
+INSERT INTO users (id,created_at,email,full_name,password_hash,phone_number,"role",status,updated_at,username,avatar) VALUES
+	 (2,'2026-03-26 20:44:04.197568','huynhngoctai205@gmail.com','Huỳnh Ngọc Tài','$2a$10$wlbHcmQWe5ESfSuwngRMW.0pM86dW0UGvDTuo/NVxVw6MGEYijDDW',NULL,'customer','active','2026-03-26 20:44:04.197568','tai1',NULL),
+	 (3,'2026-03-27 14:30:43.616936','ttb@gmail.com','Trần Thị B','$2a$10$dummyhash...','0903333333','customer','active','2026-03-27 14:30:43.616936','customer02',NULL),
+	 (4,'2026-03-27 14:30:43.616936','lvc@gmail.com','Lê Văn C','$2a$10$dummyhash...','0904444444','customer','active','2026-03-27 14:30:43.616936','customer03',NULL),
+	 (8,'2026-03-27 14:30:43.616936','dvg@gmail.com','Đặng Văn G','$2a$10$dummyhash...','0908888888','customer','pending','2026-03-27 14:30:43.616936','customer07',NULL),
+	 (9,'2026-03-27 14:30:43.616936','bth@gmail.com','Bùi Thị H','$2a$10$dummyhash...','0909999999','customer','active','2026-03-27 14:30:43.616936','customer08',NULL),
+	 (10,'2026-03-27 14:30:43.616936','dvi@gmail.com','Đỗ Văn I','$2a$10$dummyhash...','0910000000','customer','active','2026-03-27 14:30:43.616936','customer09',NULL),
+	 (24,'2026-04-06 21:07:27.726434','lengonhattan2507@gmail.com','Lê Ngô Nhật Tân 1','$2a$12$7ey1q.vq78.2s6H3NL2dBObYHj64VYrvQH/QpguRHZOwhYPYhVTtK','03636363636','customer','active','2026-04-06 21:07:49.475343','tangay',NULL),
+	 (15,'2026-03-29 04:02:02.997102','23110239@student.hcmute.edu.vn','Võ Trí Hiệu','$2a$12$P6XO.Vtq2yOopp1JQ/q2ueIlX0G416jbkggN/PApOuve728GFbhym','','admin','active','2026-04-06 17:15:06.047055','trihieuvo','/static/images/avatars/avatar_15_b811f8b7-2394-48af-a991-c9ed402a9768.jpg'),
+	 (23,'2026-04-06 14:51:13.579083','trihieuvo4@gmail.com','User Demo','$2a$12$lsN.QDsGBq4Ttwqd4ASHYuCp4t.KPFaFU4N7dVMhCBDPnRcwhrnve','0123456789','customer','active','2026-04-06 19:47:32.3486','userdemo','/static/images/avatars/avatar_23_87ccee44-f29f-4784-a2a3-ecd8ffda52ac.webp'),
+	 (19,'2026-04-01 02:06:07.837228','23110305@student.hcmute.edu.vn','Kickhuynh','$2a$12$Hh1fRyeSgXD.bb4FMREFA.MRbs0pUvg./hXingUV1pzkZsDcb0/xC',NULL,'customer','active','2026-04-07 04:03:50.612648','tai2',NULL);
+INSERT INTO users (id,created_at,email,full_name,password_hash,phone_number,"role",status,updated_at,username,avatar) VALUES
+	 (5,'2026-03-27 14:30:43.616936','ptd@gmail.com','Phạm Thị D','$2a$12$OIDmygfmn8ewUtKbMl.FGux.cYwKW5c3tACTT9iMovg4mEp.c410e','0905555555','customer','locked','2026-04-02 20:20:54.193416','customer04',NULL),
+	 (1,'2026-03-25 15:01:13.297977','quockhanh6310@gmail.com','Nguyễn Quốc Khánh','$2a$12$q.Sefz/F34ujNRswRf8RjeupWY5E21ottuKK3ox2/de5v/RFb0OEe',NULL,'customer','active','2026-04-02 19:46:32.298541','quockhanh6310_e09e7',NULL),
+	 (22,'2026-04-05 14:28:10.089952','hieu981.vn@gmail.com','Trí Hiệu Võ',NULL,NULL,'customer','active','2026-04-05 14:28:10.089952','hieu981.vn_a47ee',NULL),
+	 (7,'2026-03-27 14:30:43.616936','vtf@gmail.com','Vũ Thị F','$2a$10$dummyhash...','0907777777','customer','locked','2026-04-02 20:20:41.499568','customer06',NULL),
+	 (6,'2026-03-27 14:30:43.616936','hve@gmail.com','Hoàng Văn E5','$2a$10$dummyhash...','0906666666','customer','active','2026-04-02 20:21:19.323252','customer05',NULL),
+	 (20,'2026-04-02 19:54:16.251487','Quockhanh6311@gmail.com','Khanh Nguyen 123','$2a$12$M9nmhsgLYcXV5IP.znmqjOe.6/O3den4eaeEJelyMB1QFlgblyPzW','0369763147','customer','active','2026-04-03 23:18:43.591873','Quockhanh6311',NULL),
+	 (18,'2026-03-31 20:07:02.901024','231102129@student.hcmute.edu.vn','Độ Tày','$2a$12$HlyZSijAi8IXfifZ85/BB.ac0bfcZujaFMm4xZrU6Xvbc6vUC8nn2','','customer','active','2026-04-04 16:28:01.07959','dotay',NULL),
+	 (21,'2026-04-04 15:14:43.908202','lengonhuttan2005@gmail.com','Lê Ngô Nhựt Tân','$2a$12$5UlKAR9yKoIbt6kmGGN.7.sfqSaiSU7mg38NHsUf3UhUf5/9Iar.m','','customer','active','2026-04-06 20:47:41.489839','Okarin','/static/images/avatars/avatar_21_19f8b99a-749d-41ac-8ee2-9ac12f00ae9d.jpg'),
+	 (16,'2026-03-30 17:45:41.80327','23110219@student.hcmute.edu.vn','Tan Lee','$2a$12$iaESl5rsjfcksb8xfJZjn.7FmrwLD4xwj.VUr7V1S5jtZNBvc3JUy','','customer','active','2026-04-06 21:02:42.916308','domixi','/static/images/avatars/avatar_16_145e0878-5a71-4c77-a9eb-2fb6914c4dcc.jpg');
+INSERT INTO vouchers (id,code,created_at,discount_type,discount_value,expiry_date,max_usage,min_order_value,status,updated_at) VALUES
+	 (4,'DO','2026-04-06 15:23:14.102','PERCENTAGE',36.00,'2026-04-01 15:48:00',100,100000.00,'ACTIVE',NULL),
+	 (1,'DOMIXI','2026-03-30 21:46:43.734','PERCENTAGE',20.00,'2026-04-29 21:46:59.934',36,1000000000.00,'ACTIVE',NULL),
+	 (5,'demo','2026-04-06 20:54:23.302926','FIXED_AMOUNT',12000.00,'2026-05-01 20:54:00',100,0.00,'ACTIVE','2026-04-06 20:54:23.30293'),
+	 (6,'7THANG4','2026-04-07 04:10:21.355438','PERCENTAGE',20.00,'2026-04-08 04:09:00',100,0.00,'ACTIVE','2026-04-07 04:10:22.049305');
