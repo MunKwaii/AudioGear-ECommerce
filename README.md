@@ -106,7 +106,21 @@ docker run -d \
   postgres:15-alpine
 ```
 
-### Bước 3: Cấu hình kết nối
+### Bước 3: Import dữ liệu (SQL Scripts)
+Sau khi container Postgres đã khởi chạy thành công, hãy thực hiện import các file SQL trong thư mục `database/` theo đúng thứ tự để khởi tạo cấu trúc và dữ liệu mẫu:
+
+1.  `01_create_databases.sql` (Làm sạch schema)
+2.  `02_create_tables.sql` (Tạo bảng)
+3.  `03_insert_sample_data.sql` (Thêm dữ liệu mẫu)
+
+**Lệnh thực thi nhanh bằng Docker (chạy tại thư mục gốc của project):**
+```bash
+docker exec -i audiogear-postgres psql -U postgres -d audiogear_db < database/01_create_databases.sql
+docker exec -i audiogear-postgres psql -U postgres -d audiogear_db < database/02_create_tables.sql
+docker exec -i audiogear-postgres psql -U postgres -d audiogear_db < database/03_insert_sample_data.sql
+```
+
+### Bước 4: Cấu hình kết nối
 Để thay đổi thông số kết nối, bạn hãy chỉnh sửa trực tiếp trong file mã nguồn Java:
 `src/main/java/vn/edu/ute/config/DatabaseConfig.java` (hoặc cấu hình qua biến môi trường):
 
