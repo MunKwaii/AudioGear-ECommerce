@@ -1,4 +1,5 @@
 # HỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ THIẾT BỊ ÂM THANH (AudioGear E-Commerce)
+### Link repo github: https://github.com/MunKwaii/AudioGear-ECommerce
 ## Jakarta EE (Servlet/Thymeleaf) + Hibernate/JPA + PostgreSQL + Redis
 
 ## 1. Giới thiệu đề tài
