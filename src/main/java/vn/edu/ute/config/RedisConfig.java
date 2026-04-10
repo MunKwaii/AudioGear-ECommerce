@@ -8,19 +8,36 @@ import redis.clients.jedis.JedisPoolConfig;
 
 /**
  * Redis Configuration
- * Singleton pattern cho Redis connection management, hỗ trợ fallback nếu không có Redis.
+ * Thread-Safe Singleton pattern (Double-Checked Locking) cho Redis connection management, hỗ trợ fallback nếu không có Redis.
  */
 public class RedisConfig {
 
     private static final Logger logger = LogManager.getLogger(RedisConfig.class);
-    private static JedisPool jedisPool;
-    private static boolean isRedisAvailable = false;
+    
+    // volatile ngăn chặn việc reordering khi multi-thread đọc ghi biến instance
+    private static volatile RedisConfig instance;
+    
+    private JedisPool jedisPool;
+    private boolean isRedisAvailable = false;
 
-    static {
+    // Private constructor ngăn cấm việc khởi tạo từ bên ngoài
+    private RedisConfig() {
         initializeJedisPool();
     }
 
-    private static void initializeJedisPool() {
+    // Double-Checked Locking đảm bảo chuẩn Thread-Safe
+    public static RedisConfig getInstance() {
+        if (instance == null) {
+            synchronized (RedisConfig.class) {
+                if (instance == null) {
+                    instance = new RedisConfig();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private void initializeJedisPool() {
         try {
             JedisPoolConfig poolConfig = new JedisPoolConfig();
             poolConfig.setMaxTotal(20);
@@ -32,7 +49,7 @@ public class RedisConfig {
 
             jedisPool = new JedisPool(poolConfig, redisHost, redisPort, 2000);
 
-            // Test kết nối
+            // Test kết nối 
             try (Jedis jedis = jedisPool.getResource()) {
                 jedis.ping();
                 isRedisAvailable = true;
@@ -47,7 +64,7 @@ public class RedisConfig {
     /**
      * Lấy Jedis resource. Trả về null nếu Redis không hoạt động.
      */
-    public static Jedis getJedis() {
+    public Jedis getJedis() {
         if (!isRedisAvailable || jedisPool == null) {
             return null;
         }
@@ -58,11 +75,11 @@ public class RedisConfig {
         }
     }
 
-    public static boolean isAvailable() {
+    public boolean isAvailable() {
         return isRedisAvailable;
     }
 
-    public static void closePool() {
+    public void closePool() {
         if (jedisPool != null && !jedisPool.isClosed()) {
             jedisPool.close();
         }
