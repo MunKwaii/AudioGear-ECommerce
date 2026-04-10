@@ -3,6 +3,7 @@ import vn.edu.ute.dto.request.AuthRequest;
 
 import vn.edu.ute.auth.adapter.GoogleProfile;
 import vn.edu.ute.auth.adapter.GoogleToUserAdapter;
+import vn.edu.ute.auth.adapter.OAuthUserAdapter;
 import vn.edu.ute.dao.UserDAO;
 import vn.edu.ute.dao.impl.UserDAOImpl;
 import vn.edu.ute.entity.User;
@@ -36,8 +37,8 @@ public class GoogleLoginStrategy implements LoginStrategy {
             return existingUserOpt.get();
         }
 
-        // Tự động tạo tài khoản mới nếu chưa tồn tại sử dụng Adapter
-        GoogleToUserAdapter adapter = new GoogleToUserAdapter(googleProfile);
+        // Tự động tạo tài khoản mới nếu chưa tồn tại sử dụng Adapter (thông qua Target Interface)
+        OAuthUserAdapter adapter = new GoogleToUserAdapter(googleProfile);
         User adaptedUser = adapter.adaptToUser();
         
         // Lưu vào DB
