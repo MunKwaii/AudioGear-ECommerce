@@ -41,30 +41,10 @@ public class AdminBrandLogoUploadController extends HttpServlet {
         String extension = getExtension(submitted);
         String filename = UUID.randomUUID() + (extension.isEmpty() ? "" : "." + extension);
 
-        String staticPath = "/static/images/brands";
-        List<File> roots = resolveRoots(staticPath);
-        if (roots.isEmpty()) {
-            sendError(resp, "Không xác định được thư mục lưu ảnh", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return;
-        }
-
-        for (File root : roots) {
-            if (!root.exists() && !root.mkdirs()) {
-                sendError(resp, "Không tạo được thư mục: " + root.getAbsolutePath(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                return;
-            }
-        }
+        vn.edu.ute.util.storage.StorageStrategy storageStrategy = new vn.edu.ute.util.storage.CloudinaryStorageStrategy();
 
         try {
-            File firstOutput = new File(roots.get(0), filename);
-            part.write(firstOutput.getAbsolutePath());
-
-            for (int i = 1; i < roots.size(); i++) {
-                Files.copy(firstOutput.toPath(), new File(roots.get(i), filename).toPath(),
-                        StandardCopyOption.REPLACE_EXISTING);
-            }
-
-            String url = staticPath + "/" + filename;
+            String url = storageStrategy.store(part, filename, "brands");
             resp.getWriter().write("{\"success\":true,\"url\":\"" + url + "\"}");
         } catch (Exception e) {
             sendError(resp, "Lỗi khi lưu ảnh: " + e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
