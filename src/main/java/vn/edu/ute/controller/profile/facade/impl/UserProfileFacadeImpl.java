@@ -16,7 +16,7 @@ import vn.edu.ute.service.UserService;
 import vn.edu.ute.service.impl.AddressServiceImpl;
 import vn.edu.ute.service.impl.OrderServiceImpl;
 import vn.edu.ute.service.impl.UserServiceImpl;
-import vn.edu.ute.util.storage.DiskStorageStrategy;
+import vn.edu.ute.util.storage.CloudinaryStorageStrategy;
 import vn.edu.ute.util.storage.PathResolver;
 import vn.edu.ute.util.storage.StorageStrategy;
 
@@ -42,11 +42,8 @@ public class UserProfileFacadeImpl implements UserProfileFacade {
         this.addressService = new AddressServiceImpl();
         this.orderService = new OrderServiceImpl();
 
-        // Cấu hình Storage Strategy (Mặc định dùng Disk)
-        // Lấy đường dẫn gốc của dự án một cách linh hoạt
-        String rootPath = PathResolver.getProjectRoot(servletContext);
-        
-        this.storageStrategy = new DiskStorageStrategy(rootPath, servletContext);
+        // Cấu hình Storage Strategy (Chuyển sang dùng Cloudinary)
+        this.storageStrategy = new CloudinaryStorageStrategy();
     }
 
     @Override

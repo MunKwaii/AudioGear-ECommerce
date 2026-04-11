@@ -30,22 +30,7 @@ public class AdminProductImageUploadController extends HttpServlet {
         resp.setContentType("application/json;charset=UTF-8");
 
         List<String> stored = new ArrayList<>();
-        String staticPath = "/static/images/products";
-        List<File> roots = PathResolver.resolveRoots(getServletContext(), staticPath);
-
-        if (roots.isEmpty()) {
-            ApiResponse response = new ApiResponse(false, "Không xác định được thư mục lưu ảnh", null);
-            resp.getWriter().write(JsonUtil.toJson(response));
-            return;
-        }
-
-        for (File root : roots) {
-            if (!root.exists() && !root.mkdirs()) {
-                ApiResponse response = new ApiResponse(false, "Không tạo được thư mục: " + root.getAbsolutePath(), null);
-                resp.getWriter().write(JsonUtil.toJson(response));
-                return;
-            }
-        }
+        vn.edu.ute.util.storage.StorageStrategy storageStrategy = new vn.edu.ute.util.storage.CloudinaryStorageStrategy();
 
         try {
             for (Part part : req.getParts()) {
@@ -61,17 +46,8 @@ public class AdminProductImageUploadController extends HttpServlet {
                 String extension = getExtension(submitted);
                 String filename = UUID.randomUUID() + (extension.isEmpty() ? "" : "." + extension);
 
-                // Write to the first root directory
-                File firstOutput = new File(roots.get(0), filename);
-                part.write(firstOutput.getAbsolutePath());
-
-                // Copy from the first output to other roots (if any)
-                for (int i = 1; i < roots.size(); i++) {
-                    File otherOutput = new File(roots.get(i), filename);
-                    Files.copy(firstOutput.toPath(), otherOutput.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                }
-
-                stored.add(staticPath + "/" + filename);
+                String url = storageStrategy.store(part, filename, "products");
+                stored.add(url);
             }
         } catch (Exception e) {
             ApiResponse response = new ApiResponse(false, "Lỗi khi lưu ảnh: " + e.getMessage(), null);
