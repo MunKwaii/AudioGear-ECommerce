@@ -18,7 +18,8 @@ public class DatabaseConfig {
     private static final Logger logger = LogManager.getLogger(DatabaseConfig.class);
     private static final String PERSISTENCE_UNIT_NAME = "audiogear-pu";
 
-    // 1. TẠO NGAY INSTANCE (Eager Initialization) tại thời điểm bốc class vào bộ nhớ
+    // 1. TẠO NGAY INSTANCE (Eager Initialization) tại thời điểm bốc class vào bộ
+    // nhớ
     private static final DatabaseConfig uniqueInstance = new DatabaseConfig();
 
     private EntityManagerFactory entityManagerFactory;
@@ -43,12 +44,18 @@ public class DatabaseConfig {
 
             Map<String, String> properties = new HashMap<>();
 
-            // Cấu hình Database Online (Host on Render)
-            String dbHost = getEnvOrProperty("DB_HOST", "dpg-d71n9u24d50c73bs0h3g-a.oregon-postgres.render.com");
+            // Cấu hình Database Online bản cũ chưa có upload ảnh online (Host on Render)
+            // String dbHost = getEnvOrProperty("DB_HOST",
+            // "dpg-d71n9u24d50c73bs0h3g-a.oregon-postgres.render.com");
+            // String dbPort = getEnvOrProperty("DB_PORT", "5432");
+            // String dbName = getEnvOrProperty("DB_NAME", "audiogear_ecommerce");
+            // String dbUser = getEnvOrProperty("DB_USER", "audiogear_ecommerce_user");
+            // Cấu hình Database Online bản mới có upload ảnh online (Host on Render)
+            String dbHost = getEnvOrProperty("DB_HOST", "dpg-d7d65of7f7vs739mfgs0-a.singapore-postgres.render.com");
             String dbPort = getEnvOrProperty("DB_PORT", "5432");
-            String dbName = getEnvOrProperty("DB_NAME", "audiogear_ecommerce");
-            String dbUser = getEnvOrProperty("DB_USER", "audiogear_ecommerce_user");
-            String dbPassword = getEnvOrProperty("DB_PASSWORD", "o82tvnOhhn6TbgArdqhyiFS1YXcRTGxP");
+            String dbName = getEnvOrProperty("DB_NAME", "audiogear_ecommerce_qw9d");
+            String dbUser = getEnvOrProperty("DB_USER", "okarin2507");
+            String dbPassword = getEnvOrProperty("DB_PASSWORD", "2bhCvsUWqfePrGx0qyVf3aIhAohq5KYA");
 
             // Cấu hình Database Local (Bỏ comment để dùng Local)
             // String dbHost = getEnvOrProperty("DB_HOST", "localhost");
