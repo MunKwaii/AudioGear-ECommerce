@@ -67,7 +67,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
         Cart cart = cartDao.findByUserId(userId);
 
         if (cart == null) {
-            jakarta.persistence.EntityManager em = vn.edu.ute.config.DatabaseConfig.getEntityManager();
+            jakarta.persistence.EntityManager em = vn.edu.ute.config.DatabaseConfig.getInstance().getEntityManager();
             try {
                 User user = em.find(User.class, userId);
                 if (user == null) throw new IllegalArgumentException("User không tồn tại!");
@@ -75,7 +75,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
                 cart = new Cart(user);
                 cart = cartDao.saveCart(cart);
             } finally {
-                vn.edu.ute.config.DatabaseConfig.closeEntityManager();
+                vn.edu.ute.config.DatabaseConfig.getInstance().closeEntityManager();
             }
         }
 
@@ -111,7 +111,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
         if (newQuantity <= 0) {
             removeCartItem(cartItemId);
         } else {
-            jakarta.persistence.EntityManager em = vn.edu.ute.config.DatabaseConfig.getEntityManager();
+            jakarta.persistence.EntityManager em = vn.edu.ute.config.DatabaseConfig.getInstance().getEntityManager();
             try {
                 CartItem item = em.find(CartItem.class, cartItemId);
                 if (item != null) {
@@ -121,7 +121,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
                     }
                 }
             } finally {
-                vn.edu.ute.config.DatabaseConfig.closeEntityManager();
+                vn.edu.ute.config.DatabaseConfig.getInstance().closeEntityManager();
             }
             DaoFactory.getCartDao().updateCartItemQuantity(cartItemId, newQuantity);
         }
@@ -175,7 +175,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
             return cart;
         }
 
-        jakarta.persistence.EntityManager em = vn.edu.ute.config.DatabaseConfig.getEntityManager();
+        jakarta.persistence.EntityManager em = vn.edu.ute.config.DatabaseConfig.getInstance().getEntityManager();
         try {
             User user = em.find(User.class, userId);
             if (user == null) {
@@ -184,7 +184,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
             cart = new Cart(user);
             return cartDao.saveCart(cart);
         } finally {
-            vn.edu.ute.config.DatabaseConfig.closeEntityManager();
+            vn.edu.ute.config.DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 }

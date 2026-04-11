@@ -64,10 +64,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewResponse createReview(Long userId, CreateReviewRequest request) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
 
             if (userId == null) {
                 throw new ReviewException("Bạn cần đăng nhập để đánh giá sản phẩm");
@@ -117,7 +117,7 @@ public class ReviewServiceImpl implements ReviewService {
 
             eventPublisher.publishReviewCreated(review);
 
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
 
             return new ReviewResponse(
                     review.getId(),
@@ -132,19 +132,19 @@ public class ReviewServiceImpl implements ReviewService {
             );
 
         } catch (ReviewException e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw e;
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new ReviewException("Không thể tạo đánh giá: " + e.getMessage());
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public ProductReviewsResponse getReviewsByProductId(Long productId, Long currentUserId, String sortBy) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         try {
             List<Review> reviews = reviewDao.findByProductId(productId);
@@ -181,13 +181,13 @@ public class ReviewServiceImpl implements ReviewService {
 
             return new ProductReviewsResponse(summary, ratingDistribution, reviewResponses);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public ProductReviewSummaryResponse getReviewSummaryByProductId(Long productId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         try {
             Product product = em.find(Product.class, productId);
@@ -201,16 +201,16 @@ public class ReviewServiceImpl implements ReviewService {
                     reviewDao.countByProductId(productId)
             );
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public void deleteReview(Long userId, Long reviewId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
 
             if (userId == null) {
                 throw new ReviewException("Bạn cần đăng nhập để xóa đánh giá");
@@ -225,16 +225,16 @@ public class ReviewServiceImpl implements ReviewService {
 
             reviewDao.delete(review);
 
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
 
         } catch (ReviewException e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw e;
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new ReviewException("Không thể xóa đánh giá: " + e.getMessage());
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 }

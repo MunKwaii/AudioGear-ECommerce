@@ -12,7 +12,7 @@ public class VoucherDaoImpl implements VoucherDao {
 
     @Override
     public Optional<Voucher> findByCode(String code) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         try {
             List<Voucher> results = em.createQuery(
@@ -28,7 +28,7 @@ public class VoucherDaoImpl implements VoucherDao {
 
     @Override
     public long countOrdersUsingVoucher(Long voucherId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         try {
             Long count = em.createQuery(
@@ -44,7 +44,7 @@ public class VoucherDaoImpl implements VoucherDao {
 
     @Override
     public List<Voucher> findAll() {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             return em.createQuery("SELECT v FROM Voucher v ORDER BY v.createdAt DESC", Voucher.class)
                     .getResultList();
@@ -55,7 +55,7 @@ public class VoucherDaoImpl implements VoucherDao {
 
     @Override
     public Optional<Voucher> findById(Long id) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             Voucher voucher = em.find(Voucher.class, id);
             return Optional.ofNullable(voucher);
@@ -66,41 +66,41 @@ public class VoucherDaoImpl implements VoucherDao {
 
     @Override
     public Voucher save(Voucher voucher) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
             if (voucher.getId() == null) {
                 em.persist(voucher);
             } else {
                 voucher = em.merge(voucher);
             }
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
             return voucher;
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new RuntimeException("Lỗi khi lưu Voucher: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void delete(Long id) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
             Voucher voucher = em.find(Voucher.class, id);
             if (voucher != null) {
                 em.remove(voucher);
             }
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new RuntimeException("Lỗi khi xóa Voucher: " + e.getMessage(), e);
         }
     }
 
     @Override
     public List<Voucher> search(String keyword, vn.edu.ute.entity.enums.VoucherStatus status, int offset, int limit) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             StringBuilder jpql = new StringBuilder("SELECT v FROM Voucher v WHERE 1=1");
             if (keyword != null && !keyword.trim().isEmpty()) {
@@ -128,7 +128,7 @@ public class VoucherDaoImpl implements VoucherDao {
 
     @Override
     public long countSearch(String keyword, vn.edu.ute.entity.enums.VoucherStatus status) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             StringBuilder jpql = new StringBuilder("SELECT COUNT(v) FROM Voucher v WHERE 1=1");
             if (keyword != null && !keyword.trim().isEmpty()) {

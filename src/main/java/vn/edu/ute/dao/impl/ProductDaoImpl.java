@@ -13,45 +13,45 @@ public class ProductDaoImpl implements ProductDao {
 
     @Override
     public Product save(Product product) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
             if (product.getId() == null) {
                 em.persist(product);
             } else {
                 product = em.merge(product);
             }
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
             return product;
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new RuntimeException("Loi khi luu Product: " + e.getMessage(), e);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public void deleteById(Long id) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
             Product product = em.find(Product.class, id);
             if (product != null) {
                 em.remove(product);
             }
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new RuntimeException("Loi khi xoa Product: " + e.getMessage(), e);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public Optional<Product> findById(Long id) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             String jpql = "SELECT DISTINCT p FROM Product p " +
                     "LEFT JOIN FETCH p.category " +
@@ -62,7 +62,7 @@ public class ProductDaoImpl implements ProductDao {
             query.setParameter("id", id);
             return query.getResultList().stream().findFirst();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
@@ -82,7 +82,7 @@ public class ProductDaoImpl implements ProductDao {
 
     @Override
     public List<Product> getFeaturedProducts(int limit) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             // Lấy các sản phẩm đang active (status = true), sắp xếp theo tổng doanh số (số lượng đã bán)
             // Sử dụng subquery trong Order By để tránh xung đột giữa JOIN FETCH và GROUP BY
@@ -94,13 +94,13 @@ public class ProductDaoImpl implements ProductDao {
             query.setMaxResults(limit);
             return query.getResultList();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public List<Product> getNewestProducts(int limit) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             // Lấy các sản phẩm đang active (status = true), mới nhất theo ngày tạo
             String jpql = "SELECT p FROM Product p JOIN FETCH p.category JOIN FETCH p.brand WHERE p.status = true ORDER BY p.createdAt DESC";
@@ -108,13 +108,13 @@ public class ProductDaoImpl implements ProductDao {
             query.setMaxResults(limit);
             return query.getResultList();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public List<Product> searchProducts(String keyword, Long categoryId, String sort, int offset, int limit) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             // Dùng LEFT JOIN FETCH để tránh mất kết quả nếu brand bị null
             StringBuilder jpql = new StringBuilder(
@@ -152,13 +152,13 @@ public class ProductDaoImpl implements ProductDao {
 
             return query.getResultList();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public long countSearchProducts(String keyword, Long categoryId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             // Dùng COUNT(p) để đếm và tối ưu join, KHÔNG dùng FETCH JOIN vì nó ko hợp lệ
             // lệnh Count Query của Hibernate.
@@ -183,13 +183,13 @@ public class ProductDaoImpl implements ProductDao {
 
             return query.getSingleResult();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public List<Product> searchProductsForAdmin(String keyword, Long categoryId, Boolean status, int offset, int limit) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             StringBuilder jpql = new StringBuilder(
                     "SELECT p FROM Product p JOIN FETCH p.category c LEFT JOIN FETCH p.brand b WHERE 1=1");
@@ -222,13 +222,13 @@ public class ProductDaoImpl implements ProductDao {
 
             return query.getResultList();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public long countSearchProductsForAdmin(String keyword, Long categoryId, Boolean status) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             StringBuilder jpql = new StringBuilder(
                     "SELECT COUNT(p) FROM Product p JOIN p.category c WHERE 1=1");
@@ -257,13 +257,13 @@ public class ProductDaoImpl implements ProductDao {
 
             return query.getSingleResult();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public List<Product> findRelatedProducts(Long categoryId, Long excludeProductId, int limit) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             String jpql = "SELECT p FROM Product p JOIN FETCH p.category JOIN FETCH p.brand " +
                     "WHERE p.category.id = :categoryId AND p.id != :excludeProductId " +
@@ -274,7 +274,7 @@ public class ProductDaoImpl implements ProductDao {
             query.setMaxResults(limit);
             return query.getResultList();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 }

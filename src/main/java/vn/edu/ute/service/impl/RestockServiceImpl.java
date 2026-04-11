@@ -24,9 +24,9 @@ public class RestockServiceImpl implements RestockService {
             return;
         }
 
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
 
             for (OrderItem item : order.getItems()) {
                 Product product = item.getProduct();
@@ -42,14 +42,14 @@ public class RestockServiceImpl implements RestockService {
                         restored, managedProduct.getStockQuantity());
             }
 
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
             System.out.printf("[RESTOCK] Hoàn tất hoàn kho cho Đơn hàng #%s.%n", order.getOrderCode());
 
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new RuntimeException("Lỗi khi hoàn trả tồn kho cho đơn hàng #" + order.getOrderCode() + ": " + e.getMessage(), e);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 }

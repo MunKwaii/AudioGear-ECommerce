@@ -15,7 +15,7 @@ public class ReviewLikeDaoImpl implements ReviewLikeDao {
 
     @Override
     public Optional<ReviewLike> findByUserIdAndReviewId(Long userId, Long reviewId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         List<ReviewLike> results = em.createQuery(
                         "SELECT rl FROM ReviewLike rl " +
@@ -30,14 +30,14 @@ public class ReviewLikeDaoImpl implements ReviewLikeDao {
 
     @Override
     public ReviewLike save(ReviewLike reviewLike) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         em.persist(reviewLike);
         return reviewLike;
     }
 
     @Override
     public void delete(ReviewLike reviewLike) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         ReviewLike managed = em.contains(reviewLike) ? reviewLike : em.merge(reviewLike);
         em.remove(managed);
@@ -45,7 +45,7 @@ public class ReviewLikeDaoImpl implements ReviewLikeDao {
 
     @Override
     public long countByReviewId(Long reviewId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         Long count = em.createQuery(
                         "SELECT COUNT(rl) FROM ReviewLike rl WHERE rl.review.id = :reviewId",

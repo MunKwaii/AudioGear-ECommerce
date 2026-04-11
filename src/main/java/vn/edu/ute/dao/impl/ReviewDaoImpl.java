@@ -18,20 +18,20 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public Review save(Review review) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         em.persist(review);
         return review;
     }
 
     @Override
     public Optional<Review> findById(Long id) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         return Optional.ofNullable(em.find(Review.class, id));
     }
 
     @Override
     public boolean existsByUserIdAndProductId(Long userId, Long productId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         Long count = em.createQuery(
                         "SELECT COUNT(r) FROM Review r " +
@@ -46,7 +46,7 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public boolean hasPurchasedAndDelivered(Long userId, Long productId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         Long count = em.createQuery(
                         "SELECT COUNT(oi) " +
@@ -66,7 +66,7 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public List<Review> findByProductId(Long productId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         return em.createQuery(
                         "SELECT r FROM Review r " +
@@ -81,7 +81,7 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public BigDecimal calculateAverageRatingByProductId(Long productId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         Double avg = em.createQuery(
                         "SELECT AVG(r.rating) FROM Review r WHERE r.product.id = :productId",
@@ -98,7 +98,7 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public long countByProductId(Long productId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         Long count = em.createQuery(
                         "SELECT COUNT(r) FROM Review r WHERE r.product.id = :productId",
@@ -111,7 +111,7 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public void delete(Review review) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         Review managed = em.contains(review) ? review : em.merge(review);
         em.remove(managed);
     }

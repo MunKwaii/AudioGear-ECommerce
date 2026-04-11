@@ -11,49 +11,52 @@ import java.util.Map;
 
 /**
  * Database Configuration Manager for AudioGear-ECommerce
- * Quản lý kết nối database và EntityManager
+ * Áp dụng EAGER INITIALIZATION SINGLETON PATTERN
  */
 public class DatabaseConfig {
 
     private static final Logger logger = LogManager.getLogger(DatabaseConfig.class);
     private static final String PERSISTENCE_UNIT_NAME = "audiogear-pu";
 
-    private static EntityManagerFactory entityManagerFactory;
-    private static final ThreadLocal<EntityManager> entityManagerThreadLocal = new ThreadLocal<>();
+    // 1. TẠO NGAY INSTANCE (Eager Initialization) tại thời điểm bốc class vào bộ nhớ
+    private static final DatabaseConfig uniqueInstance = new DatabaseConfig();
 
-    static {
+    private EntityManagerFactory entityManagerFactory;
+    private final ThreadLocal<EntityManager> entityManagerThreadLocal = new ThreadLocal<>();
+
+    // 2. Private Constructor: Chặn không cho khởi tạo từ bên ngoài bằng "new"
+    private DatabaseConfig() {
         initializeEntityManagerFactory();
+    }
+
+    // 3. Hàm public để bên ngoài lấy instance duy nhất
+    public static DatabaseConfig getInstance() {
+        return uniqueInstance;
     }
 
     /**
      * Khởi tạo EntityManagerFactory
      */
-    private static void initializeEntityManagerFactory() {
+    private void initializeEntityManagerFactory() {
         try {
             logger.info("Initializing EntityManagerFactory for AudioGear Project...");
 
-            // Generate properties map with specific credentials
             Map<String, String> properties = new HashMap<>();
 
-            // Use environment variables if set, otherwise fallback to the provided Render
-            // PostgreSQL credentials
-            // Cấu hình remote Database (Host on Render)
+            // Cấu hình Database Online (Host on Render)
             String dbHost = getEnvOrProperty("DB_HOST", "dpg-d71n9u24d50c73bs0h3g-a.oregon-postgres.render.com");
             String dbPort = getEnvOrProperty("DB_PORT", "5432");
             String dbName = getEnvOrProperty("DB_NAME", "audiogear_ecommerce");
             String dbUser = getEnvOrProperty("DB_USER", "audiogear_ecommerce_user");
             String dbPassword = getEnvOrProperty("DB_PASSWORD", "o82tvnOhhn6TbgArdqhyiFS1YXcRTGxP");
 
+            // Cấu hình Database Local (Bỏ comment để dùng Local)
+            // String dbHost = getEnvOrProperty("DB_HOST", "localhost");
+            // String dbPort = getEnvOrProperty("DB_PORT", "5432");
+            // String dbName = getEnvOrProperty("DB_NAME", "audiogear_db");
+            // String dbUser = getEnvOrProperty("DB_USER", "postgres");
+            // String dbPassword = getEnvOrProperty("DB_PASSWORD", "12345");
 
-            //  Cấu hình Database local
-//            String dbHost = getEnvOrProperty("DB_HOST", "localhost");
-//            String dbPort = getEnvOrProperty("DB_PORT", "5432");
-//            String dbName = getEnvOrProperty("DB_NAME", "audiogear_db");
-//            String dbUser = getEnvOrProperty("DB_USER", "postgres");
-//            String dbPassword = getEnvOrProperty("DB_PASSWORD", "12345");
-//
-            // Construct JDBC URL with SSL settings specifically recommended for Render
-            // Postgres external connections
             String jdbcUrl = String.format("jdbc:postgresql://%s:%s/%s", dbHost, dbPort, dbName);
 
             properties.put("jakarta.persistence.jdbc.url", jdbcUrl);
@@ -71,10 +74,7 @@ public class DatabaseConfig {
         }
     }
 
-    /**
-     * Get environment variable or system property with fallback
-     */
-    private static String getEnvOrProperty(String key, String defaultValue) {
+    private String getEnvOrProperty(String key, String defaultValue) {
         String value = System.getenv(key);
         if (value == null || value.isBlank()) {
             value = System.getProperty(key);
@@ -82,12 +82,7 @@ public class DatabaseConfig {
         return (value != null && !value.isBlank()) ? value : defaultValue;
     }
 
-    /**
-     * Lấy EntityManager cho thread hiện tại
-     * 
-     * @return EntityManager instance
-     */
-    public static EntityManager getEntityManager() {
+    public EntityManager getEntityManager() {
         EntityManager em = entityManagerThreadLocal.get();
         if (em == null || !em.isOpen()) {
             em = entityManagerFactory.createEntityManager();
@@ -97,10 +92,7 @@ public class DatabaseConfig {
         return em;
     }
 
-    /**
-     * Đóng EntityManager cho thread hiện tại
-     */
-    public static void closeEntityManager() {
+    public void closeEntityManager() {
         EntityManager em = entityManagerThreadLocal.get();
         if (em != null && em.isOpen()) {
             em.close();
@@ -109,10 +101,7 @@ public class DatabaseConfig {
         }
     }
 
-    /**
-     * Bắt đầu transaction
-     */
-    public static void beginTransaction() {
+    public void beginTransaction() {
         EntityManager em = getEntityManager();
         if (!em.getTransaction().isActive()) {
             em.getTransaction().begin();
@@ -120,10 +109,7 @@ public class DatabaseConfig {
         }
     }
 
-    /**
-     * Commit transaction
-     */
-    public static void commitTransaction() {
+    public void commitTransaction() {
         EntityManager em = getEntityManager();
         if (em.getTransaction().isActive()) {
             em.getTransaction().commit();
@@ -131,10 +117,7 @@ public class DatabaseConfig {
         }
     }
 
-    /**
-     * Rollback transaction
-     */
-    public static void rollbackTransaction() {
+    public void rollbackTransaction() {
         EntityManager em = getEntityManager();
         if (em.getTransaction().isActive()) {
             em.getTransaction().rollback();
@@ -142,10 +125,7 @@ public class DatabaseConfig {
         }
     }
 
-    /**
-     * Đóng EntityManagerFactory
-     */
-    public static void shutdown() {
+    public void shutdown() {
         try {
             closeEntityManager();
             if (entityManagerFactory != null && entityManagerFactory.isOpen()) {
@@ -157,12 +137,7 @@ public class DatabaseConfig {
         }
     }
 
-    /**
-     * Kiểm tra kết nối database
-     * 
-     * @return true nếu kết nối thành công
-     */
-    public static boolean testConnection() {
+    public boolean testConnection() {
         try {
             EntityManager em = getEntityManager();
             em.createNativeQuery("SELECT 1").getSingleResult();

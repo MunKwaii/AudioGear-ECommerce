@@ -13,12 +13,12 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public Optional<Order> findById(Long id) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             Order order = em.find(Order.class, id);
             return Optional.ofNullable(order);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
@@ -29,7 +29,7 @@ public class OrderDaoImpl implements OrderDao {
      */
     @Override
     public Optional<Order> findByIdWithItems(Long id) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             // LEFT JOIN FETCH: trả về Order kể cả khi không có items
             // (tránh lỗi "Không tìm thấy" khi order không có items trong DB)
@@ -43,24 +43,24 @@ public class OrderDaoImpl implements OrderDao {
                     .getResultList();
             return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public List<Order> findAll() {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             return em.createQuery("SELECT o FROM Order o ORDER BY o.createdAt DESC", Order.class)
                     .getResultList();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public List<Order> findAllWithItems() {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             return em.createQuery(
                     "SELECT DISTINCT o FROM Order o " +
@@ -74,13 +74,13 @@ public class OrderDaoImpl implements OrderDao {
             return em.createQuery("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items ORDER BY o.createdAt DESC", Order.class)
                     .getResultList();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public List<Order> findByUserId(Long userId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             return em.createQuery(
                     "SELECT DISTINCT o FROM Order o " +
@@ -90,26 +90,26 @@ public class OrderDaoImpl implements OrderDao {
                     .setParameter("userId", userId)
                     .getResultList();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public Optional<Order> findByOrderCode(String orderCode) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             List<Order> results = em.createQuery("SELECT o FROM Order o WHERE o.orderCode = :orderCode", Order.class)
                     .setParameter("orderCode", orderCode)
                     .getResultList();
             return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public Optional<Order> findByOrderCodeWithItems(String orderCode) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             List<Order> results = em.createQuery(
                     "SELECT DISTINCT o FROM Order o " +
@@ -121,7 +121,7 @@ public class OrderDaoImpl implements OrderDao {
                     .getResultList();
             return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
@@ -130,7 +130,7 @@ public class OrderDaoImpl implements OrderDao {
         if (orderCodes == null || orderCodes.isEmpty()) {
             return List.of();
         }
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             return em.createQuery(
                     "SELECT DISTINCT o FROM Order o " +
@@ -142,45 +142,45 @@ public class OrderDaoImpl implements OrderDao {
                     .setParameter("orderCodes", orderCodes)
                     .getResultList();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public Order save(Order order) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
             if (order.getId() == null) {
                 em.persist(order);
             } else {
                 order = em.merge(order);
             }
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
             return order;
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new RuntimeException("Lỗi khi lưu Order: " + e.getMessage(), e);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public void updateStatus(String orderCode, OrderStatus status) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
             em.createQuery("UPDATE Order o SET o.status = :status, o.updatedAt = CURRENT_TIMESTAMP WHERE o.orderCode = :orderCode")
                     .setParameter("status", status)
                     .setParameter("orderCode", orderCode)
                     .executeUpdate();
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new RuntimeException("Lỗi khi cập nhật trạng thái Order: " + e.getMessage(), e);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 }

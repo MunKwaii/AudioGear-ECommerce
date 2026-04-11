@@ -12,7 +12,7 @@ public class TestConnection {
         System.out.println("--- Starting Database Connection Test ---");
         
         try {
-            boolean success = DatabaseConfig.testConnection();
+            boolean success = DatabaseConfig.getInstance().testConnection();
             
             if (success) {
                 System.out.println("SUCCESS: Connected to PostgreSQL database audiogear_ecommerce successfully!");
@@ -20,7 +20,7 @@ public class TestConnection {
                 System.err.println("FAILED: Could not connect to the database.");
             }
             
-            DatabaseConfig.shutdown();
+            DatabaseConfig.getInstance().shutdown();
             System.exit(success ? 0 : 1);
             
         } catch (Exception e) {

@@ -31,10 +31,10 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
 
     @Override
     public LikeResponseDTO toggleLike(Long userId, Long reviewId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
 
             // 1. Kiểm tra đăng nhập
             if (userId == null) {
@@ -67,18 +67,18 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
             em.flush();
             long totalLikes = reviewLikeDao.countByReviewId(reviewId);
 
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
 
             return new LikeResponseDTO(liked, totalLikes);
 
         } catch (ReviewException e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw e;
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new ReviewException("Không thể xử lý like đánh giá: " + e.getMessage());
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 }

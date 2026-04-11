@@ -26,79 +26,79 @@ public class BrandDaoImpl implements BrandDao {
 
     @Override
     public Optional<Brand> findById(Long id) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             Brand brand = em.find(Brand.class, id);
             return Optional.ofNullable(brand);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public List<Brand> findAll() {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             return em.createQuery("SELECT b FROM Brand b ORDER BY b.name ASC", Brand.class)
                     .getResultList();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public Brand save(Brand brand) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
             em.persist(brand);
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
             return brand;
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw e;
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public Brand update(Brand brand) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
             Brand merged = em.merge(brand);
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
             return merged;
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw e;
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public void delete(Long id) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
             Brand brand = em.find(Brand.class, id);
             if (brand != null) {
                 em.remove(brand);
             }
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw e;
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public Optional<Brand> findByName(String name) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             TypedQuery<Brand> query = em.createQuery(
                     "SELECT b FROM Brand b WHERE b.name = :name", Brand.class);
@@ -107,20 +107,20 @@ public class BrandDaoImpl implements BrandDao {
         } catch (NoResultException e) {
             return Optional.empty();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public long countProductsByBrandId(Long brandId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             TypedQuery<Long> query = em.createQuery(
                     "SELECT COUNT(p) FROM Product p WHERE p.brand.id = :brandId", Long.class);
             query.setParameter("brandId", brandId);
             return query.getSingleResult();
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 }

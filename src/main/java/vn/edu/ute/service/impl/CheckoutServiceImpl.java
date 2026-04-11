@@ -52,10 +52,10 @@ public class CheckoutServiceImpl implements CheckoutService {
             validateGuestContactInfo(request);
         }
 
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
 
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
 
             User user = null;
             if (userId != null) {
@@ -163,7 +163,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             }
             order.setItems(orderItems);
 
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
 
             // 6. Gửi email thông báo (Sau khi DB commit thành công)
             // Chỉ gửi email ngay nếu không phải là thanh toán QR (VD: COD)
@@ -189,13 +189,13 @@ public class CheckoutServiceImpl implements CheckoutService {
             );
 
         } catch (VoucherException e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw e;
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new RuntimeException("Checkout thất bại: " + e.getMessage(), e);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 

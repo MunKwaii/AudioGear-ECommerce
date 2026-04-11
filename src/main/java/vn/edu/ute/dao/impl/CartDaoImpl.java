@@ -24,7 +24,7 @@ public class CartDaoImpl implements CartDao {
 
     @Override
     public Cart findByUserId(Long userId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             // Dùng FETCH JOIN để giảm rủi ro LazyInitException và n+1 query problem khi build HTML
             List<Cart> carts = em.createQuery("SELECT c FROM Cart c LEFT JOIN FETCH c.items i LEFT JOIN FETCH i.product p LEFT JOIN FETCH p.category LEFT JOIN FETCH p.brand WHERE c.user.id = :userId", Cart.class)
@@ -32,13 +32,13 @@ public class CartDaoImpl implements CartDao {
                     .getResultList();
             return carts.isEmpty() ? null : carts.get(0);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public Cart saveCart(Cart cart) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
@@ -53,13 +53,13 @@ public class CartDaoImpl implements CartDao {
             if (tx.isActive()) tx.rollback();
             throw e;
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public CartItem findCartItemByCartAndProduct(Long cartId, Long productId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             List<CartItem> items = em.createQuery("SELECT i FROM CartItem i WHERE i.cart.id = :cartId AND i.product.id = :productId", CartItem.class)
                     .setParameter("cartId", cartId)
@@ -67,13 +67,13 @@ public class CartDaoImpl implements CartDao {
                     .getResultList();
             return items.isEmpty() ? null : items.get(0);
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public CartItem saveCartItem(CartItem cartItem) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
@@ -88,13 +88,13 @@ public class CartDaoImpl implements CartDao {
             if (tx.isActive()) tx.rollback();
             throw e;
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public void removeCartItem(Long cartItemId) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
@@ -107,13 +107,13 @@ public class CartDaoImpl implements CartDao {
             if (tx.isActive()) tx.rollback();
             throw e;
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 
     @Override
     public void updateCartItemQuantity(Long cartItemId, int newQuantity) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
@@ -127,7 +127,7 @@ public class CartDaoImpl implements CartDao {
             if (tx.isActive()) tx.rollback();
             throw e;
         } finally {
-            DatabaseConfig.closeEntityManager();
+            DatabaseConfig.getInstance().closeEntityManager();
         }
     }
 }

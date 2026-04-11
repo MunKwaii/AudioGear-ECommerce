@@ -26,7 +26,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             User user = em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
                     .setParameter("email", email)
@@ -41,7 +41,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findByUsername(String username) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             User user = em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
                     .setParameter("username", username)
@@ -56,7 +56,7 @@ public class UserDAOImpl implements UserDAO {
     
     @Override
     public Optional<User> findByUsernameOrEmail(String identifier) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             User user = em.createQuery("SELECT u FROM User u WHERE u.username = :id OR u.email = :id", User.class)
                     .setParameter("id", identifier)
@@ -71,7 +71,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findByPhoneNumber(String phoneNumber) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             User user = em.createQuery("SELECT u FROM User u WHERE u.phoneNumber = :phoneNumber", User.class)
                     .setParameter("phoneNumber", phoneNumber)
@@ -86,7 +86,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findById(Long id) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             User user = em.find(User.class, id);
             return Optional.ofNullable(user);
@@ -97,25 +97,25 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public User save(User user) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
-            DatabaseConfig.beginTransaction();
+            DatabaseConfig.getInstance().beginTransaction();
             if (user.getId() == null) {
                 em.persist(user);
             } else {
                 user = em.merge(user);
             }
-            DatabaseConfig.commitTransaction();
+            DatabaseConfig.getInstance().commitTransaction();
             return user;
         } catch (Exception e) {
-            DatabaseConfig.rollbackTransaction();
+            DatabaseConfig.getInstance().rollbackTransaction();
             throw new RuntimeException("Lỗi khi lưu User: " + e.getMessage(), e);
         }
     }
 
     @Override
     public java.util.List<User> findAll() {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             return em.createQuery("SELECT u FROM User u ORDER BY u.createdAt DESC", User.class)
                     .getResultList();
@@ -131,7 +131,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public java.util.List<User> search(String keyword, vn.edu.ute.entity.enums.UserRole role, vn.edu.ute.entity.enums.UserStatus status, int offset, int limit) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             StringBuilder jpql = new StringBuilder("SELECT u FROM User u WHERE 1=1");
             if (keyword != null && !keyword.trim().isEmpty()) {
@@ -165,7 +165,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public long countSearch(String keyword, vn.edu.ute.entity.enums.UserRole role, vn.edu.ute.entity.enums.UserStatus status) {
-        EntityManager em = DatabaseConfig.getEntityManager();
+        EntityManager em = DatabaseConfig.getInstance().getEntityManager();
         try {
             StringBuilder jpql = new StringBuilder("SELECT COUNT(u) FROM User u WHERE 1=1");
             if (keyword != null && !keyword.trim().isEmpty()) {
