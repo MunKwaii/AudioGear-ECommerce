@@ -11,24 +11,17 @@ COPY src ./src
 
 RUN mvn clean package -B -DskipTests
 
-# Runtime stage
-FROM eclipse-temurin:25-jre-jammy
+# Runtime stage - use Tomcat image
+FROM tomcat:10.1-jdk25
 
-WORKDIR /app
+RUN rm -rf /usr/local/tomcat/webapps/ROOT
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /build/target/AudioGear-ECommerce.war /app/ROOT.war
-
-RUN mkdir -p /usr/local/tomcat/webapps && \
-    cp /app/ROOT.war /usr/local/tomcat/webapps/ && \
-    rm /app/ROOT.war
+COPY --from=builder /build/target/AudioGear-ECommerce.war /usr/local/tomcat/webapps/ROOT.war
 
 ENV CATALINA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC"
-ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -Dserver.port=10000"
+ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"
+ENV PORT=10000
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "exec catalina.sh run"]
+CMD ["catalina.sh", "run"]

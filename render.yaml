@@ -3,9 +3,7 @@ services:
     env: docker
     region: oregon
     buildCommand: docker build -t audiogear .
-    startCommand: sh -c "exec catalina.sh run"
-    ports:
-      - containerPort: 10000
+    startCommand: catalina.sh run
     envVars:
       - key: DB_HOST
         from: DATABASE_HOST
