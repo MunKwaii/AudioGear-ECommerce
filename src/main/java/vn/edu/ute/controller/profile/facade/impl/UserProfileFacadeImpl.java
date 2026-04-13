@@ -68,6 +68,11 @@ public class UserProfileFacadeImpl implements UserProfileFacade {
     }
 
     @Override
+    public void changePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword) {
+        userService.changePassword(userId, currentPassword, newPassword, confirmNewPassword);
+    }
+
+    @Override
     public List<Address> getUserAddresses(Long userId) {
         return addressService.getAddressesByUserId(userId);
     }

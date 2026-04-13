@@ -1,4 +1,5 @@
-<html th:replace="~{layout/profile-layout :: profileLayout('Hồ sơ cá nhân', 'profile', ~{::mainContent}, ~{::style}, ~{})}">
+<html
+    th:replace="~{layout/profile-layout :: profileLayout('Hồ sơ cá nhân', 'profile', ~{::mainContent}, ~{::style}, ~{})}">
 <style th:fragment="style">
     .avatar-upload-container {
         display: flex;
@@ -10,11 +11,13 @@
         border-radius: 16px;
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
+
     .avatar-preview-wrapper {
         position: relative;
         width: 120px;
         height: 120px;
     }
+
     .avatar-preview {
         width: 100%;
         height: 100%;
@@ -23,6 +26,7 @@
         border: 3px solid #00f2fe;
         box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
     }
+
     .avatar-initials {
         width: 100%;
         height: 100%;
@@ -36,12 +40,34 @@
         color: #050505;
         border: 3px solid rgba(255, 255, 255, 0.1);
     }
+
     .upload-hint {
         color: #a0a0a0;
         font-size: 13px;
         margin-top: 8px;
     }
+
+    .section-card {
+        max-width: 600px;
+        margin-top: 32px;
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .section-card h3 {
+        margin: 0 0 8px 0;
+        font-size: 20px;
+    }
+
+    .section-card p {
+        margin: 0 0 20px 0;
+        color: #a0a0a0;
+        font-size: 14px;
+    }
 </style>
+
 <main th:fragment="mainContent">
     <div class="content-header">
         <h1>Hồ sơ cá nhân</h1>
@@ -55,14 +81,23 @@
     <div class="avatar-upload-container">
         <div class="avatar-preview-wrapper">
             <img th:if="${user.avatar}" th:src="@{${user.avatar}}" class="avatar-preview" id="avatarPreview">
-            <div th:unless="${user.avatar}" class="avatar-initials" th:text="${#strings.substring(user.email, 0, 1).toUpperCase()}">U</div>
+            <div th:unless="${user.avatar}" class="avatar-initials"
+                th:text="${#strings.substring(user.email, 0, 1).toUpperCase()}">U</div>
         </div>
+
         <div class="upload-controls">
             <h3 style="margin: 0 0 8px 0; font-size: 18px;">Ảnh đại diện</h3>
             <form th:action="@{/profile/avatar}" method="POST" enctype="multipart/form-data" id="avatarForm">
-                <input type="file" name="avatar" id="avatarInput" accept="image/*" style="display: none;" onchange="document.getElementById('avatarForm').submit()">
-                <button type="button" class="btn btn-outline btn-small" onclick="document.getElementById('avatarInput').click()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <input type="file" name="avatar" id="avatarInput" accept="image/*" style="display: none;"
+                    onchange="document.getElementById('avatarForm').submit()">
+                <button type="button" class="btn btn-outline btn-small"
+                    onclick="document.getElementById('avatarInput').click()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
                     Tải ảnh lên
                 </button>
                 <p class="upload-hint">Hỗ trợ JPG, PNG, WebP. Tối đa 2MB.</p>
@@ -70,26 +105,65 @@
         </div>
     </div>
 
+    <!-- Cập nhật thông tin cá nhân -->
     <form th:action="@{/profile/update}" method="POST" style="max-width: 600px;">
         <div class="form-group">
             <label class="form-label">Tên đăng nhập / Email</label>
-            <!-- Field Disabled không cho sửa mốc định danh -->
             <input type="text" class="form-control" th:value="${user.email}" disabled>
         </div>
 
         <div class="form-group">
             <label class="form-label">Họ và Tên</label>
-            <input type="text" name="fullName" class="form-control" th:value="${user.fullName}" required minlength="2" maxlength="100">
+            <input type="text" name="fullName" class="form-control" th:value="${user.fullName}" required minlength="2"
+                maxlength="100">
         </div>
 
         <div class="form-group">
             <label class="form-label">Số điện thoại</label>
-            <input type="tel" name="phoneNumber" class="form-control" th:value="${user.phoneNumber}" placeholder="Nhập số điện thoại" maxlength="15">
+            <input type="tel" name="phoneNumber" class="form-control" th:value="${user.phoneNumber}"
+                placeholder="Nhập số điện thoại" maxlength="15">
         </div>
 
         <div class="form-group" style="padding-top: 16px;">
             <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
         </div>
     </form>
+
+    <!-- Đổi mật khẩu -->
+    <div class="section-card">
+        <h3>Đổi mật khẩu</h3>
+        <p>Cập nhật mật khẩu mới để tăng cường bảo mật cho tài khoản</p>
+
+        <!-- Nếu tài khoản chưa có mật khẩu nội bộ -->
+        <div th:if="${user.passwordHash == null}" class="alert-error">
+            Tài khoản này chưa có mật khẩu nội bộ để thay đổi.
+        </div>
+
+        <!-- Form đổi mật khẩu -->
+        <form th:if="${user.passwordHash != null}" th:action="@{/profile/change-password}" method="POST">
+            <div class="form-group">
+                <label class="form-label">Mật khẩu hiện tại</label>
+                <input type="password" name="currentPassword" class="form-control" placeholder="Nhập mật khẩu hiện tại"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Mật khẩu mới</label>
+                <input type="password" name="newPassword" class="form-control" placeholder="Nhập mật khẩu mới" required
+                    minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Xác nhận mật khẩu mới</label>
+                <input type="password" name="confirmNewPassword" class="form-control"
+                    placeholder="Nhập lại mật khẩu mới" required minlength="6">
+            </div>
+
+            <div class="form-group" style="padding-top: 16px;">
+                <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
+            </div>
+        </form>
+    </div>
 </main>
+
 </html>

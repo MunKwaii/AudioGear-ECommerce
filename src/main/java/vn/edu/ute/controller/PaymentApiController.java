@@ -28,7 +28,8 @@ import java.util.stream.StreamSupport;
 @WebServlet("/api/v1/payment/check-status")
 public class PaymentApiController extends HttpServlet {
 
-    private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(PaymentApiController.class);
+    private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
+            .getLogger(PaymentApiController.class);
     private final OrderService orderService = new OrderServiceImpl();
     private final Gson gson = new Gson();
     private final HttpClient httpClient = HttpClient.newBuilder()
@@ -88,22 +89,25 @@ public class PaymentApiController extends HttpServlet {
                 JsonArray transactions = jsonResponse.getAsJsonArray("transactions");
 
                 if (transactions != null) {
-                    // Sử dụng lambda và Stream API để tìm giao dịch khớp với orderCode (không phân biệt hoa thường)
+                    // Sử dụng lambda và Stream API để tìm giao dịch khớp với orderCode (không phân
+                    // biệt hoa thường)
                     final String searchCode = orderCode.toLowerCase();
                     final String searchCodeNoHyphen = searchCode.replace("-", "");
-                    
+
                     logger.info("Searching for code: {} or {}", searchCode, searchCodeNoHyphen);
-                    
+
                     Optional<JsonObject> matchedTransaction = StreamSupport.stream(transactions.spliterator(), false)
                             .map(JsonElement::getAsJsonObject)
                             .filter(tx -> {
                                 JsonElement contentEl = tx.get("transaction_content");
-                                if (contentEl == null || contentEl.isJsonNull()) return false;
+                                if (contentEl == null || contentEl.isJsonNull())
+                                    return false;
                                 String content = contentEl.getAsString().toLowerCase();
-                                
-                                // Kiểm tra chứa mã gốc hoặc mã đã bỏ dấu gạch ngang (vì ngân hàng hay xóa dấu -)
+
+                                // Kiểm tra chứa mã gốc hoặc mã đã bỏ dấu gạch ngang (vì ngân hàng hay xóa dấu
+                                // -)
                                 boolean match = content.contains(searchCode) || content.contains(searchCodeNoHyphen);
-                                
+
                                 if (match) {
                                     logger.info("Match found for {}: content='{}'", orderCode, contentEl.getAsString());
                                 }

@@ -21,7 +21,7 @@ import java.io.IOException;
  * Module Profile.
  * Sử dụng Command Pattern và Facade Pattern để xử lý logic.
  */
-@WebServlet({ "/profile", "/profile/update", "/profile/avatar", "/profile/addresses", "/profile/addresses/add",
+@WebServlet({ "/profile", "/profile/update", "/profile/avatar", "/profile/change-password", "/profile/addresses", "/profile/addresses/add",
         "/profile/addresses/edit", "/profile/addresses/delete", "/profile/addresses/default", "/profile/orders" })
 @MultipartConfig
 public class UserProfileController extends HttpServlet {

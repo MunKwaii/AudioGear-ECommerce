@@ -17,12 +17,14 @@ public class ShowProfileCommand extends ProfileCommand {
         WebContext context = createWebContext(req, resp);
         context.setVariable("user", user);
         
-        if ("true".equals(req.getParameter("success"))) {
+         if ("true".equals(req.getParameter("success"))) {
             context.setVariable("successMessage", "Cập nhật hồ sơ thành công!");
         } else if ("AvatarUpdated".equals(req.getParameter("success"))) {
             context.setVariable("successMessage", "Cập nhật ảnh đại diện thành công!");
+        } else if ("true".equals(req.getParameter("passwordChanged"))) {
+            context.setVariable("successMessage", "Đổi mật khẩu thành công!");
         }
-        
+
         if (req.getAttribute("errorMessage") != null) {
             context.setVariable("errorMessage", req.getAttribute("errorMessage"));
         }

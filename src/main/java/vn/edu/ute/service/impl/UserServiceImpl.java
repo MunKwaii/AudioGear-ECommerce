@@ -240,4 +240,43 @@ public class UserServiceImpl implements UserService {
         user.setStatus(UserStatus.locked);
         userDAO.save(user);
     }
+        @Override
+    public void changePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword) {
+    User user = getUserById(userId);
+
+    if (currentPassword == null || currentPassword.trim().isEmpty()) {
+        throw new IllegalArgumentException("Vui lòng nhập mật khẩu hiện tại");
+    }
+
+    if (newPassword == null || newPassword.trim().isEmpty()) {
+        throw new IllegalArgumentException("Vui lòng nhập mật khẩu mới");
+    }
+
+    if (confirmNewPassword == null || confirmNewPassword.trim().isEmpty()) {
+        throw new IllegalArgumentException("Vui lòng nhập xác nhận mật khẩu mới");
+    }
+
+    if (user.getPasswordHash() == null || user.getPasswordHash().trim().isEmpty()) {
+        throw new IllegalArgumentException("Tài khoản này chưa có mật khẩu nội bộ để thay đổi");
+    }
+
+    if (!PasswordUtil.verifyPassword(currentPassword, user.getPasswordHash())) {
+        throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác");
+    }
+
+    if (newPassword.length() < 6) {
+        throw new IllegalArgumentException("Mật khẩu mới phải có ít nhất 6 ký tự");
+    }
+
+    if (!newPassword.equals(confirmNewPassword)) {
+        throw new IllegalArgumentException("Xác nhận mật khẩu mới không khớp");
+    }
+
+    if (PasswordUtil.verifyPassword(newPassword, user.getPasswordHash())) {
+        throw new IllegalArgumentException("Mật khẩu mới không được trùng với mật khẩu hiện tại");
+    }
+
+    user.setPasswordHash(PasswordUtil.hashPassword(newPassword));
+    userDAO.save(user);
+}
 }

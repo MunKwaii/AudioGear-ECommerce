@@ -20,6 +20,8 @@ public interface UserProfileFacade {
     void updateProfile(Long userId, String fullName, String phoneNumber);
     
     void updateAvatar(Long userId, Part avatarPart) throws IOException;
+    void changePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword);
+
     
     List<Address> getUserAddresses(Long userId);
     

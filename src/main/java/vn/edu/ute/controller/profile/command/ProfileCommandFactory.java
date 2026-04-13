@@ -20,6 +20,7 @@ public class ProfileCommandFactory {
         // Đăng ký các POST commands
         postCommands.put("/profile/update", new UpdateProfileCommand());
         postCommands.put("/profile/avatar", new UploadAvatarCommand());
+        postCommands.put("/profile/change-password", new ChangePasswordCommand());
         postCommands.put("/profile/addresses/add", new AddAddressCommand());
         postCommands.put("/profile/addresses/edit", new EditAddressCommand());
         postCommands.put("/profile/addresses/delete", new DeleteAddressCommand());
