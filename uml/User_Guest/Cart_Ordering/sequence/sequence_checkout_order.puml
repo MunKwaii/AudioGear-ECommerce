@@ -13,6 +13,10 @@ control VoucherService
 entity ProductDao
 entity OrderDao
 participant PaymentStrategy
+participant OrderNotificationService
+' Observable pattern
+participant GuestCartService
+ ' Clear cart after checkout
 database "Database" as DB
 
 Customer -> UI : Gửi yêu cầu đặt hàng\n(Danh sách SP + PT Thanh toán)
@@ -58,13 +62,29 @@ activate DB
 DB --> OrderDao : Success
 deactivate DB
 OrderDao --> CheckoutService : Trả về đơn hàng đã lưu
+
 deactivate OrderDao
 
-' 5. Response
+' 5. Notify processing state (Observer Pattern)
+CheckoutService -> OrderNotificationService : notifyProcessing(order)
+activate OrderNotificationService
+OrderNotificationService --> CheckoutService : Success
+deactivate OrderNotificationService
+
+' 6. Response to client
 CheckoutService --> CheckoutController : Trả về CheckoutResponse
 deactivate CheckoutService
 
 CheckoutController --> UI : HTTP 201 Created (CheckoutResponse)
+
+activate CheckoutController
+
+' 7. Clear guest cart if exists (optional)
+CheckoutController -> GuestCartService : clearCart(response)
+activate GuestCartService
+GuestCartService --> CheckoutController : Success
+deactivate GuestCartService
+
 deactivate CheckoutController
 
 UI -> UI : Điều hướng sang giao diện\n"Hoàn tất đặt hàng"
