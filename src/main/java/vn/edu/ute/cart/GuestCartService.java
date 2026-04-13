@@ -66,7 +66,7 @@ public class GuestCartService {
                 .orElseThrow(() -> new IllegalArgumentException("Product không tồn tại!"));
 
         // Null-safety: sản phẩm thêm thủ công có thể thiếu stockQuantity
-        int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+        int availableStock = product.getInventory() != null ? product.getInventory().getStockQuantity() : 0;
 
         Optional<GuestCartItem> existingItem = items.stream()
                 .filter(item -> item.productId.equals(productId))
@@ -103,7 +103,7 @@ public class GuestCartService {
                             item -> {
                                 Product product = DaoFactory.getProductDao().findById(productId).orElse(null);
                                 if (product != null) {
-                                    int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+                                    int availableStock = product.getInventory() != null ? product.getInventory().getStockQuantity() : 0;
                                     if (newQuantity > availableStock) {
                                         throw new InsufficientStockException(product.getName(), availableStock);
                                     }
@@ -188,7 +188,7 @@ public class GuestCartService {
                             product.getPrice(),
                             guestItem.quantity,
                             itemTotal,
-                            product.getStockQuantity()
+                            product.getInventory() != null ? product.getInventory().getStockQuantity() : 0
                     );
                 });
     }

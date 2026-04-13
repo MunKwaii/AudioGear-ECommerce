@@ -76,7 +76,7 @@ public class HomeFacadeServiceImpl implements HomeFacadeService {
                 thumbUrl,
                 categoryName,
                 brandName,
-                product.getStockQuantity()
+                product.getInventory() != null ? product.getInventory().getStockQuantity() : 0
         );
     }
 }

@@ -90,7 +90,10 @@ public class AdminStatsApiController extends HttpServlet {
             // Lấy tạm số lượng tồn kho thấp (Giả định fetch toàn bộ để filter cho demo, tối ưu sau)
             // Lưu ý: Trong thực tế nên dùng query COUNT(*) WHERE stock < 10
             List<Product> products = productService.searchProductsForAdmin("", null, null, 0, 1000);
-            long lowStockCount = products.stream().filter(p -> p.getStockQuantity() < 10).count();
+            long lowStockCount = products.stream().filter(p -> {
+                int qty = p.getInventory() != null ? p.getInventory().getStockQuantity() : 0;
+                return qty < 10;
+            }).count();
 
             // 5. Kết quả gần đây
             List<Map<String, Object>> recentOrders = OrderResponseDto.fromEntities(

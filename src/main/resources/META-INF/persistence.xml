@@ -22,6 +22,7 @@
         <class>vn.edu.ute.entity.ReviewLike</class>
         <class>vn.edu.ute.entity.User</class>
         <class>vn.edu.ute.entity.Voucher</class>
+        <class>vn.edu.ute.entity.Inventory</class>
         
         <!-- Database Properties -->
         <properties>

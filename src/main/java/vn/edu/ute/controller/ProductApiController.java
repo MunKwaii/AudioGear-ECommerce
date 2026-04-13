@@ -103,7 +103,7 @@ public class ProductApiController extends HttpServlet {
                             p.getThumbnailUrl(),
                             p.getCategory() != null ? p.getCategory().getName() : null,
                             p.getBrand() != null ? p.getBrand().getName() : null,
-                            p.getStockQuantity()
+                            p.getInventory() != null ? p.getInventory().getStockQuantity() : 0
                     ))
                     .collect(Collectors.toList());
             

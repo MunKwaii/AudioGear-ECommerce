@@ -84,10 +84,11 @@ public class CheckoutServiceImpl implements CheckoutService {
                     throw new RuntimeException("Số lượng sản phẩm không hợp lệ");
                 }
 
-                if (product.getStockQuantity() < itemRequest.getQuantity()) {
+                int availableStock = product.getInventory() != null ? product.getInventory().getStockQuantity() : 0;
+                if (availableStock < itemRequest.getQuantity()) {
                     throw new RuntimeException(
                             "Sản phẩm '" + product.getName() + "' không đủ tồn kho. Còn lại: "
-                                    + product.getStockQuantity()
+                                    + availableStock
                     );
                 }
 
@@ -156,8 +157,9 @@ public class CheckoutServiceImpl implements CheckoutService {
                 orderItem.setOrder(order);
 
                 Product product = orderItem.getProduct();
-                product.setStockQuantity(product.getStockQuantity() - orderItem.getQuantity());
-
+                if (product.getInventory() != null) {
+                    product.getInventory().setStockQuantity(product.getInventory().getStockQuantity() - orderItem.getQuantity());
+                }
                 em.persist(orderItem);
                 em.merge(product);
             }

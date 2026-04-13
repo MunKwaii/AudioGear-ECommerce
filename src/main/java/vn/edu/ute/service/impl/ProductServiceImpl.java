@@ -11,6 +11,7 @@ import vn.edu.ute.dao.impl.ProductDaoImpl;
 import vn.edu.ute.dto.request.CreateProductRequest;
 import vn.edu.ute.entity.Brand;
 import vn.edu.ute.entity.Category;
+import vn.edu.ute.entity.Inventory;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.entity.ProductImage;
 import vn.edu.ute.product.builder.DefaultProductBuilder;
@@ -94,11 +95,15 @@ public class ProductServiceImpl implements ProductService {
                 .thumbnailUrl(thumbnailUrl)
                 .specifications(specifications)
                 .status(parseStatus(request.getStatus()))
-                .stockQuantity(stockQuantity)
                 .category(category)
                 .brand(brand);
 
         Product product = builder.build();
+        Inventory inventory = new Inventory();
+        inventory.setProduct(product);
+        inventory.setStockQuantity(stockQuantity != null ? stockQuantity : 0);
+        product.setInventory(inventory);
+        
         if (!imageUrls.isEmpty()) {
             Set<ProductImage> images = new LinkedHashSet<>();
             for (String url : imageUrls) {
@@ -181,7 +186,16 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(price);
         product.setSpecifications(specifications);
         product.setStatus(parseStatus(request.getStatus()));
-        product.setStockQuantity(stockQuantity);
+        
+        if (product.getInventory() == null) {
+            Inventory inv = new Inventory();
+            inv.setProduct(product);
+            inv.setStockQuantity(stockQuantity != null ? stockQuantity : 0);
+            product.setInventory(inv);
+        } else {
+            product.getInventory().setStockQuantity(stockQuantity != null ? stockQuantity : 0);
+        }
+        
         product.setCategory(category);
         product.setBrand(brand);
 

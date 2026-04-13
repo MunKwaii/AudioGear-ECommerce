@@ -50,16 +50,11 @@ public class DefaultProductBuilder implements ProductBuilder {
     }
 
     @Override
-    public ProductBuilder stockQuantity(Integer stockQuantity) {
-        product.setStockQuantity(stockQuantity);
-        return this;
-    }
-
-    @Override
     public ProductBuilder category(Category category) {
         product.setCategory(category);
         return this;
     }
+
 
     @Override
     public ProductBuilder brand(Brand brand) {

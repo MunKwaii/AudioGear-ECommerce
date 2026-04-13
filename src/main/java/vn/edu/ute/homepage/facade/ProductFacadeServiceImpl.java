@@ -56,7 +56,7 @@ public class ProductFacadeServiceImpl implements ProductFacadeService {
                 thumbUrl,
                 categoryName,
                 brandName,
-                product.getStockQuantity()
+                product.getInventory() != null ? product.getInventory().getStockQuantity() : 0
         );
     }
 }

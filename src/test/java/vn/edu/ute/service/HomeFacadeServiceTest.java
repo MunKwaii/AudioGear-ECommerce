@@ -53,13 +53,19 @@ class HomeFacadeServiceTest {
     void testGetHomePageData() {
         // Chuẩn bị Mock Data (DB giả mạo)
         // Lưu ý: Sản phẩm 2 bị tắt status (trạng thái kinh doanh)
-        Product p1 = new Product("Tai nghe Sony XM5", new BigDecimal("8000000"), 10, new Category("Headphones"), null);
+        Product p1 = new Product("Tai nghe Sony XM5", new BigDecimal("8000000"), new Category("Headphones"), null);
         p1.setId(1L);
         p1.setStatus(true);
+        vn.edu.ute.entity.Inventory inv1 = new vn.edu.ute.entity.Inventory();
+        inv1.setStockQuantity(10);
+        p1.setInventory(inv1);
 
-        Product p2 = new Product("Loa Marshall Cũ", new BigDecimal("3500000"), 5, null, null);
+        Product p2 = new Product("Loa Marshall Cũ", new BigDecimal("3500000"), null, null);
         p2.setId(2L);
         p2.setStatus(false); // Inactive
+        vn.edu.ute.entity.Inventory inv2 = new vn.edu.ute.entity.Inventory();
+        inv2.setStockQuantity(5);
+        p2.setInventory(inv2);
 
         Category c1 = new Category("Amplyifier");
         c1.setId(1L);

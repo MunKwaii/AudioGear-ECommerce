@@ -116,8 +116,14 @@ public class StatsReportServiceImpl implements StatsReportService {
         long total = products.size();
         long active = products.stream().filter(Product::getStatus).count();
         long inactive = total - active;
-        long lowStock = products.stream().filter(p -> p.getStockQuantity() > 0 && p.getStockQuantity() < 10).count();
-        long outOfStock = products.stream().filter(p -> p.getStockQuantity() <= 0).count();
+        long lowStock = products.stream().filter(p -> {
+            int qty = p.getInventory() != null ? p.getInventory().getStockQuantity() : 0;
+            return qty > 0 && qty < 10;
+        }).count();
+        long outOfStock = products.stream().filter(p -> {
+            int qty = p.getInventory() != null ? p.getInventory().getStockQuantity() : 0;
+            return qty <= 0;
+        }).count();
         double avgPrice = products.isEmpty() ? 0 : products.stream()
                 .mapToDouble(p -> p.getPrice().doubleValue()).average().orElse(0);
 

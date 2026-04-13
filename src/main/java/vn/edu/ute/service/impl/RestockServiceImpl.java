@@ -35,11 +35,15 @@ public class RestockServiceImpl implements RestockService {
                 // Merge để lấy managed entity trong transaction hiện tại
                 Product managedProduct = em.merge(product);
                 int restored = item.getQuantity() != null ? item.getQuantity() : 0;
-                managedProduct.setStockQuantity(managedProduct.getStockQuantity() + restored);
+                int newStock = 0;
+                if (managedProduct.getInventory() != null) {
+                    managedProduct.getInventory().setStockQuantity(managedProduct.getInventory().getStockQuantity() + restored);
+                    newStock = managedProduct.getInventory().getStockQuantity();
+                }
 
                 System.out.printf("[RESTOCK] Sản phẩm \"%s\" (ID=%d): +%d đơn vị → Tồn kho mới: %d%n",
                         managedProduct.getName(), managedProduct.getId(),
-                        restored, managedProduct.getStockQuantity());
+                        restored, newStock);
             }
 
             DatabaseConfig.getInstance().commitTransaction();

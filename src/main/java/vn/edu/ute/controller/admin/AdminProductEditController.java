@@ -111,7 +111,8 @@ public class AdminProductEditController extends HttpServlet {
         form.setName(product.getName());
         form.setDescription(product.getDescription());
         form.setPrice(product.getPrice() == null ? "" : product.getPrice().toString());
-        form.setStockQuantity(product.getStockQuantity() == null ? "" : product.getStockQuantity().toString());
+        Integer stockQty = product.getInventory() != null ? product.getInventory().getStockQuantity() : 0;
+        form.setStockQuantity(stockQty.toString());
         form.setThumbnailUrl(product.getThumbnailUrl());
         form.setSpecifications(product.getSpecifications());
         if (product.getCategory() != null) {

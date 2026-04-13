@@ -50,7 +50,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
                     product.getPrice(),
                     item.getQuantity(),
                     itemTotal,
-                    product.getStockQuantity()
+                    product.getInventory() != null ? product.getInventory().getStockQuantity() : 0
             );
         }).collect(Collectors.toList());
 
@@ -84,7 +84,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
         if (product == null) throw new IllegalArgumentException("Product không tồn tại!");
 
         // Null-safety: sản phẩm thêm thủ công có thể thiếu stockQuantity
-        int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+        int availableStock = product.getInventory() != null ? product.getInventory().getStockQuantity() : 0;
 
         CartItem existingItem = cartDao.findCartItemByCartAndProduct(cart.getId(), productId);
         int totalQuantityRequested = quantity;
@@ -115,7 +115,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
             try {
                 CartItem item = em.find(CartItem.class, cartItemId);
                 if (item != null) {
-                    int availableStock = item.getProduct().getStockQuantity() != null ? item.getProduct().getStockQuantity() : 0;
+                    int availableStock = item.getProduct().getInventory() != null ? item.getProduct().getInventory().getStockQuantity() : 0;
                     if (newQuantity > availableStock) {
                         throw new InsufficientStockException(item.getProduct().getName(), availableStock);
                     }
@@ -153,7 +153,7 @@ public class CartFacadeServiceImpl implements CartFacadeService {
                         totalQuantity += existingItem.getQuantity();
                     }
 
-                    int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+                    int availableStock = product.getInventory() != null ? product.getInventory().getStockQuantity() : 0;
                     int cappedQuantity = Math.min(totalQuantity, availableStock);
 
                     if (existingItem != null) {
