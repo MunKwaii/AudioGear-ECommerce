@@ -183,4 +183,22 @@ public class OrderDaoImpl implements OrderDao {
             DatabaseConfig.getInstance().closeEntityManager();
         }
     }
+    @Override
+    public Optional<Order> findByIdWithUserAndItems(Long id) {
+    EntityManager em = DatabaseConfig.getInstance().getEntityManager();
+    try {
+        List<Order> results = em.createQuery(
+                "SELECT DISTINCT o FROM Order o " +
+                        "LEFT JOIN FETCH o.user u " +
+                        "LEFT JOIN FETCH o.items i " +
+                        "LEFT JOIN FETCH i.product p " +
+                        "WHERE o.id = :id", Order.class)
+                .setParameter("id", id)
+                .getResultList();
+
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    } finally {
+        DatabaseConfig.getInstance().closeEntityManager();
+    }
+}
 }

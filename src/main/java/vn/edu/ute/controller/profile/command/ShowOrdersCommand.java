@@ -22,6 +22,14 @@ public class ShowOrdersCommand extends ProfileCommand {
         context.setVariable("user", user);
         context.setVariable("activePage", "orders");
 
+         if ("true".equals(req.getParameter("cancelSuccess"))) {
+            context.setVariable("successMessage", "Hủy đơn hàng thành công!");
+        }
+
+        if (req.getParameter("error") != null && !req.getParameter("error").trim().isEmpty()) {
+            context.setVariable("errorMessage", req.getParameter("error"));
+        }
+
         render(req, resp, "orders", context);
     }
 }

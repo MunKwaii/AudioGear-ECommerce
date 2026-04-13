@@ -10,6 +10,7 @@ public interface OrderService {
     Order shipOrder(Long orderId);
     Order deliverOrder(Long orderId);
     Order cancelOrder(Long orderId, String reason);
+    Order cancelOrderByUser(Long userId, Long orderId);
     List<Order> getOrdersByUserId(Long userId);
     Order getOrderByOrderCode(String orderCode);
     List<Order> getOrdersByOrderCodes(List<String> orderCodes);

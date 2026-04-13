@@ -20,6 +20,7 @@ public interface UserProfileFacade {
     void updateProfile(Long userId, String fullName, String phoneNumber);
     
     void updateAvatar(Long userId, Part avatarPart) throws IOException;
+
     void changePassword(Long userId, String currentPassword, String newPassword, String confirmNewPassword);
 
     
@@ -34,6 +35,8 @@ public interface UserProfileFacade {
     void setDefaultAddress(Long userId, Long addressId);
     
     List<Order> getUserOrders(Long userId);
+    
+    void cancelUserOrder(Long userId, Long orderId);
     
     // Helper to extract address from request
     Address extractAddressFromRequest(HttpServletRequest req);

@@ -144,4 +144,19 @@ public class OrderServiceImpl implements OrderService, OrderSubject {
 
         return orderDao.findByOrderCodes(cleanCodes);
     }
+    @Override
+    public Order cancelOrderByUser(Long userId, Long orderId) {
+    Order order = orderDao.findByIdWithUserAndItems(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng ID: " + orderId));
+
+    if (order.getUser() == null || order.getUser().getId() == null || !order.getUser().getId().equals(userId)) {
+        throw new IllegalArgumentException("Bạn không có quyền hủy đơn hàng này");
+    }
+
+    if (order.getStatus() != vn.edu.ute.entity.enums.OrderStatus.PENDING) {
+        throw new IllegalStateException("Chỉ có thể hủy đơn hàng khi đơn đang ở trạng thái PENDING");
+    }
+
+    return cancelOrder(orderId, "Khách hàng tự hủy đơn hàng");
+}
 }

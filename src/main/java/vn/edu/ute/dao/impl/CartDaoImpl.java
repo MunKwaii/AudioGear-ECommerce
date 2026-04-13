@@ -130,4 +130,34 @@ public class CartDaoImpl implements CartDao {
             DatabaseConfig.getInstance().closeEntityManager();
         }
     }
+    @Override
+    public void removeCartItemsByUserAndProductIds(Long userId, List<Long> productIds) {
+    if (userId == null || productIds == null || productIds.isEmpty()) {
+        return;
+    }
+
+    EntityManager em = DatabaseConfig.getInstance().getEntityManager();
+    EntityTransaction tx = em.getTransaction();
+
+    try {
+        tx.begin();
+
+        em.createQuery(
+                        "DELETE FROM CartItem ci " +
+                        "WHERE ci.cart.user.id = :userId " +
+                        "AND ci.product.id IN :productIds")
+                .setParameter("userId", userId)
+                .setParameter("productIds", productIds)
+                .executeUpdate();
+
+        tx.commit();
+    } catch (Exception e) {
+        if (tx.isActive()) {
+            tx.rollback();
+        }
+        throw e;
+    } finally {
+        DatabaseConfig.getInstance().closeEntityManager();
+    }
+}
 }

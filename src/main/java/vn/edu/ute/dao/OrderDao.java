@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface OrderDao {
     Optional<Order> findById(Long id);
     Optional<Order> findByIdWithItems(Long id);
+     Optional<Order> findByIdWithUserAndItems(Long id);
     List<Order> findAll();
     List<Order> findAllWithItems();
     List<Order> findByUserId(Long userId);

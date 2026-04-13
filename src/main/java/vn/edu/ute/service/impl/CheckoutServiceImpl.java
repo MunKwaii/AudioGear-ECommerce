@@ -66,6 +66,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             }
 
             List<OrderItem> orderItems = new ArrayList<>();
+            List<Long> checkedOutProductIds = new ArrayList<>();
             BigDecimal originalTotal = BigDecimal.ZERO;
 
             // 1. Load Product + validate stock + tạo OrderItem tạm
@@ -103,6 +104,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 orderItem.setPrice(product.getPrice());
 
                 orderItems.add(orderItem);
+                checkedOutProductIds.add(product.getId());
             }
 
             // 2. Validate voucher + calculate discount
@@ -165,9 +167,20 @@ public class CheckoutServiceImpl implements CheckoutService {
             }
             order.setItems(orderItems);
 
+            // 6. Xóa các sản phẩm đã checkout khỏi giỏ hàng của user
+            if (userId != null && !checkedOutProductIds.isEmpty()) {
+                em.createQuery(
+                                "DELETE FROM CartItem ci " +
+                                "WHERE ci.cart.user.id = :userId " +
+                                "AND ci.product.id IN :productIds")
+                        .setParameter("userId", userId)
+                        .setParameter("productIds", checkedOutProductIds)
+                        .executeUpdate();
+            }
+
             DatabaseConfig.getInstance().commitTransaction();
 
-            // 6. Gửi email thông báo (Sau khi DB commit thành công)
+            // 7. Gửi email thông báo (Sau khi DB commit thành công)
             // Chỉ gửi email ngay nếu không phải là thanh toán QR (VD: COD)
             // Nếu là SEPAY_QR, email sẽ được gửi sau khi nhận được callback thanh toán thành công
             if (!"SEPAY_QR".equalsIgnoreCase(request.getPaymentMethod())) {

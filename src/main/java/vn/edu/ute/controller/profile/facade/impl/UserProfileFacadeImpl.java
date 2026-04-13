@@ -121,4 +121,8 @@ public class UserProfileFacadeImpl implements UserProfileFacade {
         address.setIsDefault("on".equals(req.getParameter("isDefault")));
         return address;
     }
+    @Override
+public void cancelUserOrder(Long userId, Long orderId) {
+    orderService.cancelOrderByUser(userId, orderId);
+}
 }

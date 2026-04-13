@@ -25,6 +25,7 @@ public class ProfileCommandFactory {
         postCommands.put("/profile/addresses/edit", new EditAddressCommand());
         postCommands.put("/profile/addresses/delete", new DeleteAddressCommand());
         postCommands.put("/profile/addresses/default", new SetDefaultAddressCommand());
+        postCommands.put("/profile/orders/cancel", new CancelOrderCommand());
     }
 
     public static ProfileCommand getCommand(String method, String path) {
