@@ -10,7 +10,7 @@ title Sơ đồ tuần tự (Sequence Diagram) - Luồng Đăng ký tài khoản
 actor "Người dùng" as Guest
 participant "Giao diện (UI)" as UI
 participant "AuthController" as Controller
-participant "UserService" as Service
+participant "AuthFacade" as Facade
 participant "RedisService" as Redis
 participant "MailService" as Mail
 participant "UserDAO" as DAO
@@ -31,48 +31,48 @@ alt Bị chặn do Spam
     Controller --> UI : HTTP 429 Too Many Requests
     UI --> Guest : Báo lỗi "Vui lòng đợi"
 else Hợp lệ
-    Controller -> Service : registerUser(RegisterRequest)
-    activate Service
+    Controller -> Facade : requestRegister(RegisterRequest)
+    activate Facade
 
-    Service -> DAO : existsByUsernameOrEmail(username, email)
+    Facade -> DAO : existsByUsernameOrEmail(username, email)
     activate DAO
     DAO -> DB : SELECT EXISTS(...)
     activate DB
     DB --> DAO : true/false
     deactivate DB
-    DAO --> Service : Kết quả trùng lặp
+    DAO --> Facade : Kết quả trùng lặp
     deactivate DAO
 
     alt Trùng Email hoặc Username
-        Service --> Controller : Ném ngoại lệ (Tài khoản đã tồn tại)
+        Facade --> Controller : Ném ngoại lệ (Tài khoản đã tồn tại)
         Controller --> UI : Báo lỗi trùng thông tin
         UI --> Guest : Hiển thị lỗi trên form
     else Thông tin hợp lệ
-        Service -> Service : BCrypt.hashpw(password)
-        Service -> DAO : save(User, status=PENDING)
+        Facade -> Facade : BCrypt.hashpw(password)
+        Facade -> DAO : save(User, status=PENDING)
         activate DAO
         DAO -> DB : INSERT INTO users
         activate DB
         DB --> DAO : Lệnh thành công
         deactivate DB
-        DAO --> Service : Trả về User đã lưu
+        DAO --> Facade : Trả về User đã lưu
         deactivate DAO
 
-        Service -> Redis : generateAndStoreOTP(email)
+        Facade -> Redis : generateAndStoreOTP(email)
         activate Redis
-        Redis --> Service : Trả về OTP
+        Redis --> Facade : Trả về OTP
         deactivate Redis
 
-        Service -> Mail : sendActivationEmail(email, OTP)
+        Facade -> Mail : sendActivationEmail(email, OTP)
         activate Mail
-        Mail --> Service : Kết quả gửi Mail
+        Mail --> Facade : Kết quả gửi Mail
         deactivate Mail
 
-        Service --> Controller : Trả về kết quả Thành công
+        Facade --> Controller : Trả về kết quả Thành công
         Controller --> UI : HTTP 302 Redirect (/verify)
         UI --> Guest : Chuyển sang trang nhập OTP
     end
-    deactivate Service
+    deactivate Facade
 end
 
 deactivate Controller
