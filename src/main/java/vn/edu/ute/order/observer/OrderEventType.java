@@ -6,7 +6,7 @@ package vn.edu.ute.order.observer;
  */
 public enum OrderEventType {
     ORDER_PROCESSING,   // PENDING → PROCESSING (Admin duyệt đơn)
-    ORDER_SHIPPED,      // PROCESSING → SHIPPED (Xuất kho)
-    ORDER_DELIVERED,    // SHIPPED → DELIVERED (Giao thành công)
-    ORDER_CANCELLED     // PENDING/SHIPPED → CANCELLED (Huỷ đơn)
+    ORDER_SHIPPING,     // PROCESSING → SHIPPING (Xuất kho)
+    ORDER_DELIVERED,    // SHIPPING → DELIVERED (Giao thành công)
+    ORDER_CANCELLED     // PENDING/SHIPPING → CANCELLED (Huỷ đơn)
 }

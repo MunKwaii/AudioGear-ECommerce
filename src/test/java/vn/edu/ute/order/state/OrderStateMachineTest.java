@@ -30,7 +30,7 @@ class OrderStateMachineTest {
     void setUp() {
         mockNotification = new OrderNotificationService() {
             @Override public void notifyProcessing(Order order) {}
-            @Override public void notifyShipped(Order order)    {}
+            @Override public void notifyShipping(Order order)   {}
             @Override public void notifyDelivered(Order order)  {}
             @Override public void notifyCancelled(Order order, String reason) {}
         };
@@ -70,25 +70,25 @@ class OrderStateMachineTest {
     }
 
     @Test
-    @DisplayName("✅ PROCESSING → SHIPPED")
-    void testProcessingToShipped() {
+    @DisplayName("✅ PROCESSING → SHIPPING")
+    void testProcessingToShipping() {
         OrderContext ctx = ctx(OrderStatus.PROCESSING);
         ctx.shipOrder();
-        assertEquals(OrderStatus.SHIPPED, ctx.getOrder().getStatus());
-        assertInstanceOf(vn.edu.ute.order.state.impl.ShippedState.class, ctx.getState());
+        assertEquals(OrderStatus.SHIPPING, ctx.getOrder().getStatus());
+        assertInstanceOf(vn.edu.ute.order.state.impl.ShippingState.class, ctx.getState());
     }
 
     @Test
-    @DisplayName("✅ SHIPPED → DELIVERED")
-    void testShippedToDelivered() {
-        OrderContext ctx = ctx(OrderStatus.SHIPPED);
+    @DisplayName("✅ SHIPPING → DELIVERED")
+    void testShippingToDelivered() {
+        OrderContext ctx = ctx(OrderStatus.SHIPPING);
         ctx.deliverOrder();
         assertEquals(OrderStatus.DELIVERED, ctx.getOrder().getStatus());
         assertInstanceOf(vn.edu.ute.order.state.impl.DeliveredState.class, ctx.getState());
     }
 
     @Test
-    @DisplayName("✅ Full happy path: PENDING → PROCESSING → SHIPPED → DELIVERED")
+    @DisplayName("✅ Full happy path: PENDING → PROCESSING → SHIPPING → DELIVERED")
     void testFullHappyPath() {
         OrderContext ctx = ctx(OrderStatus.PENDING);
 
@@ -96,7 +96,7 @@ class OrderStateMachineTest {
         assertEquals(OrderStatus.PROCESSING, ctx.getOrder().getStatus());
 
         ctx.shipOrder();
-        assertEquals(OrderStatus.SHIPPED, ctx.getOrder().getStatus());
+        assertEquals(OrderStatus.SHIPPING, ctx.getOrder().getStatus());
 
         ctx.deliverOrder();
         assertEquals(OrderStatus.DELIVERED, ctx.getOrder().getStatus());
@@ -116,9 +116,9 @@ class OrderStateMachineTest {
     }
 
     @Test
-    @DisplayName("✅ SHIPPED → CANCELLED (Giao thất bại)")
-    void testCancelFromShipped() {
-        OrderContext ctx = ctx(OrderStatus.SHIPPED);
+    @DisplayName("✅ SHIPPING → CANCELLED (Giao thất bại)")
+    void testCancelFromShipping() {
+        OrderContext ctx = ctx(OrderStatus.SHIPPING);
         ctx.cancelOrder("Khách từ chối nhận hàng");
         assertEquals(OrderStatus.CANCELLED, ctx.getOrder().getStatus());
         assertInstanceOf(vn.edu.ute.order.state.impl.CancelledState.class, ctx.getState());

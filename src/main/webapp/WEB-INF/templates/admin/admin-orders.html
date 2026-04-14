@@ -42,7 +42,7 @@
         .stat-value { font-size: 2rem; font-weight: 800; }
         .stat-card.pending   .stat-value { color: var(--yellow); }
         .stat-card.processing .stat-value { color: var(--blue); }
-        .stat-card.shipped   .stat-value { color: var(--orange); }
+        .stat-card.shipping   .stat-value { color: var(--orange); }
         .stat-card.delivered .stat-value { color: var(--green); }
         .stat-card.cancelled .stat-value { color: var(--red); }
 
@@ -126,8 +126,8 @@
         .badge-PENDING::before   { background: var(--yellow); }
         .badge-PROCESSING { background: rgba(59,130,246,.15); color: var(--blue); }
         .badge-PROCESSING::before { background: var(--blue); }
-        .badge-SHIPPED    { background: rgba(249,115,22,.15); color: var(--orange); }
-        .badge-SHIPPED::before   { background: var(--orange); }
+        .badge-SHIPPING    { background: rgba(249,115,22,.15); color: var(--orange); }
+        .badge-SHIPPING::before   { background: var(--orange); }
         .badge-DELIVERED  { background: rgba(34,197,94,.15);  color: var(--green); }
         .badge-DELIVERED::before  { background: var(--green); box-shadow: 0 0 6px rgba(34,197,94,.6); }
         .badge-CANCELLED  { background: rgba(239,68,68,.15);  color: var(--red); }
@@ -274,9 +274,9 @@
             <div class="stat-label">⚙️ Đang xử lý</div>
             <div class="stat-value" id="count-PROCESSING">-</div>
         </div>
-        <div class="stat-card shipped">
+        <div class="stat-card shipping">
             <div class="stat-label">🚚 Đang giao</div>
-            <div class="stat-value" id="count-SHIPPED">-</div>
+            <div class="stat-value" id="count-SHIPPING">-</div>
         </div>
         <div class="stat-card delivered">
             <div class="stat-label">✅ Đã giao</div>
@@ -296,7 +296,7 @@
                 <button class="filter-btn active" data-filter="ALL" onclick="filterOrders('ALL', this)">Tất cả</button>
                 <button class="filter-btn" data-filter="PENDING"    onclick="filterOrders('PENDING', this)">Chờ duyệt</button>
                 <button class="filter-btn" data-filter="PROCESSING" onclick="filterOrders('PROCESSING', this)">Đang xử lý</button>
-                <button class="filter-btn" data-filter="SHIPPED"    onclick="filterOrders('SHIPPED', this)">Đang giao</button>
+                <button class="filter-btn" data-filter="SHIPPING"   onclick="filterOrders('SHIPPING', this)">Đang giao</button>
                 <button class="filter-btn" data-filter="DELIVERED"  onclick="filterOrders('DELIVERED', this)">Đã giao</button>
                 <button class="filter-btn" data-filter="CANCELLED"  onclick="filterOrders('CANCELLED', this)">Đã huỷ</button>
             </div>
@@ -343,13 +343,13 @@
                         <button class="btn-action btn-ship"
                                 th:if="${order.status.name() == 'PROCESSING'}"
                                 th:onclick="'doAction(' + ${order.id} + ', \'ship\')'"
-                                title="Xuất kho → SHIPPED">🚚 Xuất kho</button>
+                                title="Xuất kho → SHIPPING">🚚 Xuất kho</button>
                         <button class="btn-action btn-deliver"
-                                th:if="${order.status.name() == 'SHIPPED'}"
+                                th:if="${order.status.name() == 'SHIPPING'}"
                                 th:onclick="'doAction(' + ${order.id} + ', \'deliver\')'"
                                 title="Hoàn tất → DELIVERED">✅ Đã giao</button>
                         <button class="btn-action btn-cancel"
-                                th:if="${order.status.name() == 'PENDING' or order.status.name() == 'SHIPPED'}"
+                                th:if="${order.status.name() == 'PENDING' or order.status.name() == 'SHIPPING'}"
                                 th:onclick="'openCancelModal(' + ${order.id} + ')'"
                                 title="Huỷ đơn → CANCELLED">✖ Huỷ đơn</button>
                         <span th:if="${order.status.name() == 'DELIVERED' or order.status.name() == 'CANCELLED'}"
@@ -422,7 +422,6 @@
             return;
         }
         tbody.innerHTML = orders.map((o, i) => {
-            const badge = `<span class="badge badge-${o.status}">${o.status}</span>`;
             const actions = getActionButtons(o);
             const amount  = Number(o.totalAmount || 0).toLocaleString('vi-VN') + ' VND';
             const date    = o.createdAt ? o.createdAt.replace('T', ' ').substring(0, 16) : '-';
@@ -433,7 +432,7 @@
                 <td>${o.recipientName || '-'}</td>
                 <td style="color:var(--text-muted)">${o.email || '-'}</td>
                 <td style="font-weight:600">${amount}</td>
-                <td>${badge}</td>
+                <td><span class="badge badge-${o.status}">${o.status}</span></td>
                 <td style="color:var(--text-muted);font-size:.8rem">${date}</td>
                 <td><div class="actions">${actions}</div></td>
             </tr>`;
@@ -448,7 +447,7 @@
             btns += `<button class="btn-action btn-cancel"  onclick="openCancelModal(${id})">✖ Huỷ</button>`;
         } else if (o.status === 'PROCESSING') {
             btns += `<button class="btn-action btn-ship" onclick="doAction(${id},'ship')">🚚 Xuất kho</button>`;
-        } else if (o.status === 'SHIPPED') {
+        } else if (o.status === 'SHIPPING') {
             btns += `<button class="btn-action btn-deliver" onclick="doAction(${id},'deliver')">✅ Đã giao</button>`;
             btns += `<button class="btn-action btn-cancel"  onclick="openCancelModal(${id})">✖ Huỷ</button>`;
         } else {
@@ -458,7 +457,7 @@
     }
 
     function updateStats(orders) {
-        const counts = { PENDING:0, PROCESSING:0, SHIPPED:0, DELIVERED:0, CANCELLED:0 };
+        const counts = { PENDING:0, PROCESSING:0, SHIPPING:0, DELIVERED:0, CANCELLED:0 };
         orders.forEach(o => { if (counts[o.status] !== undefined) counts[o.status]++; });
         Object.keys(counts).forEach(k => {
             const el = document.getElementById('count-' + k);
@@ -537,7 +536,7 @@
         // Init stats from server-rendered rows immediately (No more '-' show)
         const rows = document.querySelectorAll('.order-row');
         if (rows && rows.length > 0) {
-            const counts = { PENDING:0, PROCESSING:0, SHIPPED:0, DELIVERED:0, CANCELLED:0 };
+            const counts = { PENDING:0, PROCESSING:0, SHIPPING:0, DELIVERED:0, CANCELLED:0 };
             rows.forEach(r => {
                 const st = r.dataset.status;
                 if (counts[st] !== undefined) counts[st]++;

@@ -84,7 +84,7 @@ public class OrderServiceImpl implements OrderService, OrderSubject {
         context.shipOrder();
         Order saved = orderDao.save(context.getOrder());
         // Notify: Hàng đã xuất kho → gửi email đang giao
-        notifyObservers(saved, OrderEventType.ORDER_SHIPPED, null);
+        notifyObservers(saved, OrderEventType.ORDER_SHIPPING, null);
         return saved;
     }
 

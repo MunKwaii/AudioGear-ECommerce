@@ -3,7 +3,8 @@ package vn.edu.ute.order.state;
 /**
  * Giao diện đại diện cho một trạng thái của Đơn hàng (State Pattern).
  * Mỗi trạng thái (Pending, Processing...) sẽ implements giao diện này.
- * Bất kỳ hành động chuyển trạng thái nào không hợp lệ sẽ ném ra IllegalStateException.
+ * Bất kỳ hành động chuyển trạng thái nào không hợp lệ sẽ ném ra
+ * IllegalStateException.
  */
 public interface OrderState {
 

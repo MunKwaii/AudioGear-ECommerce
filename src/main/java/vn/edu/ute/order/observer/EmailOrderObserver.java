@@ -42,9 +42,9 @@ public class EmailOrderObserver implements OrderObserver {
                         "⚙️ Đơn hàng " + order.getOrderCode() + " đang được xử lý",
                         buildProcessingTemplate(order));
 
-                case ORDER_SHIPPED -> sendMail(toEmail,
+                case ORDER_SHIPPING -> sendMail(toEmail,
                         "🚚 Đơn hàng " + order.getOrderCode() + " đang trên đường giao",
-                        buildShippedTemplate(order));
+                        buildShippingTemplate(order));
 
                 case ORDER_DELIVERED -> sendMail(toEmail,
                         "✅ Đơn hàng " + order.getOrderCode() + " đã giao thành công!",
@@ -98,7 +98,7 @@ public class EmailOrderObserver implements OrderObserver {
         );
     }
 
-    private String buildShippedTemplate(Order order) {
+    private String buildShippingTemplate(Order order) {
         return wrap(
             "<h2 style='color:#f97316'>🚚 Đơn hàng đang trên đường giao</h2>" +
             "<p>Xin chào <strong>" + order.getRecipientName() + "</strong>,</p>" +

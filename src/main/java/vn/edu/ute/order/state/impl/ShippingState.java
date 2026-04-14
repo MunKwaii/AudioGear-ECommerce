@@ -10,7 +10,7 @@ import vn.edu.ute.order.state.OrderState;
  * 1. Giao thành công  -> DELIVERED
  * 2. Giao thất bại / Khách từ chối nhận hàng -> CANCELLED + Restock
  */
-public class ShippedState implements OrderState {
+public class ShippingState implements OrderState {
 
     @Override
     public void deliverOrder(OrderContext context) {

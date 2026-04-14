@@ -41,7 +41,7 @@ public class OrderNotificationServiceImpl implements OrderNotificationService {
     }
 
     @Override
-    public void notifyShipped(Order order) {
+    public void notifyShipping(Order order) {
         // Tương tự cho các trạng thái khác nếu muốn bổ sung sau
         System.out.printf("[MOCK EMAIL] Đơn hàng #%s đã được giao đi.%n", order.getOrderCode());
     }

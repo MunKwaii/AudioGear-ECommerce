@@ -8,7 +8,7 @@ import vn.edu.ute.order.state.OrderState;
  * Trạng thái Đang Xử Lý.
  * Tiếp nhận quy trình xuất kho đóng gói.
  * Có 2 đường đi:
- * 1. Tiến lên SHIPPED (xuất kho giao vận)
+ * 1. Tiến lên SHIPPING (xuất kho giao vận)
  * 2. Hủy sang CANCELLED (Admin từ chối sau khi duyệt) + hoàn kho
  */
 public class ProcessingState implements OrderState {
@@ -16,13 +16,13 @@ public class ProcessingState implements OrderState {
     @Override
     public void shipOrder(OrderContext context) {
         // 1. Cập nhật trạng thái Entity
-        context.getOrder().setStatus(OrderStatus.SHIPPED);
+        context.getOrder().setStatus(OrderStatus.SHIPPING);
 
-        // 2. Chuyển State Machine sang ShippedState
-        context.setState(new ShippedState());
+        // 2. Chuyển State Machine sang ShippingState
+        context.setState(new ShippingState());
 
         // 3. Gửi email thông báo đang giao hàng
-        context.getNotificationService().notifyShipped(context.getOrder());
+        context.getNotificationService().notifyShipping(context.getOrder());
     }
 
     @Override

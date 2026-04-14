@@ -30,14 +30,16 @@ public class RestockServiceImpl implements RestockService {
 
             for (OrderItem item : order.getItems()) {
                 Product product = item.getProduct();
-                if (product == null) continue;
+                if (product == null)
+                    continue;
 
                 // Merge để lấy managed entity trong transaction hiện tại
                 Product managedProduct = em.merge(product);
                 int restored = item.getQuantity() != null ? item.getQuantity() : 0;
                 int newStock = 0;
                 if (managedProduct.getInventory() != null) {
-                    managedProduct.getInventory().setStockQuantity(managedProduct.getInventory().getStockQuantity() + restored);
+                    managedProduct.getInventory()
+                            .setStockQuantity(managedProduct.getInventory().getStockQuantity() + restored);
                     newStock = managedProduct.getInventory().getStockQuantity();
                 }
 
@@ -51,7 +53,8 @@ public class RestockServiceImpl implements RestockService {
 
         } catch (Exception e) {
             DatabaseConfig.getInstance().rollbackTransaction();
-            throw new RuntimeException("Lỗi khi hoàn trả tồn kho cho đơn hàng #" + order.getOrderCode() + ": " + e.getMessage(), e);
+            throw new RuntimeException(
+                    "Lỗi khi hoàn trả tồn kho cho đơn hàng #" + order.getOrderCode() + ": " + e.getMessage(), e);
         } finally {
             DatabaseConfig.getInstance().closeEntityManager();
         }

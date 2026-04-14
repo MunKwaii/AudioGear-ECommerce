@@ -64,7 +64,7 @@ public class PaymentApiController extends HttpServlet {
             if (order.getStatus() != OrderStatus.PENDING) {
                 // Return success if already processed and not canceled
                 boolean isPaid = order.getStatus() == OrderStatus.PROCESSING ||
-                        order.getStatus() == OrderStatus.SHIPPED ||
+                        order.getStatus() == OrderStatus.SHIPPING ||
                         order.getStatus() == OrderStatus.DELIVERED;
                 resp.getWriter().write(gson.toJson(Map.of("paid", isPaid)));
                 return;

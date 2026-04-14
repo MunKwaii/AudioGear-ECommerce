@@ -50,8 +50,8 @@ public class OrderContext {
             case PROCESSING:
                 this.state = new ProcessingState();
                 break;
-            case SHIPPED:
-                this.state = new ShippedState();
+            case SHIPPING:
+                this.state = new ShippingState();
                 break;
             case DELIVERED:
                 this.state = new DeliveredState();

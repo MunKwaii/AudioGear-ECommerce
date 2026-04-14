@@ -172,7 +172,7 @@ CREATE TABLE public.orders (
                                user_id int8 NULL,
                                voucher_id int8 NULL,
                                CONSTRAINT orders_pkey PRIMARY KEY (id),
-                               CONSTRAINT orders_status_check CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'PROCESSING'::character varying, 'SHIPPED'::character varying, 'DELIVERED'::character varying, 'CANCELLED'::character varying])::text[]))),
+                               CONSTRAINT orders_status_check CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'PROCESSING'::character varying, 'SHIPPING'::character varying, 'DELIVERED'::character varying, 'CANCELLED'::character varying])::text[]))),
 	CONSTRAINT uk_dhk2umg8ijjkg4njg6891trit UNIQUE (order_code),
 	CONSTRAINT fk32ql8ubntj5uh44ph9659tiih FOREIGN KEY (user_id) REFERENCES public.users(id),
 	CONSTRAINT fkdimvsocblb17f45ikjr6xn1wj FOREIGN KEY (voucher_id) REFERENCES public.vouchers(id)

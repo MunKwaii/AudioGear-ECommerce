@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 
 /**
  * DTO chuẩn hóa JSON response cho Admin Order API.
- * Tránh expose trực tiếp Entity và tránh string-concat JSON thủ công trong Controller.
+ * Tránh expose trực tiếp Entity và tránh string-concat JSON thủ công trong
+ * Controller.
  */
 public class OrderResponseDto {
 
@@ -51,10 +52,10 @@ public class OrderResponseDto {
                 "email", order.getEmail() != null ? order.getEmail() : "",
                 "totalAmount", order.getTotalAmount(),
                 "paymentMethod", order.getPaymentStrategy() != null
-                        ? order.getPaymentStrategy().getStrategyCode() : "",
+                        ? order.getPaymentStrategy().getStrategyCode()
+                        : "",
                 "createdAt", formatDateTime(order.getCreatedAt()),
-                "updatedAt", formatDateTime(order.getUpdatedAt())
-        );
+                "updatedAt", formatDateTime(order.getUpdatedAt()));
     }
 
     /**
@@ -88,15 +89,24 @@ public class OrderResponseDto {
     }
 
     private static String escapeJson(String s) {
-        if (s == null) return "";
+        if (s == null)
+            return "";
         return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     // --- Getters ---
 
-    public boolean isSuccess() { return success; }
-    public String getMessage() { return message; }
-    public OrderData getData() { return data; }
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public OrderData getData() {
+        return data;
+    }
 
     // --- Inner class chứa data của Order ---
 
@@ -134,12 +144,21 @@ public class OrderResponseDto {
         }
 
         private static String escapeJson(String s) {
-            if (s == null) return "";
+            if (s == null)
+                return "";
             return s.replace("\\", "\\\\").replace("\"", "\\\"");
         }
 
-        public Long getOrderId() { return orderId; }
-        public String getOrderCode() { return orderCode; }
-        public OrderStatus getStatus() { return status; }
+        public Long getOrderId() {
+            return orderId;
+        }
+
+        public String getOrderCode() {
+            return orderCode;
+        }
+
+        public OrderStatus getStatus() {
+            return status;
+        }
     }
 }

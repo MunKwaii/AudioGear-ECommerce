@@ -14,24 +14,28 @@ public interface OrderNotificationService {
 
     /**
      * Gửi Email thông báo đơn hàng đang được xử lý (PENDING -> PROCESSING).
+     * 
      * @param order Đơn hàng vừa được duyệt
      */
     void notifyProcessing(Order order);
 
     /**
-     * Gửi Email thông báo đơn hàng đang được giao (PROCESSING -> SHIPPED).
+     * Gửi Email thông báo đơn hàng đang được giao (PROCESSING -> SHIPPING).
+     * 
      * @param order Đơn hàng vừa được xuất kho
      */
-    void notifyShipped(Order order);
+    void notifyShipping(Order order);
 
     /**
      * Gửi Email cảm ơn sau khi giao hàng thành công (SHIPPED -> DELIVERED).
+     * 
      * @param order Đơn hàng đã hoàn tất
      */
     void notifyDelivered(Order order);
 
     /**
      * Gửi Email thông báo huỷ đơn kèm lý do.
+     * 
      * @param order  Đơn hàng bị huỷ
      * @param reason Lý do huỷ do Admin nhập
      */

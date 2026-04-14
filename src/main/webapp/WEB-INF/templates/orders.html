@@ -71,7 +71,7 @@
             border: 1px solid rgba(52, 152, 219, 0.3);
         }
 
-        .status-shipped {
+        .status-shipping {
             background: rgba(155, 89, 182, 0.1);
             color: #9b59b6;
             border: 1px solid rgba(155, 89, 182, 0.3);
@@ -247,7 +247,7 @@
 
                 <span class="order-status"
                       th:classappend="'status-' + ${#strings.toLowerCase(order.status.name())}"
-                      th:text="${order.status}">PENDING</span>
+                      th:text="${order.status.name()}">PENDING</span>
             </div>
 
             <div class="order-body">

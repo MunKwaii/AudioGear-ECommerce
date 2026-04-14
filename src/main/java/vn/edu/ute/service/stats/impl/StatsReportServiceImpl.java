@@ -106,7 +106,7 @@ public class StatsReportServiceImpl implements StatsReportService {
         long cancelled = orders.stream().filter(o -> o.getStatus() == OrderStatus.CANCELLED).count();
         long pending = orders.stream().filter(o -> o.getStatus() == OrderStatus.PENDING).count();
         long processing = orders.stream().filter(o -> o.getStatus() == OrderStatus.PROCESSING).count();
-        long shipped = orders.stream().filter(o -> o.getStatus() == OrderStatus.SHIPPED).count();
+        long shipped = orders.stream().filter(o -> o.getStatus() == OrderStatus.SHIPPING).count();
         double completionRate = total > 0 ? (double) completed / total * 100 : 0;
 
         return new StatsReportDTO.OrderStats(total, completed, cancelled, pending, processing, shipped, completionRate);

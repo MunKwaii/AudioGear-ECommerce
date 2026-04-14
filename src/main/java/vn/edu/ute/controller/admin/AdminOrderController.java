@@ -23,11 +23,12 @@ import java.util.Map;
  * chỉ User có role ADMIN mới vào được.
  *
  * Endpoints:
- *   GET  /api/admin/orders            → Lấy toàn bộ danh sách đơn hàng
- *   POST /api/admin/orders/process    → PENDING   → PROCESSING
- *   POST /api/admin/orders/ship       → PROCESSING → SHIPPED
- *   POST /api/admin/orders/deliver    → SHIPPED    → DELIVERED
- *   POST /api/admin/orders/cancel     → PENDING/PROCESSING/SHIPPED → CANCELLED + Restock
+ * GET /api/admin/orders → Lấy toàn bộ danh sách đơn hàng
+ * POST /api/admin/orders/process → PENDING → PROCESSING
+ * POST /api/admin/orders/ship → PROCESSING → SHIPPED
+ * POST /api/admin/orders/deliver → SHIPPED → DELIVERED
+ * POST /api/admin/orders/cancel → PENDING/PROCESSING/SHIPPED → CANCELLED +
+ * Restock
  *
  * Mọi lỗi State Machine (nhảy cóc, lùi trạng thái) trả về HTTP 409 Conflict.
  */
@@ -38,7 +39,7 @@ public class AdminOrderController extends HttpServlet {
     private final Gson gson = new Gson();
 
     // -----------------------------------------------------------------------
-    // GET /api/admin/orders  →  Danh sách tất cả đơn hàng
+    // GET /api/admin/orders → Danh sách tất cả đơn hàng
     // -----------------------------------------------------------------------
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -57,8 +58,7 @@ public class AdminOrderController extends HttpServlet {
             Map<String, Object> response = Map.of(
                     "success", true,
                     "count", orderList.size(),
-                    "data", orderList
-            );
+                    "data", orderList);
 
             out.print(gson.toJson(response));
 
@@ -101,20 +101,20 @@ public class AdminOrderController extends HttpServlet {
             // State Machine được kích hoạt tại đây thông qua OrderService
             switch (pathInfo) {
                 case "/process":
-                    updatedOrder   = orderService.processOrder(orderId);
+                    updatedOrder = orderService.processOrder(orderId);
                     successMessage = "Duyệt đơn hàng thành công → PROCESSING.";
                     break;
                 case "/ship":
-                    updatedOrder   = orderService.shipOrder(orderId);
+                    updatedOrder = orderService.shipOrder(orderId);
                     successMessage = "Đã xuất kho giao cho đơn vị vận chuyển → SHIPPED.";
                     break;
                 case "/deliver":
-                    updatedOrder   = orderService.deliverOrder(orderId);
+                    updatedOrder = orderService.deliverOrder(orderId);
                     successMessage = "Hoàn tất giao hàng → DELIVERED.";
                     break;
                 case "/cancel":
-                    String reason  = req.getParameter("reason");
-                    updatedOrder   = orderService.cancelOrder(orderId, reason);
+                    String reason = req.getParameter("reason");
+                    updatedOrder = orderService.cancelOrder(orderId, reason);
                     successMessage = "Huỷ đơn hàng thành công → CANCELLED.";
                     break;
                 default:
@@ -143,7 +143,7 @@ public class AdminOrderController extends HttpServlet {
     // Helper
     // -----------------------------------------------------------------------
     private void sendError(HttpServletResponse resp, PrintWriter out,
-                           int statusCode, String message) {
+            int statusCode, String message) {
         resp.setStatus(statusCode);
         out.print(OrderResponseDto.error(message).toJson());
     }
