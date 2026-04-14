@@ -13,6 +13,10 @@ public class DefaultProductBuilder implements ProductBuilder {
         this.product = new Product();
     }
 
+    public DefaultProductBuilder(Product product) {
+        this.product = product;
+    }
+
     @Override
     public ProductBuilder name(String name) {
         product.setName(name);

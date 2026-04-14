@@ -181,12 +181,15 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException(String.join("; ", errors));
         }
 
-        product.setName(name);
-        product.setDescription(safeTrim(request.getDescription()));
-        product.setPrice(price);
-        product.setSpecifications(specifications);
-        product.setStatus(parseStatus(request.getStatus()));
-        
+        new DefaultProductBuilder(product)
+                .name(name)
+                .description(safeTrim(request.getDescription()))
+                .price(price)
+                .specifications(specifications)
+                .status(parseStatus(request.getStatus()))
+                .category(category)
+                .brand(brand);
+
         if (product.getInventory() == null) {
             Inventory inv = new Inventory();
             inv.setProduct(product);
@@ -195,9 +198,6 @@ public class ProductServiceImpl implements ProductService {
         } else {
             product.getInventory().setStockQuantity(stockQuantity != null ? stockQuantity : 0);
         }
-        
-        product.setCategory(category);
-        product.setBrand(brand);
 
         if (hasImagePayload) {
             product.setThumbnailUrl(thumbnailUrl);
