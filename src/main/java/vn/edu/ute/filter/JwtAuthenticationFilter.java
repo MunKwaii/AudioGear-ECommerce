@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter implements Filter {
     }
 
     /**
-      Aggregation (o-->) trong UML. Các Handler có thể tồn tại độc lập mà không bị dính liền với Filter này.
+     Các Handler có thể tồn tại độc lập mà không bị dính liền với Filter này.
      */
     public void setHeadHandler(AuthHandler headHandler) {
         this.headHandler = headHandler;
