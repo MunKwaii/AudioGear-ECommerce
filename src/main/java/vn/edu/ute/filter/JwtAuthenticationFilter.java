@@ -45,6 +45,13 @@ public class JwtAuthenticationFilter implements Filter {
         this.headHandler = tokenValidationHandler;
     }
 
+    /**
+      Aggregation (o-->) trong UML. Các Handler có thể tồn tại độc lập mà không bị dính liền với Filter này.
+     */
+    public void setHeadHandler(AuthHandler headHandler) {
+        this.headHandler = headHandler;
+    }
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -53,6 +60,10 @@ public class JwtAuthenticationFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         // Kích hoạt chuỗi xử lý Filter
-        headHandler.handle(httpRequest, httpResponse, chain);
+        if (headHandler != null) {
+            headHandler.handle(httpRequest, httpResponse, chain);
+        } else {
+            chain.doFilter(request, response);
+        }
     }
 }
