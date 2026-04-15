@@ -44,7 +44,9 @@ public class CloudinaryStorageStrategy implements StorageStrategy {
             Map uploadResult = cloudinary.uploader().upload(fileBytes,
                     ObjectUtils.asMap(
                             "folder", subFolder,
-                            "public_id", publicId
+                            "public_id", publicId,
+                            "use_filename", true,
+                            "unique_filename", false
                     ));
                     
             return (String) uploadResult.get("secure_url");
