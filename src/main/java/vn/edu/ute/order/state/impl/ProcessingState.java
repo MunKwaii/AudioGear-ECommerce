@@ -25,8 +25,8 @@ public class ProcessingState implements OrderState {
         context.getNotificationService().notifyShipping(context.getOrder());
     }
 
-    @Override
-    public void cancelOrder(OrderContext context, String cancelReason) {
-        throw new IllegalStateException("Không thể hủy đơn khi đang xử lý");
-    }
+//    @Override
+//    public void cancelOrder(OrderContext context, String cancelReason) {
+//        throw new IllegalStateException("Không thể hủy đơn khi đang xử lý");
+//    }
 }
