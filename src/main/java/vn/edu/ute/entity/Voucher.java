@@ -41,9 +41,6 @@ public class Voucher {
     @Column(name = "status", nullable = false)
     private VoucherStatus status = VoucherStatus.ACTIVE;
     
-    @OneToMany(mappedBy = "voucher", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private java.util.List<Order> orders = new java.util.ArrayList<>();
-    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -132,14 +129,6 @@ public class Voucher {
     
     public void setStatus(VoucherStatus status) {
         this.status = status;
-    }
-    
-    public java.util.List<Order> getOrders() {
-        return orders;
-    }
-    
-    public void setOrders(java.util.List<Order> orders) {
-        this.orders = orders;
     }
     
     public LocalDateTime getCreatedAt() {

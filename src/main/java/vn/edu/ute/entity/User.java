@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import vn.edu.ute.entity.enums.UserRole;
 import vn.edu.ute.entity.enums.UserStatus;
 
@@ -58,9 +56,6 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    // Relationships
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Review> reviews = new ArrayList<>();
     
     // Constructors
     public User() {
@@ -169,15 +164,6 @@ public class User {
     
     public void setAvatar(String avatar) {
         this.avatar = avatar;
-    }
-    
-    
-    public List<Review> getReviews() {
-        return reviews;
-    }
-    
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
     }
 
 }

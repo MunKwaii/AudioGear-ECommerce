@@ -28,9 +28,6 @@ public class Category {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private java.util.List<Category> children = new java.util.ArrayList<>();
     
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private java.util.List<Product> products = new java.util.ArrayList<>();
-    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -93,14 +90,6 @@ public class Category {
     
     public void setChildren(java.util.List<Category> children) {
         this.children = children;
-    }
-    
-    public java.util.List<Product> getProducts() {
-        return products;
-    }
-    
-    public void setProducts(java.util.List<Product> products) {
-        this.products = products;
     }
     
     public LocalDateTime getCreatedAt() {
