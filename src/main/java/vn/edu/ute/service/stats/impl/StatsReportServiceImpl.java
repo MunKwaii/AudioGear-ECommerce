@@ -8,6 +8,8 @@ import vn.edu.ute.dao.impl.BrandDaoImpl;
 import vn.edu.ute.dao.impl.OrderDaoImpl;
 import vn.edu.ute.dao.impl.ProductDaoImpl;
 import vn.edu.ute.dao.impl.UserDAOImpl;
+import vn.edu.ute.entity.Inventory;
+import vn.edu.ute.homepage.factory.DaoFactory;
 import vn.edu.ute.dto.StatsReportDTO;
 import vn.edu.ute.entity.Brand;
 import vn.edu.ute.entity.Order;
@@ -117,11 +119,11 @@ public class StatsReportServiceImpl implements StatsReportService {
         long active = products.stream().filter(Product::getStatus).count();
         long inactive = total - active;
         long lowStock = products.stream().filter(p -> {
-            int qty = p.getInventory() != null ? p.getInventory().getStockQuantity() : 0;
+            int qty = DaoFactory.getInventoryDao().findByProductId(p.getId()).map(Inventory::getStockQuantity).orElse(0);
             return qty > 0 && qty < 10;
         }).count();
         long outOfStock = products.stream().filter(p -> {
-            int qty = p.getInventory() != null ? p.getInventory().getStockQuantity() : 0;
+            int qty = DaoFactory.getInventoryDao().findByProductId(p.getId()).map(Inventory::getStockQuantity).orElse(0);
             return qty <= 0;
         }).count();
         double avgPrice = products.isEmpty() ? 0 : products.stream()

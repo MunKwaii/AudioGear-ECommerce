@@ -60,15 +60,6 @@ public class User {
     
     // Relationships
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Address> addresses = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Order> orders = new ArrayList<>();
-    
-     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-     private Cart cart;
-    
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews = new ArrayList<>();
     
     // Constructors
@@ -180,29 +171,6 @@ public class User {
         this.avatar = avatar;
     }
     
-    public List<Address> getAddresses() {
-        return addresses;
-    }
-    
-    public void setAddresses(List<Address> addresses) {
-        this.addresses = addresses;
-    }
-    
-    public List<Order> getOrders() {
-        return orders;
-    }
-    
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
-    }
-    
-     public Cart getCart() {
-         return cart;
-     }
-    
-     public void setCart(Cart cart) {
-         this.cart = cart;
-     }
     
     public List<Review> getReviews() {
         return reviews;

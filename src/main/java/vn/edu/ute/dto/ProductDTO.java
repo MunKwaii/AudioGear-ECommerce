@@ -11,10 +11,11 @@ public class ProductDTO {
     private String categoryName;
     private String brandName;
     private Integer stockQuantity;
+    private Boolean status;
 
     public ProductDTO() {}
 
-    public ProductDTO(Long id, String name, BigDecimal price, String thumbnailUrl, String categoryName, String brandName, Integer stockQuantity) {
+    public ProductDTO(Long id, String name, BigDecimal price, String thumbnailUrl, String categoryName, String brandName, Integer stockQuantity, Boolean status) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -22,6 +23,7 @@ public class ProductDTO {
         this.categoryName = categoryName;
         this.brandName = brandName;
         this.stockQuantity = stockQuantity;
+        this.status = status;
     }
 
     public Long getId() { return id; }
@@ -44,4 +46,7 @@ public class ProductDTO {
     
     public Integer getStockQuantity() { return stockQuantity; }
     public void setStockQuantity(Integer stockQuantity) { this.stockQuantity = stockQuantity; }
+    
+    public Boolean getStatus() { return status; }
+    public void setStatus(Boolean status) { this.status = status; }
 }

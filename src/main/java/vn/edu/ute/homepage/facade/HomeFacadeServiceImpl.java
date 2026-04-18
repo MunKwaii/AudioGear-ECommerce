@@ -6,6 +6,7 @@ import vn.edu.ute.dto.CategoryDTO;
 import vn.edu.ute.dto.HomePageDTO;
 import vn.edu.ute.dto.ProductDTO;
 import vn.edu.ute.entity.Category;
+import vn.edu.ute.entity.Inventory;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.homepage.factory.DaoFactory;
 
@@ -76,7 +77,8 @@ public class HomeFacadeServiceImpl implements HomeFacadeService {
                 thumbUrl,
                 categoryName,
                 brandName,
-                product.getInventory() != null ? product.getInventory().getStockQuantity() : 0
+                DaoFactory.getInventoryDao().findByProductId(product.getId()).map(Inventory::getStockQuantity).orElse(0),
+                product.getStatus()
         );
     }
 }

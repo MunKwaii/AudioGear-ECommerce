@@ -6,6 +6,8 @@ import vn.edu.ute.dao.CartDao;
 import vn.edu.ute.dao.impl.CategoryDaoImpl;
 import vn.edu.ute.dao.impl.ProductDaoImpl;
 import vn.edu.ute.dao.impl.CartDaoImpl;
+import vn.edu.ute.dao.InventoryDao;
+import vn.edu.ute.dao.impl.InventoryDaoImpl;
 
 public class DaoFactory {
 
@@ -21,5 +23,9 @@ public class DaoFactory {
 
     public static CartDao getCartDao() {
         return CartDaoImpl.getInstance();
+    }
+
+    public static InventoryDao getInventoryDao() {
+        return InventoryDaoImpl.getInstance();
     }
 }

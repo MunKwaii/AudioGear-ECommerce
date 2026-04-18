@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import vn.edu.ute.dao.CategoryDao;
+import vn.edu.ute.dao.InventoryDao;
 import vn.edu.ute.dao.ProductDao;
 import vn.edu.ute.dto.HomePageDTO;
 import vn.edu.ute.entity.Category;
@@ -24,6 +25,7 @@ class HomeFacadeServiceTest {
     private MockedStatic<DaoFactory> daoFactoryMockedStatic;
     private ProductDao mockProductDao;
     private CategoryDao mockCategoryDao;
+    private InventoryDao mockInventoryDao;
     private HomeFacadeService homeFacadeService;
 
     @BeforeEach
@@ -31,11 +33,13 @@ class HomeFacadeServiceTest {
         // 1. Tạo các Object Mock thay thế cho DAO thật kết nối DB
         mockProductDao = mock(ProductDao.class);
         mockCategoryDao = mock(CategoryDao.class);
+        mockInventoryDao = mock(InventoryDao.class);
 
         // 2. Mock static method của DaoFactory để ép nó trả về Mock thay vì DAO thật
         daoFactoryMockedStatic = mockStatic(DaoFactory.class);
         daoFactoryMockedStatic.when(DaoFactory::getProductDao).thenReturn(mockProductDao);
         daoFactoryMockedStatic.when(DaoFactory::getCategoryDao).thenReturn(mockCategoryDao);
+        daoFactoryMockedStatic.when(DaoFactory::getInventoryDao).thenReturn(mockInventoryDao);
 
         // 3. Khởi tạo service mình đem đi test
         homeFacadeService = ServiceFactory.getHomeFacadeService();
@@ -58,14 +62,14 @@ class HomeFacadeServiceTest {
         p1.setStatus(true);
         vn.edu.ute.entity.Inventory inv1 = new vn.edu.ute.entity.Inventory();
         inv1.setStockQuantity(10);
-        p1.setInventory(inv1);
+        inv1.setProduct(p1);
 
         Product p2 = new Product("Loa Marshall Cũ", new BigDecimal("3500000"), null, null);
         p2.setId(2L);
         p2.setStatus(false); // Inactive
         vn.edu.ute.entity.Inventory inv2 = new vn.edu.ute.entity.Inventory();
         inv2.setStockQuantity(5);
-        p2.setInventory(inv2);
+        inv2.setProduct(p2);
 
         Category c1 = new Category("Amplyifier");
         c1.setId(1L);
@@ -74,6 +78,9 @@ class HomeFacadeServiceTest {
         when(mockProductDao.getFeaturedProducts(8)).thenReturn(Arrays.asList(p1, p2));
         when(mockProductDao.getNewestProducts(8)).thenReturn(Arrays.asList(p1));
         when(mockCategoryDao.getAllCategories()).thenReturn(Arrays.asList(c1));
+        
+        when(mockInventoryDao.findByProductId(1L)).thenReturn(java.util.Optional.of(inv1));
+        when(mockInventoryDao.findByProductId(2L)).thenReturn(java.util.Optional.of(inv2));
 
         // ACTION: Thực thi function lấy Data cho Trang chủ
         HomePageDTO result = homeFacadeService.getHomePageData();

@@ -3,6 +3,7 @@ package vn.edu.ute.homepage.facade;
 import vn.edu.ute.dao.ProductDao;
 import vn.edu.ute.dto.PageDTO;
 import vn.edu.ute.dto.ProductDTO;
+import vn.edu.ute.entity.Inventory;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.homepage.factory.DaoFactory;
 
@@ -56,7 +57,8 @@ public class ProductFacadeServiceImpl implements ProductFacadeService {
                 thumbUrl,
                 categoryName,
                 brandName,
-                product.getInventory() != null ? product.getInventory().getStockQuantity() : 0
+                DaoFactory.getInventoryDao().findByProductId(product.getId()).map(Inventory::getStockQuantity).orElse(0),
+                product.getStatus()
         );
     }
 }

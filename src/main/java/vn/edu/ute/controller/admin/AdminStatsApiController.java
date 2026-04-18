@@ -7,9 +7,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.ute.dto.OrderResponseDto;
+import vn.edu.ute.entity.Inventory;
 import vn.edu.ute.entity.Order;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.entity.enums.OrderStatus;
+import vn.edu.ute.homepage.factory.DaoFactory;
 import vn.edu.ute.service.OrderService;
 import vn.edu.ute.service.ProductService;
 import vn.edu.ute.service.impl.OrderServiceImpl;
@@ -91,7 +93,7 @@ public class AdminStatsApiController extends HttpServlet {
             // Lưu ý: Trong thực tế nên dùng query COUNT(*) WHERE stock < 10
             List<Product> products = productService.searchProductsForAdmin("", null, null, 0, 1000);
             long lowStockCount = products.stream().filter(p -> {
-                int qty = p.getInventory() != null ? p.getInventory().getStockQuantity() : 0;
+                int qty = DaoFactory.getInventoryDao().findByProductId(p.getId()).map(Inventory::getStockQuantity).orElse(0);
                 return qty < 10;
             }).count();
 

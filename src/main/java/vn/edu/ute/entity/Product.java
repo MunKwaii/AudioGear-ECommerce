@@ -56,15 +56,6 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private java.util.Set<ProductImage> images = new java.util.HashSet<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private java.util.Set<Review> reviews = new java.util.HashSet<>();
-
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    // @OneToOne(mappedBy = "product", cascade = {CascadeType.PERSIST,
-    // CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch =
-    // FetchType.LAZY)
-    private Inventory inventory;
-
     // Constructors
     public Product() {
         this.createdAt = LocalDateTime.now();
@@ -182,19 +173,4 @@ public class Product {
         this.images = images;
     }
 
-    public java.util.Set<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(java.util.Set<Review> reviews) {
-        this.reviews = reviews;
-    }
-
-    public Inventory getInventory() {
-        return inventory;
-    }
-
-    public void setInventory(Inventory inventory) {
-        this.inventory = inventory;
-    }
 }

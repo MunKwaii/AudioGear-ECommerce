@@ -8,8 +8,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
+import vn.edu.ute.dto.ProductDTO;
 import vn.edu.ute.entity.Category;
+import vn.edu.ute.entity.Inventory;
 import vn.edu.ute.entity.Product;
+import vn.edu.ute.homepage.factory.DaoFactory;
 import vn.edu.ute.service.ProductService;
 import vn.edu.ute.service.impl.ProductServiceImpl;
 
@@ -36,7 +39,22 @@ public class AdminProductListController extends HttpServlet {
         }
 
         int offset = (page - 1) * size;
-        List<Product> products = productService.searchProductsForAdmin(keyword, categoryId, status, offset, size);
+        List<Product> productEntities = productService.searchProductsForAdmin(keyword, categoryId, status, offset, size);
+        
+        List<ProductDTO> products = productEntities.stream().map(p -> {
+            Integer stock = DaoFactory.getInventoryDao().findByProductId(p.getId()).map(Inventory::getStockQuantity).orElse(0);
+            return new ProductDTO(
+                p.getId(),
+                p.getName(),
+                p.getPrice(),
+                p.getThumbnailUrl(),
+                p.getCategory() != null ? p.getCategory().getName() : "-",
+                p.getBrand() != null ? p.getBrand().getName() : "-",
+                stock,
+                p.getStatus()
+            );
+        }).toList();
+
         long totalItems = productService.countSearchProductsForAdmin(keyword, categoryId, status);
         int totalPages = (int) Math.ceil((double) totalItems / size);
 

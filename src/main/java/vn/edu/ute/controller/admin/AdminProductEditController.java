@@ -11,7 +11,9 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 import vn.edu.ute.dto.request.CreateProductRequest;
 import vn.edu.ute.entity.Brand;
 import vn.edu.ute.entity.Category;
+import vn.edu.ute.entity.Inventory;
 import vn.edu.ute.entity.Product;
+import vn.edu.ute.homepage.factory.DaoFactory;
 import vn.edu.ute.service.ProductService;
 import vn.edu.ute.service.impl.ProductServiceImpl;
 import vn.edu.ute.util.FlashMessage;
@@ -111,7 +113,7 @@ public class AdminProductEditController extends HttpServlet {
         form.setName(product.getName());
         form.setDescription(product.getDescription());
         form.setPrice(product.getPrice() == null ? "" : product.getPrice().toString());
-        Integer stockQty = product.getInventory() != null ? product.getInventory().getStockQuantity() : 0;
+        Integer stockQty = DaoFactory.getInventoryDao().findByProductId(product.getId()).map(Inventory::getStockQuantity).orElse(0);
         form.setStockQuantity(stockQty.toString());
         form.setThumbnailUrl(product.getThumbnailUrl());
         form.setSpecifications(product.getSpecifications());

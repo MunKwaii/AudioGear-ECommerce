@@ -31,8 +31,6 @@ public class Review {
     @Column(name = "comment", columnDefinition = "TEXT")
     private String comment;
     
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private java.util.List<ReviewLike> likes = new java.util.ArrayList<>();
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -100,13 +98,6 @@ public class Review {
         this.comment = comment;
     }
     
-    public java.util.List<ReviewLike> getLikes() {
-        return likes;
-    }
-    
-    public void setLikes(java.util.List<ReviewLike> likes) {
-        this.likes = likes;
-    }
     
     public LocalDateTime getCreatedAt() {
         return createdAt;

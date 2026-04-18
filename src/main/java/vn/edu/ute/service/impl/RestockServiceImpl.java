@@ -3,8 +3,10 @@ package vn.edu.ute.service.impl;
 import jakarta.persistence.EntityManager;
 import vn.edu.ute.config.DatabaseConfig;
 import vn.edu.ute.entity.Order;
+import vn.edu.ute.entity.Inventory;
 import vn.edu.ute.entity.OrderItem;
 import vn.edu.ute.entity.Product;
+import vn.edu.ute.homepage.factory.DaoFactory;
 import vn.edu.ute.service.RestockService;
 
 /**
@@ -37,10 +39,12 @@ public class RestockServiceImpl implements RestockService {
                 Product managedProduct = em.merge(product);
                 int restored = item.getQuantity() != null ? item.getQuantity() : 0;
                 int newStock = 0;
-                if (managedProduct.getInventory() != null) {
-                    managedProduct.getInventory()
-                            .setStockQuantity(managedProduct.getInventory().getStockQuantity() + restored);
-                    newStock = managedProduct.getInventory().getStockQuantity();
+                
+                Inventory inventory = DaoFactory.getInventoryDao().findByProductId(managedProduct.getId()).orElse(null);
+                if (inventory != null) {
+                    inventory.setStockQuantity(inventory.getStockQuantity() + restored);
+                    newStock = inventory.getStockQuantity();
+                    DaoFactory.getInventoryDao().save(inventory);
                 }
 
                 System.out.printf("[RESTOCK] Sản phẩm \"%s\" (ID=%d): +%d đơn vị → Tồn kho mới: %d%n",

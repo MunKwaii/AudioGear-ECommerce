@@ -12,6 +12,8 @@ import vn.edu.ute.service.ProductService;
 import vn.edu.ute.service.ReviewService;
 import vn.edu.ute.service.impl.ProductServiceImpl;
 import vn.edu.ute.service.impl.ReviewServiceImpl;
+import vn.edu.ute.entity.Inventory;
+import vn.edu.ute.homepage.factory.DaoFactory;
 import vn.edu.ute.util.JsonUtil;
 
 import java.io.IOException;
@@ -103,7 +105,8 @@ public class ProductApiController extends HttpServlet {
                             p.getThumbnailUrl(),
                             p.getCategory() != null ? p.getCategory().getName() : null,
                             p.getBrand() != null ? p.getBrand().getName() : null,
-                            p.getInventory() != null ? p.getInventory().getStockQuantity() : 0
+                            DaoFactory.getInventoryDao().findByProductId(p.getId()).map(Inventory::getStockQuantity).orElse(0),
+                            p.getStatus()
                     ))
                     .collect(Collectors.toList());
             

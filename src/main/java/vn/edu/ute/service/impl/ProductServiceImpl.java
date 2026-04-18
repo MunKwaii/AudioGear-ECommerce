@@ -9,6 +9,8 @@ import vn.edu.ute.dao.impl.BrandDaoImpl;
 import vn.edu.ute.dao.impl.CategoryDaoImpl;
 import vn.edu.ute.dao.impl.ProductDaoImpl;
 import vn.edu.ute.dto.request.CreateProductRequest;
+import vn.edu.ute.dao.InventoryDao;
+import vn.edu.ute.dao.impl.InventoryDaoImpl;
 import vn.edu.ute.entity.Brand;
 import vn.edu.ute.entity.Category;
 import vn.edu.ute.entity.Inventory;
@@ -31,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductDao productDao = ProductDaoImpl.getInstance();
     private final CategoryDao categoryDao = CategoryDaoImpl.getInstance();
     private final BrandDao brandDao = BrandDaoImpl.getInstance();
+    private final InventoryDao inventoryDao = InventoryDaoImpl.getInstance();
 
     @Override
     public Product createProduct(CreateProductRequest request) {
@@ -99,10 +102,12 @@ public class ProductServiceImpl implements ProductService {
                 .brand(brand);
 
         Product product = builder.build();
+        product = productDao.save(product); // Save product first to get ID
+
         Inventory inventory = new Inventory();
         inventory.setProduct(product);
         inventory.setStockQuantity(stockQuantity != null ? stockQuantity : 0);
-        product.setInventory(inventory);
+        inventoryDao.save(inventory);
         
         if (!imageUrls.isEmpty()) {
             Set<ProductImage> images = new LinkedHashSet<>();
@@ -190,14 +195,13 @@ public class ProductServiceImpl implements ProductService {
                 .category(category)
                 .brand(brand);
 
-        if (product.getInventory() == null) {
-            Inventory inv = new Inventory();
+        // Update Inventory via DAO
+        Inventory inv = inventoryDao.findByProductId(id).orElse(new Inventory());
+        if (inv.getProduct() == null) {
             inv.setProduct(product);
-            inv.setStockQuantity(stockQuantity != null ? stockQuantity : 0);
-            product.setInventory(inv);
-        } else {
-            product.getInventory().setStockQuantity(stockQuantity != null ? stockQuantity : 0);
         }
+        inv.setStockQuantity(stockQuantity != null ? stockQuantity : 0);
+        inventoryDao.save(inv);
 
         if (hasImagePayload) {
             product.setThumbnailUrl(thumbnailUrl);
@@ -220,6 +224,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         try {
+            inventoryDao.findByProductId(id).ifPresent(inventoryDao::delete);
             productDao.deleteById(id);
         } catch (RuntimeException e) {
             // Nếu không thể xóa (do ràng buộc khóa ngoại - ví dụ đã có đơn hàng),

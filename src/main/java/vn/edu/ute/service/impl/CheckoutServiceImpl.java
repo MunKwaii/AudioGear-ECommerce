@@ -8,6 +8,7 @@ import vn.edu.ute.dto.request.CheckoutItemRequest;
 import vn.edu.ute.dto.request.CheckoutRequest;
 import vn.edu.ute.dto.response.CheckoutResponse;
 import vn.edu.ute.dto.response.VoucherValidationResult;
+import vn.edu.ute.entity.Inventory;
 import vn.edu.ute.entity.Order;
 import vn.edu.ute.entity.OrderItem;
 import vn.edu.ute.entity.Product;
@@ -15,6 +16,7 @@ import vn.edu.ute.entity.User;
 import vn.edu.ute.entity.Voucher;
 import vn.edu.ute.entity.enums.OrderStatus;
 import vn.edu.ute.exception.VoucherException;
+import vn.edu.ute.homepage.factory.DaoFactory;
 import vn.edu.ute.order.payment.strategy.PaymentResult;
 import vn.edu.ute.order.payment.strategy.PaymentStrategy;
 import vn.edu.ute.order.payment.strategy.PaymentStrategyFactory;
@@ -85,7 +87,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                     throw new RuntimeException("Số lượng sản phẩm không hợp lệ");
                 }
 
-                int availableStock = product.getInventory() != null ? product.getInventory().getStockQuantity() : 0;
+                int availableStock = DaoFactory.getInventoryDao().findByProductId(product.getId()).map(Inventory::getStockQuantity).orElse(0);
                 if (availableStock < itemRequest.getQuantity()) {
                     throw new RuntimeException(
                             "Sản phẩm '" + product.getName() + "' không đủ tồn kho. Còn lại: "
@@ -159,11 +161,11 @@ public class CheckoutServiceImpl implements CheckoutService {
                 orderItem.setOrder(order);
 
                 Product product = orderItem.getProduct();
-                if (product.getInventory() != null) {
-                    product.getInventory().setStockQuantity(product.getInventory().getStockQuantity() - orderItem.getQuantity());
-                }
+                DaoFactory.getInventoryDao().findByProductId(product.getId()).ifPresent(inventory -> {
+                    inventory.setStockQuantity(inventory.getStockQuantity() - orderItem.getQuantity());
+                    DaoFactory.getInventoryDao().save(inventory);
+                });
                 em.persist(orderItem);
-                em.merge(product);
             }
             order.setItems(orderItems);
 

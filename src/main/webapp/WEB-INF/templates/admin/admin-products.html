@@ -188,10 +188,10 @@
                              alt="thumb">
                     </td>
                     <td th:text="${p.name}"></td>
-                    <td th:text="${p.category != null ? p.category.name : '-'}"></td>
-                    <td th:text="${p.brand != null ? p.brand.name : '-'}"></td>
+                    <td th:text="${p.categoryName}"></td>
+                    <td th:text="${p.brandName}"></td>
                     <td th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')}"></td>
-                    <td th:text="${p.inventory != null ? p.inventory.stockQuantity : 0}"></td>
+                    <td th:text="${p.stockQuantity}"></td>
                     <td>
                         <span th:if="${p.status}" class="badge badge-active">Đang bán</span>
                         <span th:unless="${p.status}" class="badge badge-inactive">Ngưng bán</span>

@@ -3,8 +3,10 @@ package vn.edu.ute.dto.response;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import vn.edu.ute.entity.Inventory;
 import vn.edu.ute.entity.Product;
 import vn.edu.ute.entity.ProductImage;
+import vn.edu.ute.homepage.factory.DaoFactory;
 import vn.edu.ute.util.ImageUtil;
 
 public class ProductDetailDTO {
@@ -30,7 +32,7 @@ public class ProductDetailDTO {
         dto.setPrice(product.getPrice());
         dto.setThumbnailUrl(ImageUtil.resolveImageUrl(product.getThumbnailUrl()));
         dto.setSpecifications(product.getSpecifications());
-        dto.setStockQuantity(product.getInventory() != null ? product.getInventory().getStockQuantity() : 0);
+        dto.setStockQuantity(DaoFactory.getInventoryDao().findByProductId(product.getId()).map(Inventory::getStockQuantity).orElse(0));
         
         if (product.getCategory() != null) {
             dto.setCategoryId(product.getCategory().getId());

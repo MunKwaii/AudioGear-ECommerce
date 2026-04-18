@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.ute.dto.CartDTO;
 import vn.edu.ute.dto.CartItemDTO;
 import vn.edu.ute.entity.Product;
+import vn.edu.ute.entity.Inventory;
 import vn.edu.ute.exception.InsufficientStockException;
 import vn.edu.ute.homepage.factory.DaoFactory;
 
@@ -66,7 +67,7 @@ public class GuestCartService {
                 .orElseThrow(() -> new IllegalArgumentException("Product không tồn tại!"));
 
         // Null-safety: sản phẩm thêm thủ công có thể thiếu stockQuantity
-        int availableStock = product.getInventory() != null ? product.getInventory().getStockQuantity() : 0;
+        int availableStock = DaoFactory.getInventoryDao().findByProductId(productId).map(Inventory::getStockQuantity).orElse(0);
 
         Optional<GuestCartItem> existingItem = items.stream()
                 .filter(item -> item.productId.equals(productId))
@@ -103,7 +104,7 @@ public class GuestCartService {
                             item -> {
                                 Product product = DaoFactory.getProductDao().findById(productId).orElse(null);
                                 if (product != null) {
-                                    int availableStock = product.getInventory() != null ? product.getInventory().getStockQuantity() : 0;
+                                    int availableStock = DaoFactory.getInventoryDao().findByProductId(productId).map(Inventory::getStockQuantity).orElse(0);
                                     if (newQuantity > availableStock) {
                                         throw new InsufficientStockException(product.getName(), availableStock);
                                     }
@@ -188,7 +189,7 @@ public class GuestCartService {
                             product.getPrice(),
                             guestItem.quantity,
                             itemTotal,
-                            product.getInventory() != null ? product.getInventory().getStockQuantity() : 0
+                            DaoFactory.getInventoryDao().findByProductId(product.getId()).map(Inventory::getStockQuantity).orElse(0)
                     );
                 });
     }
