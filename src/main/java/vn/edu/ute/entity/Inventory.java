@@ -13,9 +13,6 @@ public class Inventory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false, unique = true)
-    private Product product;
     
     @NotNull(message = "Số lượng tồn kho không được để trống")
     @Min(value = 0, message = "Số lượng tồn kho không được nhỏ hơn 0")
@@ -27,6 +24,11 @@ public class Inventory {
     
     @Column(name = "updated_at", columnDefinition = "timestamp default current_timestamp")
     private LocalDateTime updatedAt;
+
+    // Relationships
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false, unique = true)
+    private Product product;
 
     public Inventory() {
         this.createdAt = LocalDateTime.now();

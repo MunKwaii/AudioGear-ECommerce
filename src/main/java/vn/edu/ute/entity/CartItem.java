@@ -11,14 +11,6 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id", nullable = false)
-    private Cart cart;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-    
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
     
@@ -28,6 +20,15 @@ public class CartItem {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    // Relationships
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id", nullable = false)
+    private Cart cart;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
     // Constructors
     public CartItem() {
         this.createdAt = LocalDateTime.now();

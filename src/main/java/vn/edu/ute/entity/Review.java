@@ -14,14 +14,6 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-    
     @Min(value = 1, message = "Đánh giá phải từ 1 đến 5 sao")
     @Max(value = 5, message = "Đánh giá phải từ 1 đến 5 sao")
     @Column(name = "rating", nullable = false)
@@ -38,6 +30,15 @@ public class Review {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    // Relationships
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
     // Constructors
     public Review() {
         this.createdAt = LocalDateTime.now();

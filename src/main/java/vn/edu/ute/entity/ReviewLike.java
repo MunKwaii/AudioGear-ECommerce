@@ -11,6 +11,10 @@ public class ReviewLike {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    
+    // Relationships
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -18,10 +22,7 @@ public class ReviewLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id", nullable = false)
     private Review review;
-    
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
+
     // Constructors
     public ReviewLike() {
         this.createdAt = LocalDateTime.now();

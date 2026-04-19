@@ -11,10 +11,6 @@ public class ProductImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-    
     @Column(name = "image_url", nullable = false, length = 500)
     private String imageUrl;
     
@@ -27,6 +23,11 @@ public class ProductImage {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
+    // Relationships
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
     // Constructors
     public ProductImage() {
         this.createdAt = LocalDateTime.now();

@@ -21,19 +21,20 @@ public class Category {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Category parent;
-    
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private java.util.List<Category> children = new java.util.ArrayList<>();
-    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    // Relationships
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Category parent;
+    
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private java.util.List<Category> children = new java.util.ArrayList<>();
+
     // Constructors
     public Category() {
         this.createdAt = LocalDateTime.now();

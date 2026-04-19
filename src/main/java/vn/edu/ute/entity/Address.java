@@ -13,10 +13,6 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-    
     @NotBlank(message = "Tên người nhận không được để trống")
     @Size(max = 100, message = "Tên người nhận không được quá 100 ký tự")
     @Column(name = "recipient_name", nullable = false)
@@ -69,6 +65,11 @@ public class Address {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    // Relationships
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     // Constructors
     public Address() {
         this.createdAt = LocalDateTime.now();
