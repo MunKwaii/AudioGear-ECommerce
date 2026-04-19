@@ -145,8 +145,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             order.setEmail(request.getEmail());
             order.setRecipientName(request.getRecipientName());
             order.setPhoneNumber(request.getPhoneNumber());
-            order.setStreetAddress(request.getStreetAddress());
-            order.setCity(request.getCity());
+            order.setAddress(request.getAddress());
             order.setStatus(OrderStatus.PENDING);
             order.setPaymentStrategy(strategy);
             order.setVoucher(appliedVoucher);
@@ -256,8 +255,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         requiredFields.put("Email", request::getEmail);
         requiredFields.put("Tên người nhận", request::getRecipientName);
         requiredFields.put("Số điện thoại", request::getPhoneNumber);
-        requiredFields.put("Địa chỉ", request::getStreetAddress);
-        requiredFields.put("Thành phố", request::getCity);
+        requiredFields.put("Địa chỉ", request::getAddress);
         requiredFields.put("Phương thức thanh toán", request::getPaymentMethod);
 
         requiredFields.entrySet().stream()

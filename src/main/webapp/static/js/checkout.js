@@ -123,13 +123,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const ward = document.getElementById('wardSelect').value;
             const district = document.getElementById('districtSelect').value;
             const street = document.getElementById('streetAddress').value;
+            const province = document.getElementById('provinceSelect').value;
             
             data = {
                 email: document.getElementById('email').value,
                 recipientName: document.getElementById('recipientName').value,
                 phoneNumber: document.getElementById('phoneNumber').value,
-                streetAddress: `${street}, ${ward}, ${district}`,
-                city: document.getElementById('provinceSelect').value,
+                address: `${street}, ${ward}, ${district}, ${province}`,
                 paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
                 voucherCode: document.getElementById('voucherCode').value,
                 items: cartItems.map(item => ({
@@ -142,13 +142,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const ward = selectedAddressEl.dataset.ward;
             const district = selectedAddressEl.dataset.district;
             const street = selectedAddressEl.dataset.street;
+            const province = selectedAddressEl.dataset.province;
             
             data = {
                 email: document.getElementById('userEmailConfig').value,
                 recipientName: selectedAddressEl.dataset.name,
                 phoneNumber: selectedAddressEl.dataset.phone,
-                streetAddress: `${street}, ${ward}, ${district}`,
-                city: selectedAddressEl.dataset.province,
+                address: `${street}, ${ward}, ${district}, ${province}`,
                 paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
                 voucherCode: document.getElementById('voucherCode').value,
                 items: cartItems.map(item => ({

@@ -254,7 +254,7 @@
                 <div class="order-info">
                     <p><strong>Người nhận:</strong> <span th:text="${order.recipientName}">Nguyễn Văn A</span></p>
                     <p><strong>SĐT:</strong> <span th:text="${order.phoneNumber}">090xxxxxxx</span></p>
-                    <p><strong>Địa chỉ:</strong> <span th:text="${order.streetAddress + ', ' + order.city}">123 Đường ABC...</span></p>
+                    <p><strong>Địa chỉ:</strong> <span th:text="${order.address}">123 Đường ABC...</span></p>
                 </div>
 
                 <div class="order-total">
@@ -315,7 +315,7 @@
                     <p style="margin: 0;">
                         <i class="fas fa-truck" style="margin-right: 8px; color: #00f2fe;"></i>
                         <strong>Giao đến:</strong>
-                        <span th:text="${order.streetAddress + ', ' + order.city}">Địa chỉ</span>
+                        <span th:text="${order.address}">Địa chỉ</span>
                     </p>
                 </div>
             </div>

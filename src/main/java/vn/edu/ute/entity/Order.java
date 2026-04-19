@@ -44,13 +44,8 @@ public class Order {
     private String phoneNumber;
 
     @NotBlank(message = "Địa chỉ không được để trống")
-    @Column(name = "street_address", nullable = false, columnDefinition = "TEXT")
-    private String streetAddress;
-
-    @NotBlank(message = "Thành phố không được để trống")
-    @Size(max = 100, message = "Thành phố không được quá 100 ký tự")
-    @Column(name = "city", nullable = false)
-    private String city;
+    @Column(name = "address", nullable = false, columnDefinition = "TEXT")
+    private String address;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -137,20 +132,12 @@ public class Order {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getStreetAddress() {
-        return streetAddress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setStreetAddress(String streetAddress) {
-        this.streetAddress = streetAddress;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public OrderStatus getStatus() {

@@ -7,8 +7,7 @@ public class CheckoutRequest {
     private String email;
     private String recipientName;
     private String phoneNumber;
-    private String streetAddress;
-    private String city;
+    private String address;
     private String paymentMethod; // COD, MOMO, BANK, STORE_PICKUP
     private String voucherCode;
     private List<CheckoutItemRequest> items;
@@ -40,20 +39,12 @@ public class CheckoutRequest {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getStreetAddress() {
-        return streetAddress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setStreetAddress(String streetAddress) {
-        this.streetAddress = streetAddress;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getPaymentMethod() {

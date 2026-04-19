@@ -139,7 +139,7 @@ public class EmailOrderObserver implements OrderObserver {
                    "<table style='width:100%;border-collapse:collapse'>" +
                        "<tr><td style='padding:4px 0;color:#64748b'>Mã đơn hàng:</td><td style='font-weight:600'>" + order.getOrderCode() + "</td></tr>" +
                        "<tr><td style='padding:4px 0;color:#64748b'>Người nhận:</td><td>" + order.getRecipientName() + "</td></tr>" +
-                       "<tr><td style='padding:4px 0;color:#64748b'>Địa chỉ:</td><td>" + order.getStreetAddress() + ", " + order.getCity() + "</td></tr>" +
+                       "<tr><td style='padding:4px 0;color:#64748b'>Địa chỉ:</td><td>" + order.getAddress() + "</td></tr>" +
                        "<tr><td style='padding:4px 0;color:#64748b'>Tổng tiền:</td><td style='font-weight:700;color:#6c63ff'>" + amount + "</td></tr>" +
                    "</table>" +
                "</div>";
