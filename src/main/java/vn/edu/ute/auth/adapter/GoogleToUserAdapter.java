@@ -10,7 +10,7 @@ import java.util.UUID;
  * Adapter Class: Chuyển đổi GoogleProfile (Adaptee) thành User (Target)
  * Theo đúng định dạng bảng users trong Database
  */
-public class GoogleToUserAdapter {
+public class GoogleToUserAdapter implements OAuthUserAdapter {
 
     private final GoogleProfile googleProfile;
 
@@ -21,6 +21,7 @@ public class GoogleToUserAdapter {
     /**
      * Bóp dữ liệu của Google cho vừa với format bảng User
      */
+    @Override
     public User adaptToUser() {
         User user = new User();
         

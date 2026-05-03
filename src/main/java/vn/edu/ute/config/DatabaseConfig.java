@@ -38,11 +38,11 @@ public class DatabaseConfig {
             // Use environment variables if set, otherwise fallback to the provided Render
             // PostgreSQL credentials
             // Cấu hình remote Database (Host on Render)
-            String dbHost = getEnvOrProperty("DB_HOST", "dpg-d71n9u24d50c73bs0h3g-a.oregon-postgres.render.com");
+            String dbHost = getEnvOrProperty("DB_HOST", "dpg-d7rfdea8qa3s73dfv9og-a.singapore-postgres.render.com");
             String dbPort = getEnvOrProperty("DB_PORT", "5432");
-            String dbName = getEnvOrProperty("DB_NAME", "audiogear_ecommerce");
-            String dbUser = getEnvOrProperty("DB_USER", "audiogear_ecommerce_user");
-            String dbPassword = getEnvOrProperty("DB_PASSWORD", "o82tvnOhhn6TbgArdqhyiFS1YXcRTGxP");
+            String dbName = getEnvOrProperty("DB_NAME", "audiogear_ecommerce_rryp");
+            String dbUser = getEnvOrProperty("DB_USER", "audiogear_ecommerce_rryp_user");
+            String dbPassword = getEnvOrProperty("DB_PASSWORD", "roRFH7SnG1WyqFbZksd16kOSKhq0iMXQ");
 
 
             //  Cấu hình Database local

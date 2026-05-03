@@ -32,7 +32,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void blacklistAccessToken(String token, long expirySeconds) {
-        try (Jedis jedis = RedisConfig.getJedis()) {
+        try (Jedis jedis = RedisConfig.getInstance().getJedis()) {
             if (jedis == null) return;
             String key = ACCESS_TOKEN_PREFIX + "blacklist:" + token;
             jedis.setex(key, (int) expirySeconds, "1");
@@ -43,7 +43,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public boolean isTokenBlacklisted(String token) {
-        try (Jedis jedis = RedisConfig.getJedis()) {
+        try (Jedis jedis = RedisConfig.getInstance().getJedis()) {
             if (jedis == null) return false;
             String key = ACCESS_TOKEN_PREFIX + "blacklist:" + token;
             return jedis.exists(key);
@@ -66,7 +66,7 @@ public class RedisServiceImpl implements RedisService {
     }
 
     private void saveOtp(String key, String otp) {
-        try (Jedis jedis = RedisConfig.getJedis()) {
+        try (Jedis jedis = RedisConfig.getInstance().getJedis()) {
             if (jedis == null) throw new RuntimeException("Redis không hoạt động");
             jedis.setex(key, OTP_TTL, otp);
         } catch (Exception e) {
@@ -86,7 +86,7 @@ public class RedisServiceImpl implements RedisService {
     }
 
     private boolean verifyOtp(String key, String inputOtp) {
-        try (Jedis jedis = RedisConfig.getJedis()) {
+        try (Jedis jedis = RedisConfig.getInstance().getJedis()) {
             if (jedis == null) return false;
             String storedOtp = jedis.get(key);
             return storedOtp != null && storedOtp.equals(inputOtp);
@@ -107,7 +107,7 @@ public class RedisServiceImpl implements RedisService {
     }
 
     private void deleteKey(String key) {
-        try (Jedis jedis = RedisConfig.getJedis()) {
+        try (Jedis jedis = RedisConfig.getInstance().getJedis()) {
             if (jedis != null) jedis.del(key);
         } catch (Exception e) {
             logger.error("Lỗi xóa key khỏi Redis", e);
@@ -118,7 +118,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public boolean canSendOtp(String email) {
-        try (Jedis jedis = RedisConfig.getJedis()) {
+        try (Jedis jedis = RedisConfig.getInstance().getJedis()) {
             if (jedis == null) return true; // Nếu redis chết, cho qua
             return !jedis.exists(OTP_COOLDOWN_PREFIX + email);
         }
@@ -126,7 +126,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void setOtpCooldown(String email) {
-        try (Jedis jedis = RedisConfig.getJedis()) {
+        try (Jedis jedis = RedisConfig.getInstance().getJedis()) {
             if (jedis != null) {
                 jedis.setex(OTP_COOLDOWN_PREFIX + email, COOLDOWN_TTL, "1");
             }
@@ -135,7 +135,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public boolean isOtpBlocked(String email) {
-        try (Jedis jedis = RedisConfig.getJedis()) {
+        try (Jedis jedis = RedisConfig.getInstance().getJedis()) {
             if (jedis == null) return false;
             return jedis.exists(OTP_BLOCK_PREFIX + email);
         }
@@ -143,7 +143,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public int incrementOtpAttempt(String email) {
-        try (Jedis jedis = RedisConfig.getJedis()) {
+        try (Jedis jedis = RedisConfig.getInstance().getJedis()) {
             if (jedis == null) return 1;
             String attemptKey = OTP_ATTEMPT_PREFIX + email;
             long attempts = jedis.incr(attemptKey);

@@ -1,0 +1,20 @@
+services:
+  - name: audiogear-web
+    env: docker
+    region: oregon
+    buildCommand: docker build -t audiogear .
+    startCommand: catalina.sh run
+    envVars:
+      - key: DB_HOST
+        from: DATABASE_HOST
+      - key: DB_PORT
+        from: DATABASE_PORT  
+      - key: DB_NAME
+        from: DATABASE_NAME
+      - key: DB_USER
+        from: DATABASE_USER
+      - key: DB_PASSWORD
+        from: DATABASE_PASSWORD
+    database:
+      database: audiogear_ecommerce
+      user: audiogear_ecommerce_user
